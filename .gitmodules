@@ -1,0 +1,6 @@
+[submodule "contrib/bosch/bme280"]
+	path = contrib/bosch/bme280
+	url = https://github.com/BoschSensortec/BME280_driver.git
+[submodule "contrib/bosch/bmi160"]
+	path = contrib/bosch/bmi160
+	url = https://github.com/BoschSensortec/BMI160_driver.git
