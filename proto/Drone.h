@@ -1,15 +1,19 @@
 #pragma once
 #include <Servo.h>
+#include "PWMReceiver.h"
+#include "Kalman.h"
+#include "Arduino.h"
 
 #define RESPONSIVENESS 1.0
+
+#define BMI160_PIN 2
 
 class Drone
 {
 public:
-	Drone(int motorFL, int motorFR, int motorBL, int motorBR);
+	Drone(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4);
 
-	//to be called in the loop
-	void Hover();
+	void Update();
 
 	void Foreward(float value);
 	void Back(float value);
@@ -24,8 +28,11 @@ public:
 	void Yaw(float value);
 
 	void Throttle(float value);
+
 private:
 	void setMotorSpeed();
+	float convertRawGyro(int gRaw);
+	float convertRawAccel(int aRaw);
 
 	int m_FLSpeed = 0;
 	int m_FRSpeed = 0;
@@ -36,4 +43,18 @@ private:
 	Servo m_motorFR;
 	Servo m_motorBL;
 	Servo m_motorBR;
+
+	PWMReceiver receiver;
+
+	Kalman m_kalmanX, m_kalmanY;
+
+	int m_axRaw, m_ayRaw, m_azRaw;
+	int m_gxRaw, m_gyRaw, m_gzRaw;
+
+	double m_accX, m_accY, m_accZ;
+	double m_gyroX, m_gyroY, m_gyroZ;
+
+	double m_roll, m_pitch;
+
+	unsinged long m_timer;
 };
