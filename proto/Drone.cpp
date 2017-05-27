@@ -1,15 +1,10 @@
 #include "Drone.h"
-#include "BMI160/BMI160Gen.h"
+#include "BMI160Gen.h"
 #include "PWMReceiver.h"
 
-
-Drone::Drone(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4)
+Drone::Drone()
 {
-	m_motorFL.attach(motorFL);
-	m_motorFR.attach(motorFR);
-	m_motorBL.attach(motorBL);
-	m_motorBR.attach(motorBR);
-
+/*
 	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
 	{
 		//error
@@ -36,7 +31,31 @@ Drone::Drone(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, i
 	m_kalmanX.setAngle(roll);
 	m_kalmanY.setAngle(pitch);
 
-	receiver = PWMReceiver(channel1, channel2, channel3, channel4);
+ */
+}
+
+void Drone::SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4)
+{
+  m_motorFL.attach(motorFL);
+  m_motorFR.attach(motorFR);
+  m_motorBL.attach(motorBL);
+  m_motorBR.attach(motorBR);
+
+  //setup ESCS
+  m_motorFL.writeMicroseconds(1000);
+  m_motorFR.writeMicroseconds(1000);
+  m_motorBL.writeMicroseconds(1000);
+  m_motorBR.writeMicroseconds(1000);
+  delay(3000);
+  m_motorFL.writeMicroseconds(2000);
+  m_motorFR.writeMicroseconds(2000);
+  m_motorBL.writeMicroseconds(2000);
+  m_motorBR.writeMicroseconds(2000);
+  delay(200);
+
+  m_motorFL.writeMicroseconds(1030);
+  
+  receiver.SetChannels(channel1, channel2, channel3, channel4);
 }
 
 void Drone::Update()
@@ -54,7 +73,7 @@ void Drone::Update()
 	float accY = convertRawAccel(m_ayRaw);
 	float accZ = convertRawAccel(m_azRaw);
 
-	double dt = (double)(micros() - timer) / 1000000; //delta time
+	double dt = (double)(micros() - m_timer) / 1000000; //delta time
 	m_timer = micros();
 
 	double roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
@@ -69,13 +88,12 @@ void Drone::Update()
 	//this fixes transition problem from -180 to 180
 	if ((pitch < -90 && kalAngleY > 90) || (pitch > 90 && kalAngleY < -90))
 	{
-		kalmanY.setAngle(pitch);
+		m_kalmanY.setAngle(pitch);
 		kalAngleY = pitch;
-		gyroYangle = pitch;
 	}
 	else
 	{
-		kalAngleY = kalmanY.getAngle(pitch, gyroYrate, dt);
+		kalAngleY = m_kalmanY.getAngle(pitch, gyroYrate, dt);
 	}
 
 	if (abs(kalAngleY) > 90)
@@ -83,33 +101,13 @@ void Drone::Update()
 		gyroXrate = -gyroXrate;
 	}
 
-	kalAngleX = kalmanX.getAngle(roll, gyroXrate, dt);
-
-	gyroXangle += gyroXrate * dt;
-	gyroYangle += gyroYrate * dt;
-
-	//reset gyro angle when it has drifted too much
-	if (gyroXangle < -180 || gyroXangle > 180)
-		gyroXangle = kalAngleX;
-	if (gyroYangle < -180 || gyroYangle > 180)
-		gyroYangle = kalAngleY;
-
-
-
-	//print data
-	Serial.print("roll: ");
-	Serial.print(kalAngleX);
-	Serial.print("  ");
-	Serial.print("pitch: ");
-	Serial.print(kalAngleY);
-	Serial.println();
+	kalAngleX = m_kalmanX.getAngle(roll, gyroXrate, dt);
 
   //get receiver values
   int chan1 = receiver.getChannel(1);
   int chan2 = receiver.getChannel(2);
   int chan3 = receiver.getChannel(3);
   int chan4 = receiver.getChannel(4);
-
 
   setMotorSpeed();
 }
@@ -215,10 +213,17 @@ void Drone::Throttle(float value)
 
 void Drone::setMotorSpeed()
 {
+  /*
 	m_motorFL.write(m_FLSpeed);
 	m_motorFR.write(m_FRSpeed);
 	m_motorBL.write(m_BLSpeed);
 	m_motorBR.write(m_BRSpeed);
+ */
+
+  m_motorFL.writeMicroseconds(1030);
+  m_motorFR.writeMicroseconds(1030);
+  m_motorBL.writeMicroseconds(1030);
+  m_motorBR.writeMicroseconds(1030);
 }
 
 float Drone::convertRawGyro(int gRaw)

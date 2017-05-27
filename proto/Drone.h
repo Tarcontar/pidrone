@@ -11,7 +11,8 @@
 class Drone
 {
 public:
-	Drone(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4);
+	Drone();
+  void SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4);
 
 	void Update();
 
@@ -56,5 +57,5 @@ private:
 
 	double m_roll, m_pitch;
 
-	unsinged long m_timer;
+	long m_timer;
 };

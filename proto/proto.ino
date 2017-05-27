@@ -1,17 +1,16 @@
 #include "Drone.h"
 
-Drone drone(2, 3, 4, 5, A0, A1, A2, A3);
+Drone drone;
 
 void setup() 
 {
- Serial.begin(9600);
- while(!Serial);
+  drone.SetPins(A0, A1, A2, A3, 2, 3, 4, 5);
 }
 
 
 void loop() 
 {
-  drone.Update();
+  //drone.Update();
   delay(10);
 }
 
