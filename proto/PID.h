@@ -3,10 +3,11 @@
 class PID
 {
 public:
-	PID(float Kp, float Ki = 0.0, float Kd = 0.0);
+	PID();
 	float Update(float value);
 
 	inline void SetTarget(float target) { m_target = target; }
+	inline void SetValues(float Kp, float Ki = 0.0, float Kd = 0.0) { m_Kp = Kp; m_Ki = Ki; m_Kd = Kd; }
 
 private:
 	float m_value;

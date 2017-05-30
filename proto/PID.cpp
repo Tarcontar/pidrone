@@ -1,6 +1,6 @@
 #include "PID.h"
 
-PID::PID(float Kp, float Ki, float Kd) : m_Kp(Kp), m_Ki(Ki), m_Kd(Kd)
+PID::PID() 
 {
 	m_last_error = 0;
 	m_integral = 0;

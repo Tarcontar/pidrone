@@ -1,10 +1,14 @@
 #include "Drone.h"
 #include "BMI160Gen.h"
 #include "PWMReceiver.h"
+#include <EEPROM.h>
 
 Drone::Drone()
 {
-/*
+}
+
+void Drone::Setup()
+{
 	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
 	{
 		//error
@@ -31,7 +35,15 @@ Drone::Drone()
 	m_kalmanX.setAngle(roll);
 	m_kalmanY.setAngle(pitch);
 
- */
+	m_pid_roll.SetTarget(roll);
+	m_pid_roll.SetValues(1.0);
+	m_pid_pitch.SetTarget(pitch);
+	m_pid_pitch.SetValues(1.0);
+
+	m_motorFL = MIN_THROTTLE;
+	m_motorFR = MIN_THROTTLE;
+	m_motorBL = MIN_THROTTLE;
+	m_motorBR = MIN_THROTTLE;
 }
 
 void Drone::SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4)
@@ -53,8 +65,6 @@ void Drone::SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int chan
   m_motorBR.writeMicroseconds(2000);
   delay(200);
 
-  m_motorFL.writeMicroseconds(1030);
-  
   receiver.SetChannels(channel1, channel2, channel3, channel4);
 }
 
@@ -79,11 +89,10 @@ void Drone::Update()
 	double roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
 	double pitch = atan2(-accX, accZ) * RAD_TO_DEG;
 
-	//WTF?
 	double gyroXrate = gyroX / 131.0; //convert to deg/s
 	double gyroYrate = gyroY / 131.0;
 
-	double kalAngleX, kalAngleY, kalAngleZ;
+	double kalAngleX, kalAngleY;
 
 	//this fixes transition problem from -180 to 180
 	if ((pitch < -90 && kalAngleY > 90) || (pitch > 90 && kalAngleY < -90))
@@ -103,13 +112,22 @@ void Drone::Update()
 
 	kalAngleX = m_kalmanX.getAngle(roll, gyroXrate, dt);
 
-  //get receiver values
-  int chan1 = receiver.getChannel(1);
-  int chan2 = receiver.getChannel(2);
-  int chan3 = receiver.getChannel(3);
-  int chan4 = receiver.getChannel(4);
+	//get receiver values
+	int chan1 = receiver.getChannel(1);
+	int chan2 = receiver.getChannel(2);
+	int chan3 = receiver.getChannel(3);
+	int chan4 = receiver.getChannel(4);
 
-  setMotorSpeed();
+	//apply throttle channel here
+	m_FLSpeed = MIN_THROTTLE;
+	m_FRSpeed = MIN_THROTTLE;
+	m_BLSpeed = MIN_THROTTLE;
+	m_BRSpeed = MIN_THROTTLE;
+
+	Roll(m_pid_roll.Update(kalAngleX));
+	Pitch(m_pid_pitch.Update(kalAngleY));
+
+	setMotorSpeed();
 }
 
 void Drone::Foreward(float value)
@@ -145,14 +163,14 @@ void Drone::Roll(float value)
 	m_FRSpeed -= value;
 	m_BRSpeed -= value;
 
-	if (m_FLSpeed > 180)
-		m_FRSpeed -= m_FLSpeed - 180;
-	if (m_BLSpeed > 180)
-		m_BRSpeed -= m_BLSpeed - 180;
-	if (m_FRSpeed > 180)
-		m_FLSpeed -= m_FRSpeed - 180;
-	if (m_BRSpeed > 180)
-		m_BLSpeed -= m_BRSpeed - 180;
+	if (m_FLSpeed > MAX_THROTTLE)
+		m_FRSpeed -= m_FLSpeed - MAX_THROTTLE;
+	if (m_BLSpeed > MAX_THROTTLE)
+		m_BRSpeed -= m_BLSpeed - MAX_THROTTLE;
+	if (m_FRSpeed > MAX_THROTTLE)
+		m_FLSpeed -= m_FRSpeed - MAX_THROTTLE;
+	if (m_BRSpeed > MAX_THROTTLE)
+		m_BLSpeed -= m_BRSpeed - MAX_THROTTLE;
 
 	setMotorSpeed();
 }
@@ -166,14 +184,14 @@ void Drone::Pitch(float value)
 	m_FRSpeed += value;
 	m_BRSpeed -= value;
 
-	if (m_FLSpeed > 180)
-		m_BLSpeed -= m_FLSpeed - 180;
-	if (m_BLSpeed > 180)
-		m_FLSpeed -= m_BLSpeed - 180;
-	if (m_FRSpeed > 180)
-		m_BRSpeed -= m_FRSpeed - 180;
-	if (m_BRSpeed > 180)
-		m_FRSpeed -= m_BRSpeed - 180;
+	if (m_FLSpeed > MAX_THROTTLE)
+		m_BLSpeed -= m_FLSpeed - MAX_THROTTLE;
+	if (m_BLSpeed > MAX_THROTTLE)
+		m_FLSpeed -= m_BLSpeed - MAX_THROTTLE;
+	if (m_FRSpeed > MAX_THROTTLE)
+		m_BRSpeed -= m_FRSpeed - MAX_THROTTLE;
+	if (m_BRSpeed > MAX_THROTTLE)
+		m_FRSpeed -= m_BRSpeed - MAX_THROTTLE;
 
 	setMotorSpeed();
 }
@@ -186,16 +204,16 @@ void Drone::Yaw(float value)
 	m_FLSpeed += value;
 	m_BLSpeed -= value;
 	m_FRSpeed -= value;
-	m_BRSpeed *= value;
+	m_BRSpeed += value;
 
-	if (m_FLSpeed > 180)
-		m_FRSpeed -= m_FLSpeed - 180;
-	if (m_BLSpeed > 180)
-		m_BRSpeed -= m_BLSpeed - 180;
-	if (m_FRSpeed > 180)
-		m_FLSpeed -= m_FRSpeed - 180;
-	if (m_BRSpeed > 180)
-		m_BLSpeed -= m_BRSpeed - 180;
+	if (m_FLSpeed > MAX_THROTTLE)
+		m_FRSpeed -= m_FLSpeed - MAX_THROTTLE;
+	if (m_BLSpeed > MAX_THROTTLE)
+		m_BRSpeed -= m_BLSpeed - MAX_THROTTLE;
+	if (m_FRSpeed > MAX_THROTTLE)
+		m_FLSpeed -= m_FRSpeed - MAX_THROTTLE;
+	if (m_BRSpeed > MAX_THROTTLE)
+		m_BLSpeed -= m_BRSpeed - MAX_THROTTLE;
 
 	setMotorSpeed();
 }
@@ -213,17 +231,15 @@ void Drone::Throttle(float value)
 
 void Drone::setMotorSpeed()
 {
-  /*
-	m_motorFL.write(m_FLSpeed);
-	m_motorFR.write(m_FRSpeed);
-	m_motorBL.write(m_BLSpeed);
-	m_motorBR.write(m_BRSpeed);
- */
+	m_FLSpeed = max(m_FLSpeed, MIN_THROTTLE);
+	m_FRSpeed = max(m_FRSpeed, MIN_THROTTLE);
+	m_BLSpeed = max(m_BLSpeed, MIN_THROTTLE);
+	m_BRSpeed = max(m_BRSpeed, MIN_THROTTLE);
 
-  m_motorFL.writeMicroseconds(1030);
-  m_motorFR.writeMicroseconds(1030);
-  m_motorBL.writeMicroseconds(1030);
-  m_motorBR.writeMicroseconds(1030);
+	m_motorFL.writeMicroseconds(min(m_FLSpeed, MAX_THROTTLE));
+	m_motorFR.writeMicroseconds(min(m_FRSpeed, MAX_THROTTLE));
+	m_motorBL.writeMicroseconds(min(m_BLSpeed, MAX_THROTTLE));
+	m_motorBR.writeMicroseconds(min(m_BRSpeed, MAX_THROTTLE));
 }
 
 float Drone::convertRawGyro(int gRaw)
@@ -241,5 +257,28 @@ float Drone::convertRawAccel(int aRaw)
 
 	float a = (aRaw * 2.0) / 32768.0;
 	return a;
+}
+
+void Drone::Calibrate()
+{
+
+}
+
+template <class T> int EEPROM_writeAnything(int ee, const T& value)
+{
+	const byte* p = (const byte*)(const void*)&value;
+	int i;
+	for (i = 0; i < sizeof(value); i++)
+		EEPROM.write(ee++, *p++);
+	return i;
+}
+
+template <class T> int EEPROM_readAnything(int ee, T& value)
+{
+	byte* p = (byte*)(void*)&value;
+	int i;
+	for (i = 0; i < sizeof(value); i++)
+		*p++ = EEPROM.read(ee++);
+	return i;
 }
 

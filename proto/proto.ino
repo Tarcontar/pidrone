@@ -5,12 +5,13 @@ Drone drone;
 void setup() 
 {
   drone.SetPins(A0, A1, A2, A3, 2, 3, 4, 5);
+  drone.Setup();
 }
 
 
 void loop() 
 {
-  //drone.Update();
+  drone.Update();
   delay(10);
 }
 

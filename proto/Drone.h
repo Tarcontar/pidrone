@@ -3,16 +3,24 @@
 #include "PWMReceiver.h"
 #include "Kalman.h"
 #include "Arduino.h"
+#include "PID.h"
 
 #define RESPONSIVENESS 1.0
 
 #define BMI160_PIN 2
 
+#define MIN_THROTTLE 1000
+#define MAX_THROTTLE 2000
+
 class Drone
 {
 public:
 	Drone();
-  void SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4);
+
+	void Setup();
+	void Calibrate();
+
+	void SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4);
 
 	void Update();
 
@@ -48,6 +56,14 @@ private:
 	PWMReceiver receiver;
 
 	Kalman m_kalmanX, m_kalmanY;
+
+	PID m_pid_roll;
+	PID m_pid_pitch;
+	PID m_pid_yaw;
+
+	PID m_pid_height;
+	PID m_pid_posX;
+	PID m_pid_posY;
 
 	int m_axRaw, m_ayRaw, m_azRaw;
 	int m_gxRaw, m_gyRaw, m_gzRaw;
