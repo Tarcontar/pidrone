@@ -3,6 +3,7 @@
 #include "PWMReceiver.h"
 #include <EEPROM.h>
 
+
 Drone::Drone()
 {
 }
@@ -36,17 +37,17 @@ void Drone::Setup()
 	m_kalmanY.setAngle(pitch);
 
 	m_pid_roll.SetTarget(roll);
-	m_pid_roll.SetValues(1.0);
+	m_pid_roll.SetValues(ROLL_KP, ROLL_KI, ROLL_KD);
 	m_pid_pitch.SetTarget(pitch);
 	m_pid_pitch.SetValues(1.0);
 
-	m_motorFL = MIN_THROTTLE;
-	m_motorFR = MIN_THROTTLE;
-	m_motorBL = MIN_THROTTLE;
-	m_motorBR = MIN_THROTTLE;
+	m_FLSpeed = MIN_THROTTLE;
+	m_FRSpeed = MIN_THROTTLE;
+	m_BLSpeed = MIN_THROTTLE;
+	m_BRSpeed = MIN_THROTTLE;
 }
 
-void Drone::SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int channel1, int channel2, int channel3, int channel4)
+void Drone::SetPins(int motorFL, int motorFR, int motorBR, int motorBL, int channel1, int channel2, int channel3, int channel4)
 {
   m_motorFL.attach(motorFL);
   m_motorFR.attach(motorFR);
@@ -63,7 +64,11 @@ void Drone::SetPins(int motorFL, int motorFR, int motorBL, int motorBR, int chan
   m_motorFR.writeMicroseconds(2000);
   m_motorBL.writeMicroseconds(2000);
   m_motorBR.writeMicroseconds(2000);
-  delay(200);
+  delay(2);
+  m_motorFL.writeMicroseconds(1000);
+  m_motorFR.writeMicroseconds(1000);
+  m_motorBL.writeMicroseconds(1000);
+  m_motorBR.writeMicroseconds(1000);
 
   receiver.SetChannels(channel1, channel2, channel3, channel4);
 }
@@ -112,11 +117,31 @@ void Drone::Update()
 
 	kalAngleX = m_kalmanX.getAngle(roll, gyroXrate, dt);
 
+  /*
+  m_serial->print("angles: ");
+  m_serial->print(kalAngleX);
+  m_serial->print(", ");
+  m_serial->print(kalAngleY);
+  m_serial->println("");
+  */
+
 	//get receiver values
 	int chan1 = receiver.getChannel(1);
 	int chan2 = receiver.getChannel(2);
 	int chan3 = receiver.getChannel(3);
 	int chan4 = receiver.getChannel(4);
+
+  /*
+  m_serial->print("channels: ");
+  m_serial->print(chan1);
+  m_serial->print(", ");
+  m_serial->print(chan2);
+  m_serial->print(", ");
+  m_serial->print(chan3);
+  m_serial->print(", ");
+  m_serial->print(chan4);
+  m_serial->println("");
+  */
 
 	//apply throttle channel here
 	m_FLSpeed = MIN_THROTTLE;
@@ -124,8 +149,28 @@ void Drone::Update()
 	m_BLSpeed = MIN_THROTTLE;
 	m_BRSpeed = MIN_THROTTLE;
 
-	Roll(m_pid_roll.Update(kalAngleX));
-	Pitch(m_pid_pitch.Update(kalAngleY));
+  double roll_offset = m_pid_roll.Update(kalAngleX);
+  double pitch_offset = m_pid_pitch.Update(kalAngleY);
+
+  /*
+  m_serial->print("R / P: ");
+  m_serial->print(roll_offset);
+  //m_serial->print(", ");
+  //m_serial->print(pitch_offset);
+  m_serial->println("");
+  */
+
+  double thrust = chan3 - MIN_THROTTLE;
+  Throttle(thrust);
+  if (thrust > 0)
+  {
+    Roll(chan1 - 1500);
+    Pitch(chan2 - 1500);
+    Yaw(chan4 - 1500);
+
+    Pitch(-roll_offset * 10);
+    Roll(-pitch_offset * 10);
+  }
 
 	setMotorSpeed();
 }
@@ -163,6 +208,7 @@ void Drone::Roll(float value)
 	m_FRSpeed -= value;
 	m_BRSpeed -= value;
 
+  /*
 	if (m_FLSpeed > MAX_THROTTLE)
 		m_FRSpeed -= m_FLSpeed - MAX_THROTTLE;
 	if (m_BLSpeed > MAX_THROTTLE)
@@ -171,7 +217,7 @@ void Drone::Roll(float value)
 		m_FLSpeed -= m_FRSpeed - MAX_THROTTLE;
 	if (m_BRSpeed > MAX_THROTTLE)
 		m_BLSpeed -= m_BRSpeed - MAX_THROTTLE;
-
+  */
 	setMotorSpeed();
 }
 
@@ -184,6 +230,7 @@ void Drone::Pitch(float value)
 	m_FRSpeed += value;
 	m_BRSpeed -= value;
 
+  /*
 	if (m_FLSpeed > MAX_THROTTLE)
 		m_BLSpeed -= m_FLSpeed - MAX_THROTTLE;
 	if (m_BLSpeed > MAX_THROTTLE)
@@ -192,7 +239,7 @@ void Drone::Pitch(float value)
 		m_BRSpeed -= m_FRSpeed - MAX_THROTTLE;
 	if (m_BRSpeed > MAX_THROTTLE)
 		m_FRSpeed -= m_BRSpeed - MAX_THROTTLE;
-
+  */
 	setMotorSpeed();
 }
 
@@ -201,11 +248,12 @@ void Drone::Yaw(float value)
 	value *= RESPONSIVENESS;
 
 	//depends on rotation direction of the motors!!
-	m_FLSpeed += value;
-	m_BLSpeed -= value;
-	m_FRSpeed -= value;
-	m_BRSpeed += value;
+	m_FLSpeed -= value;
+	m_BLSpeed += value;
+	m_FRSpeed += value;
+	m_BRSpeed -= value;
 
+ /*
 	if (m_FLSpeed > MAX_THROTTLE)
 		m_FRSpeed -= m_FLSpeed - MAX_THROTTLE;
 	if (m_BLSpeed > MAX_THROTTLE)
@@ -214,6 +262,7 @@ void Drone::Yaw(float value)
 		m_FLSpeed -= m_FRSpeed - MAX_THROTTLE;
 	if (m_BRSpeed > MAX_THROTTLE)
 		m_BLSpeed -= m_BRSpeed - MAX_THROTTLE;
+    */
 
 	setMotorSpeed();
 }
@@ -236,10 +285,12 @@ void Drone::setMotorSpeed()
 	m_BLSpeed = max(m_BLSpeed, MIN_THROTTLE);
 	m_BRSpeed = max(m_BRSpeed, MIN_THROTTLE);
 
-	m_motorFL.writeMicroseconds(min(m_FLSpeed, MAX_THROTTLE));
+  m_motorFL.writeMicroseconds(min(m_FLSpeed, MAX_THROTTLE));
 	m_motorFR.writeMicroseconds(min(m_FRSpeed, MAX_THROTTLE));
 	m_motorBL.writeMicroseconds(min(m_BLSpeed, MAX_THROTTLE));
 	m_motorBR.writeMicroseconds(min(m_BRSpeed, MAX_THROTTLE));
+
+  
 }
 
 float Drone::convertRawGyro(int gRaw)

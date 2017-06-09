@@ -1,10 +1,13 @@
 #include "Drone.h"
+#include <HardwareSerial.h>
 
 Drone drone;
 
 void setup() 
 {
-  drone.SetPins(A0, A1, A2, A3, 2, 3, 4, 5);
+  Serial.begin(9600);
+  drone.SetSerial(Serial);
+  drone.SetPins(2, 3, 4, 5, A0, A1, A2, A3);
   drone.Setup();
 }
 

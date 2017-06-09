@@ -4,13 +4,26 @@
 #include "Kalman.h"
 #include "Arduino.h"
 #include "PID.h"
+#include "HardwareSerial.h"
 
-#define RESPONSIVENESS 1.0
+#define RESPONSIVENESS 0.5
 
-#define BMI160_PIN 2
+#define ROLL_KP 0.9
+#define ROLL_KI 0.0
+#define ROLL_KD 0.0
+
+#define PITCH_KP 0.9
+#define PITCH_KI 0.0
+#define PITCH_KD 0.0
+
+#define BMI160_PIN 6
+#define BME280_PIN 7
+#define GPS_PIN 8
 
 #define MIN_THROTTLE 1000
-#define MAX_THROTTLE 2000
+#define MAX_THROTTLE 1700
+
+
 
 class Drone
 {
@@ -37,6 +50,8 @@ public:
 	void Yaw(float value);
 
 	void Throttle(float value);
+
+	inline void SetSerial(HardwareSerial &serial) { m_serial = &serial; }
 
 private:
 	void setMotorSpeed();
@@ -74,4 +89,6 @@ private:
 	double m_roll, m_pitch;
 
 	long m_timer;
+
+	HardwareSerial *m_serial;
 };

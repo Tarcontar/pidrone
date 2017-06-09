@@ -1,5 +1,7 @@
 #include "PID.h"
 
+//implement TPA for PID
+
 PID::PID() 
 {
 	m_last_error = 0;
@@ -16,5 +18,5 @@ float PID::Update(float value)
 
 	m_last_error = error;
 
-	return (m_Kp * error) + (m_Ki + m_integral) + (m_Kd * m_derivative);
+	return (m_Kp * error) + (m_Ki * m_integral) + (m_Kd * m_derivative);
 }
