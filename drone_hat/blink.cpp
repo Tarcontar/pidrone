@@ -8,11 +8,12 @@ void loop(void);
 #define BLINK_DELAY_MS 500
 
 void setup() {
-  digitalWrite(1,HIGH);
+  pinMode(2,OUTPUT);
+  digitalWrite(2,HIGH);
 }
 
 void loop() {
-  _delay_ms(BLINK_DELAY_MS);   // delay  
+  //_delay_ms(BLINK_DELAY_MS);   // delay  
 }
 
 #ifndef ARDUINO
