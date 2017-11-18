@@ -327,6 +327,7 @@ function( add_avr_executable EXECUTABLE_NAME )
       upload_${EXECUTABLE_NAME}
       ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
          -U flash:w:${hex_file}
+         -U lfuse:w:0xe2:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m
          -P ${AVR_UPLOADTOOL_PORT}
          -C ${AVR_CONFIG_FILE}
       DEPENDS ${hex_file}
@@ -337,7 +338,7 @@ function( add_avr_executable EXECUTABLE_NAME )
    add_custom_target(
      burn_8mhz_fuse
      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
-     -U lfuse:w:0x62:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m     
+     -U lfuse:w:0xe2:m -U hfuse:w:0xd9:m -U efuse:w:0xff:m     
      -P ${AVR_UPLOADTOOL_PORT}
      -C ${AVR_CONFIG_FILE} 
      COMMENT "Set fuse to 8mhz"
