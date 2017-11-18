@@ -56,6 +56,8 @@ void printBME()
 	}
 }
 
+Org1411 gps;
+
 void printGPS()
 {
 	if (has_gps)
@@ -63,8 +65,6 @@ void printGPS()
 		gps.read();
 	}
 }
-
-Org1411 gps;
 
 void setup() 
 {
