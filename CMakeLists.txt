@@ -5,6 +5,7 @@ set(AVR_MCU "atmega328p" CACHE STRING "The MCU used")
 set(AVR_VARIANT "standard" CACHE STRING "The variant used")
 set(AVR_PROGRAMMER "pi_zero_w" CACHE STRING "The programmer used")
 set(AVR_CONFIG_FILE ${DRONE_ROOT}/drone_hat/avrdude_gpio.conf)
+set(AVR_UPLOADTOOL_PORT "gpio")
 
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake")
 
