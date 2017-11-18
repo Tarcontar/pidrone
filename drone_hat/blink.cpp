@@ -83,6 +83,7 @@ void setup()
 	}
 	
 
+	/*
 	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
 	{
 		Serial.println("BMI SETUP ERROR!!!!");
@@ -111,10 +112,12 @@ void setup()
 		Serial.println("BME SUCCESSFULL");	
 		printBME();
 	}
+	*/
 }
 
 void loop() 
 {
+	/*
 	Serial.println("HIGH");
 	digitalWrite(2,HIGH);
 	printAccel();
@@ -123,4 +126,5 @@ void loop()
 	digitalWrite(2,LOW);
 	delay(1000);
 	printBME();
+	*/
 }
