@@ -14,4 +14,6 @@ project(DRONE_HAT C CXX ASM)
 
 add_subdirectory(libarduino)
 
+add_subdirectory(contrib)
+
 add_subdirectory(drone_hat)
