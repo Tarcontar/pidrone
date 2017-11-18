@@ -325,7 +325,7 @@ function( add_avr_executable EXECUTABLE_NAME )
    # upload - with avrdude
    add_custom_target(
       upload_${EXECUTABLE_NAME}
-      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -C -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
+      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
          -U flash:w:${hex_file}
          -C ${AVR_CONFIG_FILE}
       DEPENDS ${hex_file}
