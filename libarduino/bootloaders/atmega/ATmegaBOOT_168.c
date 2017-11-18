@@ -83,7 +83,7 @@
 /* 20070626: hacked by David A. Mellis to decrease waiting time for auto-reset */
 /* set the waiting time for the bootloader */
 /* get this from the Makefile instead */
-#define MAX_TIME_COUNT (F_CPU>>4)
+/* #define MAX_TIME_COUNT (F_CPU>>4) */
 
 /* 20070707: hacked by David A. Mellis - after this many errors give up and launch application */
 #define MAX_ERROR_COUNT 5
