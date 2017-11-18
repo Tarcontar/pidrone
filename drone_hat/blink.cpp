@@ -56,6 +56,14 @@ void printBME()
 	}
 }
 
+void printGPS()
+{
+	if (has_gps)
+	{
+		gps.read();
+	}
+}
+
 Org1411 gps;
 
 void setup() 
@@ -70,6 +78,7 @@ void setup()
 	}
 	else
 	{
+		has_gps = true;
 		Serial.println("GPS SUCCESS");
 	}
 	

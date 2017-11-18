@@ -22,11 +22,12 @@ void Org1411::read()
 {
 	digitalWrite(m_pin, LOW);
 	
-	for (int i = 0; i < 10; i++)
+	int c;
+	while (c = SPI.transfer('a'))
 	{
-		char c = 'x';
-		Serial.println(SPI.transfer(c));
+		Serial.print(c);
 	}
+	Serial.println();
 	
 	digitalWrite(m_pin, HIGH);
 }
