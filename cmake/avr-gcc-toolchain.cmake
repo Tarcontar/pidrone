@@ -166,7 +166,7 @@ endif( NOT AVR_SIZE_ARGS )
 
 # Prep avrdude special options
 if( AVR_UPLOADTOOL MATCHES avrdude )
-    set( AVR_UPLOADTOOL_OPTIONS -b${AVR_UPLOAD_SPEED} -D -V )
+    set( AVR_UPLOADTOOL_OPTIONS -b${AVR_UPLOAD_SPEED} -v )
 endif( AVR_UPLOADTOOL MATCHES avrdude )
 
 # Set the awk arguments
