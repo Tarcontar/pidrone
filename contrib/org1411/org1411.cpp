@@ -2,7 +2,7 @@
 #include "SPI.h"
 #include <Arduino.h>
 
-bool Org1411::begin(int pin) : m_pin(pin)
+bool Org1411::begin(int pin)
 {
 	delay(1000);
 	SPI.begin();

@@ -11,7 +11,7 @@ BME280 bme(BME280_PIN);
 
 bool has_bmi = false;
 bool has_bme = false;
-bool bas_gps = false;
+bool has_gps = false;
 
 #define PRESSURE_SEALEVEL 1013.25F
 
@@ -56,7 +56,7 @@ void printBME()
 	}
 }
 
-Org1411 gps();
+Org1411 gps;
 
 void setup() 
 {
