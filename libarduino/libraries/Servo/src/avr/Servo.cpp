@@ -17,8 +17,6 @@
  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#if defined(ARDUINO_ARCH_AVR)
-
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
@@ -313,6 +311,3 @@ bool Servo::attached()
 {
   return servos[this->servoIndex].Pin.isActive ;
 }
-
-#endif // ARDUINO_ARCH_AVR
-
