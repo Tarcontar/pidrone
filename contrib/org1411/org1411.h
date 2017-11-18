@@ -4,13 +4,8 @@
 class Org1411 
 {
 public:
-	struct position
-	{
-		
-	};
-
     bool begin(int pin);
-	
+	void read();
 private:
 	int m_pin;
 };
