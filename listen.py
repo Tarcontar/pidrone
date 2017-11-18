@@ -4,6 +4,7 @@ import sys
 
 ser = serial.Serial("/dev/ttyS0", 9600, timeout=10)
 
+
 while 1:
 	try:
 		text = ser.readline()[:-2].decode().strip()
