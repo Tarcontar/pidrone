@@ -3,6 +3,7 @@
 #include <BME280.h>
 #include <org1411.h>
 #include <Servo.h>
+#include "io/pwmreceiver.h"
 
 #define BMI160_PIN 8
 #define BME280_PIN 7
@@ -166,18 +167,35 @@ void setup()
 		printBME();
 	}
 	
+	
+	int speed = 1200;
+	Serial.println("FL");
+	motorFL.writeMicroseconds(speed);
+	delay(4000);
+	motorFL.writeMicroseconds(MIN_THROTTLE);
+	
+	Serial.println("FR");
+	motorFR.writeMicroseconds(speed);
+	delay(4000);
+	motorFR.writeMicroseconds(MIN_THROTTLE);
+	
+	Serial.println("BR");
+	motorBR.writeMicroseconds(speed);
+	delay(4000);
+	motorBR.writeMicroseconds(MIN_THROTTLE);
+	
+	Serial.println("BL");
+	motorBL.writeMicroseconds(speed);
+	delay(4000);
+	motorBR.writeMicroseconds(MIN_THROTTLE);
+	
 	Serial.println("##### SETUP READY ######");
 }
 
-int speed = 1010;
 void loop() 
 {
 	digitalWrite(2,HIGH);
 	delay(500);
 	digitalWrite(2,LOW);
 	delay(500);
-	setMotors(speed);
-	if (speed < MAX_THROTTLE)
-		speed += 5;
-	Serial.println(speed);
 }
