@@ -8,12 +8,15 @@ set(LA_SRC ${LA_SRC}
     ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_digital.c
     ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_shift.c
     ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_pulse.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_pulse.S)
+    ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_pulse.S
+    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/Wire/src/utility/twi.c )
 
 add_avr_library(arduino ${LA_SRC})
 
 target_include_directories(arduino PUBLIC 
         ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/SoftwareSerial/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/SPI/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/Wire/src
 		${CMAKE_CURRENT_SOURCE_DIR}/libraries/BMI160
         ${CMAKE_CURRENT_SOURCE_DIR}/variants/${AVR_VARIANT})
