@@ -2,8 +2,6 @@
 #include "SPI.h"
 #include <Arduino.h>
 
-SoftwareSerial serial(12, 11);
-
 bool Org1411::begin(int pin)
 {
 	delay(1000);
