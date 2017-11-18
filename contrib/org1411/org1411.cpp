@@ -14,6 +14,7 @@ bool Org1411::begin(int pin)
 		Serial.print(b);
 	}
 	Serial.println();
+    SPI.end();
 	return true;
 }
 
