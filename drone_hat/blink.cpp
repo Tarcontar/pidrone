@@ -7,12 +7,12 @@
 
 BME280 bme(BME280_PIN);
 
-bool bmi = false;
-bool bme = false;
+bool has_bmi = false;
+bool has_bme = false;
 
 void printAccel()
 {
-	if (bmi)
+	if (has_bmi)
 	{
 		int x, y, z;
 		BMI160.readAccelerometer(x, y, z);
@@ -31,7 +31,7 @@ void printAccel()
 
 void printBME()
 {
-	if (bme)
+	if (has_bme)
 	{
 		Serial.print("Temperature = ");
 		Serial.print(bme.readTemperature());
@@ -63,7 +63,7 @@ void setup()
 	}
 	else 
 	{
-		bmi = true;
+		has_bmi = true;
 		Serial.println("BMI SUCCESSFULL");
 		BMI160.setGyroRate(25);
 		BMI160.setAccelerometerRate(25);
@@ -81,7 +81,7 @@ void setup()
 	}
 	else
 	{
-		bme = true;
+		has_bme = true;
 		Serial.println("BME SUCCESSFULL");	
 		printBME();
 	}
