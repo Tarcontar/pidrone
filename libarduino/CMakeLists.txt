@@ -8,7 +8,8 @@ set(LA_SRC ${LA_SRC}
     ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_digital.c
     ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_shift.c
     ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_pulse.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_pulse.S)
+    ${CMAKE_CURRENT_SOURCE_DIR}/cores/arduino/wiring_pulse.S
+    ${CMAKE_CURRENT_SOURCE_DIR}/libraries/Wire/src/utility/twi.c )
 
 add_avr_library(arduino ${LA_SRC})
 

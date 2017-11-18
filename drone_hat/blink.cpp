@@ -9,7 +9,7 @@ void setup()
 	pinMode(2,OUTPUT);
 	Serial.println("Setup ready...");
 
-	if (!BMI160.begin()BMI160GenClass::SPI_MODE, BMI160_PIN))
+	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
 	{
 		Serial.println("BMI SETUP ERROR!!!!");
 	}
