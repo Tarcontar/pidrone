@@ -6,7 +6,7 @@ set(AVR_VARIANT "standard" CACHE STRING "The variant used")
 set(AVR_PROGRAMMER "pi_zero_w" CACHE STRING "The programmer used")
 set(AVR_CONFIG_FILE ${DRONE_ROOT}/drone_hat/avrdude_gpio.conf)
 set(AVR_UPLOADTOOL_PORT "gpio")
-set(AVR_MCU_SPEED 1000000UL)
+set(AVR_MCU_SPEED 8000000UL)
 
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake")
 
