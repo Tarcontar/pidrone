@@ -7,13 +7,14 @@ bool Org1411::begin(int pin) : m_pin(pin)
 	delay(1000);
 	SPI.begin();
 	pinMode(m_pin, OUTPUT);
-	digitalWrite(m_pin, HIGH);
+	digitalWrite(m_pin, LOW);
 	int b;
 	while (b = SPI.transfer(0xff))
 	{
 		Serial.print(b);
 	}
 	Serial.println();
+	digitalWrite(m_pin, HIGH);
 	return true;
 }
 
