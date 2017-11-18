@@ -325,9 +325,8 @@ function( add_avr_executable EXECUTABLE_NAME )
    # upload - with avrdude
    add_custom_target(
       upload_${EXECUTABLE_NAME}
-      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
+      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -C -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
          -U flash:w:${hex_file}
-         -P ${AVR_UPLOADTOOL_PORT}
          -C ${AVR_CONFIG_FILE}
       DEPENDS ${hex_file}
       COMMENT "Uploading ${hex_file} to ${AVR_MCU} using ${AVR_PROGRAMMER}"
@@ -339,7 +338,6 @@ function( add_avr_executable EXECUTABLE_NAME )
       upload_eeprom_${EXECUTABLE_NAME}
       ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
          -U eeprom:w:${eeprom_image}
-         -P ${AVR_UPLOADTOOL_PORT}
          -C ${AVR_CONFIG_FILE}
       DEPENDS ${eeprom_image}
       COMMENT "Uploading ${eeprom_image} to ${AVR_MCU} using ${AVR_PROGRAMMER}"
@@ -348,7 +346,7 @@ function( add_avr_executable EXECUTABLE_NAME )
    # get status
    add_custom_target(
       get_status_${EXECUTABLE_NAME}
-      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} -P ${AVR_UPLOADTOOL_PORT} -n -v
+      ${AVR_UPLOADTOOL} -p ${AVR_MCU} -C ${AVR_CONFIG_FILE} -c ${AVR_PROGRAMMER} -n -v
       COMMENT "Get status from ${AVR_MCU}"
    )
 
