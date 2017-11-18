@@ -109,13 +109,12 @@ void setupMotors()
 	motorBL.writeMicroseconds(min);
 }
 
-void startMotors()
+void setMotors(int speed)
 {
-	int val = 1200;
-	motorFL.writeMicroseconds(val);
-	motorFR.writeMicroseconds(val);
-	motorBR.writeMicroseconds(val);
-	motorBL.writeMicroseconds(val);
+	motorFL.writeMicroseconds(speed);
+	motorFR.writeMicroseconds(speed);
+	motorBR.writeMicroseconds(speed);
+	motorBL.writeMicroseconds(speed);
 }
 
 void setup() 
@@ -165,18 +164,14 @@ void setup()
 		Serial.println("BME SUCCESSFULL");	
 		printBME();
 	}
-	
-	startMotors();
 }
 
+int speed = 1000;
 void loop() 
 {
-	Serial.println("HIGH");
 	digitalWrite(2,HIGH);
-	printAccel();
 	delay(1000);
-	Serial.println("LOW");
 	digitalWrite(2,LOW);
 	delay(1000);
-	printBME();
+	setMotors(speed++);
 }
