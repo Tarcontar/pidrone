@@ -10,6 +10,8 @@ BME280 bme(BME280_PIN);
 bool has_bmi = false;
 bool has_bme = false;
 
+#define PRESSURE_SEALEVEL 1013.25F
+
 void printAccel()
 {
 	if (has_bmi)
@@ -35,14 +37,14 @@ void printBME()
 	{
 		Serial.print("Temperature = ");
 		Serial.print(bme.readTemperature());
-		Serial.println(" °C");
+		Serial.println(" C");
 		
 		Serial.print("Pressure = ");
 		Serial.print(bme.readPressure() / 100.0F);
 		Serial.println(" hPa");
 		
 		Serial.print("Altitude = ");
-		Serial.print(bme.readAltitude(SEALEVELPRESSURE_HPA));
+		Serial.print(bme.readAltitude(PRESSURE_SEALEVEL));
 		Serial.println(" m");
 		
 		Serial.print("Humidity = ");

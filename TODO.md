@@ -5,3 +5,4 @@
 - Aisler Teile kaufen
 - STN32 prüfen
 - Fliessmittel (Flux) kaufen
+- RESET-Pin Pullup Widerstand (10k Ohm)
