@@ -1,1 +1,0 @@
-Contains the CAD files for the raspberry pi hat and the custom drone frame
