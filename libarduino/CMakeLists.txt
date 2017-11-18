@@ -18,6 +18,8 @@ target_include_directories(arduino PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/SoftwareSerial/src
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/SPI/src
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/Wire/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/PinChangeInterrupt/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/libraries/Sero/src
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/BMI160
         ${CMAKE_CURRENT_SOURCE_DIR}/libraries/BME280
         ${CMAKE_CURRENT_SOURCE_DIR}/variants/${AVR_VARIANT})
