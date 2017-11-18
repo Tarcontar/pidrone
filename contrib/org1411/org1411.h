@@ -3,7 +3,16 @@
 
 class Org1411 
 {
+public:
+	struct position
+	{
+		
+	};
+
     bool begin(int pin);
+	
+private:
+	int m_pin;
 };
 
 #endif

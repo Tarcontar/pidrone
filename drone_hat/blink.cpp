@@ -1,14 +1,17 @@
 #include <Arduino.h>
 #include <BMI160Gen.h>
 #include <BME280.h>
+#include <org1411.h>
 
 #define BMI160_PIN 8
 #define BME280_PIN 7
+#define GPS_PIN 5
 
 BME280 bme(BME280_PIN);
 
 bool has_bmi = false;
 bool has_bme = false;
+bool bas_gps = false;
 
 #define PRESSURE_SEALEVEL 1013.25F
 
@@ -53,11 +56,23 @@ void printBME()
 	}
 }
 
+Org1411 gps();
+
 void setup() 
 {
 	Serial.begin(9600);
 	pinMode(2,OUTPUT);
 	Serial.println("Setup ready...");
+
+	if (!gps.begin(GPS_PIN))
+	{
+		Serial.println("GPS SETUP ERROR");
+	}
+	else
+	{
+		Serial.println("GPS SUCCESS");
+	}
+	
 
 	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
 	{
