@@ -86,10 +86,10 @@ void setupMotors()
 	BRSpeed = MIN_THROTTLE;
 	BLSpeed = MIN_THROTTLE;
 	
-	motorFL.attach(14);
-	motorFR.attach(13);
-	motorBR.attach(10);
-	motorBL.attach(1);
+	motorFL.attach(10);
+	motorFR.attach(9);
+	motorBR.attach(6);
+	motorBL.attach(3);
 	
 	int min = 1000;
 	int max = 2000;
@@ -166,12 +166,13 @@ void setup()
 	}
 }
 
-int speed = 1000;
+int speed = 1010;
 void loop() 
 {
 	digitalWrite(2,HIGH);
-	delay(1000);
+	delay(500);
 	digitalWrite(2,LOW);
-	delay(1000);
-	setMotors(speed++);
+	delay(500);
+	setMotors(speed);
+	speed += 5;
 }
