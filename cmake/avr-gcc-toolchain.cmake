@@ -333,6 +333,16 @@ function( add_avr_executable EXECUTABLE_NAME )
       COMMENT "Uploading ${hex_file} to ${AVR_MCU} using ${AVR_PROGRAMMER}"
    )
 
+   # burn fuses
+   add_custom_target(
+     burn_8mhz_fuse
+     ${AVR_UPLOADTOOL} -p ${AVR_MCU} -c ${AVR_PROGRAMMER} ${AVR_UPLOADTOOL_OPTIONS}
+     -U lfuse:w:0xe2
+     -P ${AVR_UPLOADTOOL_PORT}
+     -C ${AVR_CONFIG_FILE} 
+     COMMENT "Set fuse to 8mhz"
+   )
+   
    # upload eeprom only - with avrdude
    # see also bug http://savannah.nongnu.org/bugs/?40142
    add_custom_target(
