@@ -120,8 +120,9 @@ void setMotors(int speed)
 void setup() 
 {
 	Serial.begin(9600);
+	
+	Serial.println("#### STARTING SETUP ####");
 	pinMode(2,OUTPUT);
-	Serial.println("Setup ready...");
 	
 	setupMotors();
 
@@ -164,6 +165,8 @@ void setup()
 		Serial.println("BME SUCCESSFULL");	
 		printBME();
 	}
+	
+	Serial.println("##### SETUP READY ######");
 }
 
 int speed = 1010;
@@ -174,5 +177,7 @@ void loop()
 	digitalWrite(2,LOW);
 	delay(500);
 	setMotors(speed);
-	speed += 5;
+	if (speed < MAX_THROTTLE)
+		speed += 5;
+	Serial.println(speed);
 }
