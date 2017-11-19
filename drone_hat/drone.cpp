@@ -1,10 +1,9 @@
 #include <Arduino.h>
-#include <BMI160Gen.h>
-#include <BME280.h>
 #include <org1411.h>
 #include <Servo.h>
+#include <bmi160.h>
 #include "io/pwmreceiver.h"
-
+#include "io/sensors.h"
 
 #define BMI160_PIN 8
 #define BME280_PIN 7
@@ -27,7 +26,7 @@ Servo motorFR;
 Servo motorBR;
 Servo motorBL;
 
-BME280 bme(BME280_PIN);
+// BME280 bme(BME280_PIN);
 Org1411 gps;
 
 bool has_bmi = false;
@@ -36,46 +35,46 @@ bool has_gps = false;
 
 #define PRESSURE_SEALEVEL 1013.25F
 
-void printAccel()
-{
-	if (has_bmi)
-	{
-		int x, y, z;
-		BMI160.readAccelerometer(x, y, z);
+// void printAccel()
+// {
+// 	if (has_bmi)
+// 	{
+// 		int x, y, z;
+// 		BMI160.readAccelerometer(x, y, z);
 		
-		Serial.print("Accel: ");
-		Serial.print(" X: ");
-		Serial.print(x);
-		Serial.print(" Y: ");
-		Serial.print(y);
-		Serial.print(" Z: ");
-		Serial.print(z);
+// 		Serial.print("Accel: ");
+// 		Serial.print(" X: ");
+// 		Serial.print(x);
+// 		Serial.print(" Y: ");
+// 		Serial.print(y);
+// 		Serial.print(" Z: ");
+// 		Serial.print(z);
 		
-		Serial.println();
-	}
-}
+// 		Serial.println();
+// 	}
+// }
 
-void printBME()
-{
-	if (has_bme)
-	{
-		Serial.print("Temperature = ");
-		Serial.print(bme.readTemperature());
-		Serial.println(" C");
+// void printBME()
+// {
+// 	if (has_bme)
+// 	{
+// 		Serial.print("Temperature = ");
+// 		Serial.print(bme.readTemperature());
+// 		Serial.println(" C");
 		
-		Serial.print("Pressure = ");
-		Serial.print(bme.readPressure() / 100.0F);
-		Serial.println(" hPa");
+// 		Serial.print("Pressure = ");
+// 		Serial.print(bme.readPressure() / 100.0F);
+// 		Serial.println(" hPa");
 		
-		Serial.print("Altitude = ");
-		Serial.print(bme.readAltitude(PRESSURE_SEALEVEL));
-		Serial.println(" m");
+// 		Serial.print("Altitude = ");
+// 		Serial.print(bme.readAltitude(PRESSURE_SEALEVEL));
+// 		Serial.println(" m");
 		
-		Serial.print("Humidity = ");
-		Serial.print(bme.readHumidity());
-		Serial.println(" %");
-	}
-}
+// 		Serial.print("Humidity = ");
+// 		Serial.print(bme.readHumidity());
+// 		Serial.println(" %");
+// 	}
+// }
 
 void printGPS()
 {
@@ -192,41 +191,47 @@ void Right(int value)
 	Throttle(value);
 }
 
+Sensors sensors;
+
 void setup() 
 {
 	Serial.begin(9600);
 	
+
+
 	Serial.println("#### STARTING SETUP ####");
 	pinMode(STATUS_LED, OUTPUT); 
 
-	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
-	{
-		Serial.println("BMI SETUP ERROR!!!!");
-	}
-	else 
-	{
-		has_bmi = true;
-		Serial.println("BMI SUCCESSFULL");
-		BMI160.setGyroRate(25);
-		BMI160.setAccelerometerRate(25);
+	sensors.setup();
+
+	// if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
+	// {
+	// 	Serial.println("BMI SETUP ERROR!!!!");
+	// }
+	// else 
+	// {
+	// 	has_bmi = true;
+	// 	Serial.println("BMI SUCCESSFULL");
+	// 	BMI160.setGyroRate(25);
+	// 	BMI160.setAccelerometerRate(25);
 		
-		BMI160.setGyroRange(250);
-		BMI160.setAccelerometerRange(2);
+	// 	BMI160.setGyroRange(250);
+	// 	BMI160.setAccelerometerRange(2);
 		
-		delay(200);
-		printAccel();
-	}
+	// 	delay(200);
+	// 	printAccel();
+	// }
 	
-	if (!bme.begin())
-	{
-		Serial.println("BME SETUP ERROR");
-	}
-	else
-	{
-		has_bme = true;
-		Serial.println("BME SUCCESSFULL");	
-		printBME();
-	}
+	// if (!bme.begin())
+	// {
+	// 	Serial.println("BME SETUP ERROR");
+	// }
+	// else
+	// {
+	// 	has_bme = true;
+	// 	Serial.println("BME SUCCESSFULL");	
+	// 	printBME();
+	// }
 	
 	setupMotors();
 	
@@ -241,6 +246,8 @@ void loop()
 	delay(500);
 	digitalWrite(STATUS_LED, LOW);
 	delay(500);
+
+	sensors.update();
 	
 	FLSpeed = MIN_THROTTLE;
 	FRSpeed = MIN_THROTTLE;
