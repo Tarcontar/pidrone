@@ -155,7 +155,7 @@ void Yaw(int value)
 void Throttle(int value)
 {
 	FLSpeed += value;
-	BLSPeed += value;
+	BLSpeed += value;
 	FRSpeed += value;
 	BRSpeed += value;
 	setMotorSpeeds();
@@ -246,7 +246,7 @@ void loop()
 	FLSpeed = MIN_THROTTLE;
 	FRSpeed = MIN_THROTTLE;
 	BRSpeed = MIN_THROTTLE;
-	BLSPeed = MIN_THROTTLE;
+	BLSpeed = MIN_THROTTLE;
 	
 	int thrust = receiver.getChannel(3) - MIN_THROTTLE;
 	Throttle(thrust);
