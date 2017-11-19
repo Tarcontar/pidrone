@@ -3,6 +3,7 @@
 #include <BME280.h>
 #include <org1411.h>
 #include <Servo.h>
+#include "io/pwmreceiver.h"
 
 
 #define BMI160_PIN 8
@@ -13,6 +14,8 @@
 
 #define MIN_THROTTLE 1000
 #define MAX_THROTTLE 1700
+
+PWMReceiver receiver;
 
 int FLSpeed = 0;
 int FRSpeed = 0;
@@ -158,34 +161,31 @@ void setup()
 	
 	setupMotors();
 	
-	int speed = 1200;
-	Serial.println("FL");
-	motorFL.writeMicroseconds(speed);
-	delay(4000);
-	motorFL.writeMicroseconds(MIN_THROTTLE);
-	
-	Serial.println("FR");
-	motorFR.writeMicroseconds(speed);
-	delay(4000);
-	motorFR.writeMicroseconds(MIN_THROTTLE);
-	
-	Serial.println("BR");
-	motorBR.writeMicroseconds(speed);
-	delay(4000);
-	motorBR.writeMicroseconds(MIN_THROTTLE);
-	
-	Serial.println("BL");
-	motorBL.writeMicroseconds(speed);
-	delay(4000);
-	motorBR.writeMicroseconds(MIN_THROTTLE);
+	receiver.SetChannels(A0, A1, A2, A3, A4, A5);
 	
 	Serial.println("##### SETUP READY ######");
 }
 
 void loop() 
 {
+	/*
 	digitalWrite(STATUS_LED, HIGH);
 	delay(500);
 	digitalWrite(STATUS_LED, LOW);
 	delay(500);
+	*/
+	Serial.print("CH: ");
+	Serial.print(receiver.getChannel(1));
+	Serial.print(" ");
+	Serial.print(receiver.getChannel(2));
+	Serial.print(" ");
+	Serial.print(receiver.getChannel(3));
+	Serial.print(" ");
+	Serial.print(receiver.getChannel(4));
+	Serial.print(" ");
+	Serial.print(receiver.getChannel(5));
+	Serial.print(" ");
+	Serial.print(receiver.getChannel(6));
+	Serial.print(" ");
+	Serial.println();
 }
