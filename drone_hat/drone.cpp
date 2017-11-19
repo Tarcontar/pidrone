@@ -115,12 +115,82 @@ void setupMotors()
 	motorBL.writeMicroseconds(min);
 }
 
+void setMotorSpeeds()
+{
+	FLSpeed = min(max(FLSpeed, MIN_THROTTLE), MAX_THROTTLE);
+	FRSpeed = min(max(FRSpeed, MIN_THROTTLE), MAX_THROTTLE);
+	BRSpeed = min(max(BRSpeed, MIN_THROTTLE), MAX_THROTTLE);
+	BLSpeed = min(max(BLSpeed, MIN_THROTTLE), MAX_THROTTLE);
+	
+	motorFL.writeMicroseconds(FLSpeed);
+	motorFR.writeMicroseconds(FRSpeed);
+	motorBR.writeMicroseconds(BRSpeed);
+	motorBL.writeMicroseconds(BLSpeed);
+}
+
+void Roll(int value)
+{
+	FLSpeed += value;
+	BLSpeed += value;
+	FRSpeed -= value;
+	BRSpeed -= value;
+}
+
+void Pitch(int value)
+{
+	FLSpeed += value;
+	BLSpeed -= value;
+	FRSpeed += value;
+	BRSpeed -= value;
+}
+
+void Yaw(int value)
+{
+	FLSpeed -= value;
+	BLSpeed += value;
+	FRSpeed += value;
+	BRSpeed -= value;
+}
+
+void Throttle(int value)
+{
+	FLSpeed += value;
+	BLSPeed += value;
+	FRSpeed += value;
+	BRSpeed += value;
+	setMotorSpeeds();
+}
+
 void setMotors(int speed)
 {
 	motorFL.writeMicroseconds(speed);
 	motorFR.writeMicroseconds(speed);
 	motorBR.writeMicroseconds(speed);
 	motorBL.writeMicroseconds(speed);
+}
+
+void Foreward(int value)
+{
+	Pitch(value);
+	Throttle(value);
+}
+
+void Back(int value)
+{
+	Pitch(-value);
+	Throttle(value);
+}
+
+void Left(int value)
+{
+	Roll(-value);
+	Throttle(value);
+}
+
+void Right(int value)
+{
+	Roll(value);
+	Throttle(value);
 }
 
 void setup() 
@@ -168,24 +238,24 @@ void setup()
 
 void loop() 
 {
-	/*
 	digitalWrite(STATUS_LED, HIGH);
 	delay(500);
 	digitalWrite(STATUS_LED, LOW);
 	delay(500);
-	*/
-	Serial.print("CH: ");
-	Serial.print(receiver.getChannel(1));
-	Serial.print(" ");
-	Serial.print(receiver.getChannel(2));
-	Serial.print(" ");
-	Serial.print(receiver.getChannel(3));
-	Serial.print(" ");
-	Serial.print(receiver.getChannel(4));
-	Serial.print(" ");
-	Serial.print(receiver.getChannel(5));
-	Serial.print(" ");
-	Serial.print(receiver.getChannel(6));
-	Serial.print(" ");
-	Serial.println();
+	
+	FLSpeed = MIN_THROTTLE;
+	FRSpeed = MIN_THROTTLE;
+	BRSpeed = MIN_THROTTLE;
+	BLSPeed = MIN_THROTTLE;
+	
+	int thrust = receiver.getChannel(3) - MIN_THROTTLE;
+	Throttle(thrust);
+	
+	if (thrust > 0)
+	{
+		Roll(receiver.getChannel(1) - 1500);
+		Pitch(receiver.getChannel(2) - 1500);
+		Yaw(receiver.getChannel(4) - 1500);
+	}
+	setMotorSpeeds();
 }
