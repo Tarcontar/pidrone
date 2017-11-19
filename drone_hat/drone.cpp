@@ -158,7 +158,6 @@ void Throttle(int value)
 	BLSpeed += value;
 	FRSpeed += value;
 	BRSpeed += value;
-	setMotorSpeeds();
 }
 
 void setMotors(int speed)
@@ -251,11 +250,13 @@ void loop()
 	int thrust = receiver.getChannel(3) - MIN_THROTTLE;
 	Throttle(thrust);
 	
+	/*
 	if (thrust > 0)
 	{
 		Roll(receiver.getChannel(1) - 1500);
 		Pitch(receiver.getChannel(2) - 1500);
 		Yaw(receiver.getChannel(4) - 1500);
 	}
+	*/
 	setMotorSpeeds();
 }
