@@ -3,11 +3,13 @@
 #include <BME280.h>
 #include <org1411.h>
 #include <Servo.h>
-#include "io/pwmreceiver.h"
+
 
 #define BMI160_PIN 8
 #define BME280_PIN 7
 #define GPS_PIN 5
+
+#define STATUS_LED 2
 
 #define MIN_THROTTLE 1000
 #define MAX_THROTTLE 1700
@@ -123,20 +125,7 @@ void setup()
 	Serial.begin(9600);
 	
 	Serial.println("#### STARTING SETUP ####");
-	pinMode(2,OUTPUT);
-	
-	setupMotors();
-
-	if (!gps.begin(GPS_PIN))
-	{
-		Serial.println("GPS SETUP ERROR");
-	}
-	else
-	{
-		has_gps = true;
-		Serial.println("GPS SUCCESS");
-	}
-	
+	pinMode(STATUS_LED, OUTPUT); 
 
 	if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
 	{
@@ -167,6 +156,7 @@ void setup()
 		printBME();
 	}
 	
+	setupMotors();
 	
 	int speed = 1200;
 	Serial.println("FL");
@@ -194,8 +184,8 @@ void setup()
 
 void loop() 
 {
-	digitalWrite(2,HIGH);
+	digitalWrite(STATUS_LED, HIGH);
 	delay(500);
-	digitalWrite(2,LOW);
+	digitalWrite(STATUS_LED, LOW);
 	delay(500);
 }
