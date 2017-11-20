@@ -1,11 +1,12 @@
 #pragma once
+#include <stdint.h>
 
 class PWMReceiver
 {
 public:
 	PWMReceiver();
 
-  void SetChannels(int ch_1, int ch_2 = -1, int ch_3 = -1, int ch_4 = -1, int ch_5 = -1, int ch_6 = -1);
+  void SetChannels(const int8_t channels[6]);
 
-  long getChannel(int channel);
+  uint16_t getChannel(int8_t channel);
 };

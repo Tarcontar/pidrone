@@ -11,6 +11,7 @@ set(AVR_MCU_SPEED 8000000UL)
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake")
 
 project(DRONE_HAT C CXX ASM)
+set (CMAKE_CXX_STANDARD 11)
 
 add_subdirectory(libarduino)
 

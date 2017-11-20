@@ -1,53 +1,30 @@
 #include "pwmreceiver.h"
 #include <Arduino.h>
-#include <PinChangeInterrupt.h>
+#define EI_ARDUINO_INTERRUPTED_PIN
+#include <EnableInterrupt.h>
 
-volatile unsigned long rising_start[] = { 0, 0, 0, 0, 0, 0 };
-volatile int channel_pin[6];
-volatile long channel_length[6];
+static unsigned long rising_start[] = { 0, 0, 0, 0, 0, 0 };
+static int channel_pin[6];
+static long channel_length[6];
 
-void processPWMPin(int pin)
+#if defined(PCIE0)
+#define digitalPinToPinChangeInterrupt(p) (digitalPinToPCICR(p) ? ((8 * (digitalPinToPCICRbit(p) - PCIE0)) + digitalPinToPCMSKbit(p)) : NOT_AN_INTERRUPT)
+#elif defined(PCIE)
+#define digitalPinToPinChangeInterrupt(p) (digitalPinToPCICR(p) ? ((8 * (digitalPinToPCICRbit(p) - PCIE)) + digitalPinToPCMSKbit(p)) : NOT_AN_INTERRUPT)
+#else
+#error MCU has no such a register
+#endif
+
+void rising()
 {
-  uint8_t trigger = getPinChangeInterruptTrigger(channel_pin[pin]);
-  if (trigger == RISING)
-  {
-    rising_start[pin] = micros();
-  }
-  else if (trigger == FALLING)
-  {
-    channel_length[pin] = micros() - rising_start[pin];
-  }
+ uint8_t pin = arduinoInterruptedPin;
+ rising_start[pin] = micros();
 }
 
-
-void onRising0()
+void falling()
 {
-  processPWMPin(0);
-}
-
-void onRising1()
-{
-  processPWMPin(1);
-}
-
-void onRising2()
-{
-  processPWMPin(2);
-}
-
-void onRising3()
-{
-  processPWMPin(3);
-}
-
-void onRising4()
-{
-  processPWMPin(4);
-}
-
-void onRising5()
-{
-  processPWMPin(5);
+  uint8_t pin = arduinoInterruptedPin;
+  channel_length[pin] = micros() - rising_start[pin];
 }
 
 PWMReceiver::PWMReceiver()
@@ -55,48 +32,25 @@ PWMReceiver::PWMReceiver()
  
 }
 
-void PWMReceiver::SetChannels(int ch_1, int ch_2, int ch_3, int ch_4, int ch_5, int ch_6)
+void PWMReceiver::SetChannels(const int8_t channels[6])
 {
-  for (int i = 0; i < 6; i++) channel_pin[i] = -1;
-  pinMode(ch_1, INPUT);
-  channel_pin[0] = digitalPinToPinChangeInterrupt(ch_1);
-  attachPinChangeInterrupt(channel_pin[0], onRising0, CHANGE);
+  for (uint8_t i = 0; i < 6; i++)
+  {
+    if(channels[i])
+      continue;
 
-  if (ch_2 != -1)
-  {
-    pinMode(ch_2, INPUT);
-    channel_pin[1] = digitalPinToPinChangeInterrupt(ch_2);
-    attachPinChangeInterrupt(channel_pin[1], onRising1, CHANGE);
-  }
-  if (ch_3 != -1)
-  {
-    pinMode(ch_3, INPUT);
-    channel_pin[2] = digitalPinToPinChangeInterrupt(ch_3);
-    attachPinChangeInterrupt(channel_pin[2], onRising2, CHANGE);
-  }
-  if (ch_4 != -1)
-  {
-    pinMode(ch_4, INPUT);
-    channel_pin[3] = digitalPinToPinChangeInterrupt(ch_4);
-    attachPinChangeInterrupt(channel_pin[3], onRising3, CHANGE);
-  }
-  if (ch_5 != -1)
-  {
-    pinMode(ch_5, INPUT);
-    channel_pin[4] = digitalPinToPinChangeInterrupt(ch_5);
-    attachPinChangeInterrupt(channel_pin[4], onRising4, CHANGE);
-  }
-  if (ch_6 != -1)
-  {
-    pinMode(ch_6, INPUT);
-    channel_pin[5] = digitalPinToPinChangeInterrupt(ch_6);
-    attachPinChangeInterrupt(channel_pin[5], &onRising5, CHANGE);
+    pinMode(channels[i], INPUT);
+    channel_pin[i] = digitalPinToPinChangeInterrupt(channels[i]);
+    enableInterrupt(channel_pin[i],rising,RISING);
+    enableInterrupt(channel_pin[i],falling,FALLING);
   }
 }
 
-long PWMReceiver::getChannel(int channel)
+uint16_t PWMReceiver::getChannel(int8_t channel)
 {
-  if (channel_pin[channel - 1] == -1) return -1;
+  if (channel_pin[channel - 1] == -1) 
+    return -1;
+
   return channel_length[channel - 1];
 }
 

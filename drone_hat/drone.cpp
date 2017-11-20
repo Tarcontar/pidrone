@@ -196,8 +196,6 @@ Sensors sensors;
 void setup() 
 {
 	Serial.begin(9600);
-	
-
 
 	Serial.println("#### STARTING SETUP ####");
 	pinMode(STATUS_LED, OUTPUT); 
@@ -235,7 +233,8 @@ void setup()
 	
 	setupMotors();
 	
-	receiver.SetChannels(A0, A1, A2, A3, A4, A5);
+	int8_t channels[6] = {A0, A1, A2, A3, A4, A5};
+	receiver.SetChannels(channels);
 	
 	Serial.println("##### SETUP READY ######");
 }

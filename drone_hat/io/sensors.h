@@ -8,11 +8,17 @@ class Sensors
     void update();
 
     private:
-    enum Identifier
+    enum Identifier : uint8_t
     {
         ID_BMI = 0,
         ID_BME = 1
     };
+
+    void initializeBMI();
+    void initializeBME();
+
+    void readBMI();
+    void readBME();
 
     static int8_t user_spi_read(uint8_t dev_id, uint8_t reg_addr,
                                 uint8_t *reg_data, uint16_t len);
@@ -22,6 +28,6 @@ class Sensors
 
     static void user_delay_ms(uint32_t milliseconds);
     private:
-    const int BMI_PIN = 8;
-    const int BME_PIN = 7;
+    static const uint8_t BMI_CS = 8;
+    static const uint8_t BME_CS = 7;
 };
