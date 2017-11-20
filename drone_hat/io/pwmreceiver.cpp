@@ -4,7 +4,7 @@
 #include <EnableInterrupt.h>
 
 static unsigned long rising_start[] = { 0, 0, 0, 0, 0, 0 };
-static int channel_pin[6];
+static uint8_t channel_pin[6];
 static long channel_length[6];
 
 #if defined(PCIE0)

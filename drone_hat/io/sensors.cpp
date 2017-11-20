@@ -21,90 +21,6 @@ void Sensors::setup()
     initializeBME();
 }
 
-void Sensors::initializeBMI()
-{
-    /* You may assign a chip select identifier to be handled later */
-    dev_bmi.id = ID_BMI;
-    dev_bmi.interface = BMI160_SPI_INTF;
-    dev_bmi.read = user_spi_read;
-    dev_bmi.write = user_spi_write;
-    dev_bmi.delay_ms = user_delay_ms;
-
-    int8_t rslt = BMI160_OK;
-    rslt = bmi160_init(&dev_bmi);
-
-    if(rslt!=BMI160_OK)
-    {
-        Serial.print("Could not initialize BMI160");
-        return;
-    }
-
-    rslt = BMI160_OK;
-
-    /* Select the Output data rate, range of accelerometer sensor */
-    dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_1600HZ;
-    dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
-    dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
-
-    /* Select the power mode of accelerometer sensor */
-    dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
-
-    /* Select the Output data rate, range of Gyroscope sensor */
-    dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_3200HZ;
-    dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
-    dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
-
-    /* Select the power mode of Gyroscope sensor */
-    dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
-
-    /* Set the sensor configuration */
-    rslt = bmi160_set_sens_conf(&dev_bmi);
-
-    if(rslt!=BMI160_OK)
-    {
-        Serial.print("Could not initialize BMI160");
-    }
-}
-
-void Sensors::initializeBME()
-{
-    /* Sensor_0 interface over SPI with native chip select line */
-    dev_bme.dev_id = ID_BME;
-    dev_bme.intf = BME280_SPI_INTF;
-    dev_bme.read = user_spi_read;
-    dev_bme.write = user_spi_write;
-    dev_bme.delay_ms = user_delay_ms;
-
-    int8_t rslt = BME280_OK;
-    rslt = bme280_init(&dev_bme);
-
-    if(rslt!=BME280_OK)
-    {
-        Serial.print("Could not initialize BME280");
-    }
-
-    /* Recommended mode of operation: Indoor navigation */
-	dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
-	dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
-	dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
-	dev_bme.settings.filter = BME280_FILTER_COEFF_16;
-	dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
-
-    uint8_t settings_sel;
-	settings_sel = BME280_OSR_PRESS_SEL;
-	settings_sel |= BME280_OSR_TEMP_SEL;
-	settings_sel |= BME280_OSR_HUM_SEL;
-	settings_sel |= BME280_STANDBY_SEL;
-	settings_sel |= BME280_FILTER_SEL;
-	rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
-	rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev_bme);
-
-    if(rslt!=BME280_OK)
-    {
-        Serial.print("Could not initialize BME280");
-    }
-}
-
 void Sensors::update()
 {
     readBMI();
@@ -174,6 +90,99 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
     delay(milliseconds);
+}
+
+
+void Sensors::initializeBMI()
+{
+    /* You may assign a chip select identifier to be handled later */
+    dev_bmi.id = ID_BMI;
+    dev_bmi.interface = BMI160_SPI_INTF;
+    dev_bmi.read = user_spi_read;
+    dev_bmi.write = user_spi_write;
+    dev_bmi.delay_ms = user_delay_ms;
+
+    int8_t rslt = BMI160_OK;
+    rslt = bmi160_init(&dev_bmi);
+
+    if(rslt!=BMI160_OK)
+    {
+        Serial.print("Could not initialize BMI160");
+        return;
+    }
+
+    rslt = BMI160_OK;
+
+    /* Select the Output data rate, range of accelerometer sensor */
+    dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_1600HZ;
+    dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
+    dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
+
+    /* Select the power mode of accelerometer sensor */
+    dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
+
+    /* Select the Output data rate, range of Gyroscope sensor */
+    dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_3200HZ;
+    dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
+    dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
+
+    /* Select the power mode of Gyroscope sensor */
+    dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
+
+    /* Set the sensor configuration */
+    rslt = bmi160_set_sens_conf(&dev_bmi);
+
+    if(rslt!=BMI160_OK)
+    {
+        Serial.print("Could not initialize BMI160");
+    }
+
+    rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
+                                    &dev_bmi);
+
+    if(rslt!=BMI160_OK)
+    {
+        Serial.print("BMI160 self test failed");
+    }
+}
+
+void Sensors::initializeBME()
+{
+    /* Sensor_0 interface over SPI with native chip select line */
+    dev_bme.dev_id = ID_BME;
+    dev_bme.intf = BME280_SPI_INTF;
+    dev_bme.read = user_spi_read;
+    dev_bme.write = user_spi_write;
+    dev_bme.delay_ms = user_delay_ms;
+
+    int8_t rslt = BME280_OK;
+    rslt = bme280_init(&dev_bme);
+
+    if(rslt!=BME280_OK)
+    {
+        Serial.print("Could not initialize BME280");
+    }
+
+    /* Recommended mode of operation: Indoor navigation */
+	dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
+	dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
+	dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
+	dev_bme.settings.filter = BME280_FILTER_COEFF_16;
+	dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
+
+    uint8_t settings_sel;
+	settings_sel = BME280_OSR_PRESS_SEL;
+	settings_sel |= BME280_OSR_TEMP_SEL;
+	settings_sel |= BME280_OSR_HUM_SEL;
+	settings_sel |= BME280_STANDBY_SEL;
+	settings_sel |= BME280_FILTER_SEL;
+	rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
+	rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev_bme);
+
+    if(rslt!=BME280_OK)
+    {
+        Serial.print("Could not initialize BME280");
+    }
 }
 
 void Sensors::readBMI()

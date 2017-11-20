@@ -1,13 +1,9 @@
 #include <Arduino.h>
+#include <stdint.h>
 #include <org1411.h>
 #include <Servo.h>
-#include <bmi160.h>
 #include "io/pwmreceiver.h"
 #include "io/sensors.h"
-
-#define BMI160_PIN 8
-#define BME280_PIN 7
-#define GPS_PIN 5
 
 #define STATUS_LED 2
 
@@ -16,10 +12,10 @@
 
 PWMReceiver receiver;
 
-int FLSpeed = 0;
-int FRSpeed = 0;
-int BRSpeed = 0;
-int BLSpeed = 0;
+uint16_t FLSpeed = 0;
+uint16_t FRSpeed = 0;
+uint16_t BRSpeed = 0;
+uint16_t BLSpeed = 0;
 
 Servo motorFL;
 Servo motorFR;
@@ -96,8 +92,8 @@ void setupMotors()
 	motorBR.attach(6);
 	motorBL.attach(3);
 	
-	int min = 1000;
-	int max = 2000;
+	uint16_t min = 1000;
+	uint16_t max = 2000;
 	motorFL.writeMicroseconds(min);
 	motorFR.writeMicroseconds(min);
 	motorBR.writeMicroseconds(min);
