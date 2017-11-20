@@ -82,11 +82,33 @@ void Sensors::initializeBME()
     {
         Serial.print("Could not initialize BME280");
     }
+
+    /* Recommended mode of operation: Indoor navigation */
+	dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
+	dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
+	dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
+	dev_bme.settings.filter = BME280_FILTER_COEFF_16;
+	dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
+
+    uint8_t settings_sel;
+	settings_sel = BME280_OSR_PRESS_SEL;
+	settings_sel |= BME280_OSR_TEMP_SEL;
+	settings_sel |= BME280_OSR_HUM_SEL;
+	settings_sel |= BME280_STANDBY_SEL;
+	settings_sel |= BME280_FILTER_SEL;
+	rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
+	rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev_bme);
+
+    if(rslt!=BME280_OK)
+    {
+        Serial.print("Could not initialize BME280");
+    }
 }
 
 void Sensors::update()
 {
     readBMI();
+    readBME();
 }
 
 int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
@@ -167,5 +189,7 @@ void Sensors::readBMI()
 
 void Sensors::readBME()
 {
-
+    bme280_data comp_data;
+    int8_t rslt = BMI160_OK;
+    rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
 }
