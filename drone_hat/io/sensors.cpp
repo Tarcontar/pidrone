@@ -57,6 +57,8 @@ int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
 
     digitalWrite (pin, HIGH);
     SPI.endTransaction();
+
+    return 0;
 }
 
 int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
@@ -90,6 +92,8 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
     digitalWrite (pin, HIGH);
     SPI.endTransaction();
+
+    return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
