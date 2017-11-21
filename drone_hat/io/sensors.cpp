@@ -94,7 +94,8 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    Serial.println("Do delay %lu" + milliseconds);
+    Serial.print("Do delay ");
+    Serial.println(milliseconds);
     delay(milliseconds);
 }
 
@@ -113,7 +114,8 @@ void Sensors::initializeBMI()
 
     if(rslt!=BMI160_OK)
     {
-        Serial.println("Could not initialize BMI160");
+        Serial.print("Could not initialize BMI160: ");
+        Serial.println(rslt);
         return;
     }
 
@@ -140,7 +142,8 @@ void Sensors::initializeBMI()
 
     if(rslt!=BMI160_OK)
     {
-        Serial.println("Could not initialize BMI160");
+        Serial.print("Could not initialize BMI160: ");
+        Serial.println(rslt);
     }
 
     rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
@@ -148,7 +151,8 @@ void Sensors::initializeBMI()
 
     if(rslt!=BMI160_OK)
     {
-        Serial.println("BMI160 self test failed");
+        Serial.print("BMI160 self test failed: ");
+        Serial.println(rslt);
     }
 }
 
@@ -166,7 +170,8 @@ void Sensors::initializeBME()
 
     if(rslt!=BME280_OK)
     {
-        Serial.println("Could not initialize BME280");
+        Serial.print("Could not initialize BME280: ");
+        Serial.println(rslt);
     }
 
     /* Recommended mode of operation: Indoor navigation */
@@ -187,7 +192,8 @@ void Sensors::initializeBME()
 
     if(rslt!=BME280_OK)
     {
-        Serial.println("Could not initialize BME280");
+       Serial.print("Could not initialize BME280: ");
+       Serial.println(rslt);
     }
 }
 
