@@ -30,6 +30,8 @@ void Sensors::update()
 int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
                             uint8_t *reg_data, uint16_t len)
 {
+    Serial.println("Do read");
+
     SPISettings set;
     int pin = 0;
     switch(dev_id)
@@ -60,6 +62,9 @@ int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
 int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
                             uint8_t *reg_data, uint16_t len)
 {
+
+    Serial.println("Do write");
+
     SPISettings set;
     int pin = 0;
     switch(dev_id)
@@ -89,6 +94,7 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
+    Serial.println("Do delay %lu" + milliseconds);
     delay(milliseconds);
 }
 
@@ -107,7 +113,7 @@ void Sensors::initializeBMI()
 
     if(rslt!=BMI160_OK)
     {
-        Serial.print("Could not initialize BMI160");
+        Serial.println("Could not initialize BMI160");
         return;
     }
 
@@ -134,7 +140,7 @@ void Sensors::initializeBMI()
 
     if(rslt!=BMI160_OK)
     {
-        Serial.print("Could not initialize BMI160");
+        Serial.println("Could not initialize BMI160");
     }
 
     rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
@@ -142,7 +148,7 @@ void Sensors::initializeBMI()
 
     if(rslt!=BMI160_OK)
     {
-        Serial.print("BMI160 self test failed");
+        Serial.println("BMI160 self test failed");
     }
 }
 
@@ -160,7 +166,7 @@ void Sensors::initializeBME()
 
     if(rslt!=BME280_OK)
     {
-        Serial.print("Could not initialize BME280");
+        Serial.println("Could not initialize BME280");
     }
 
     /* Recommended mode of operation: Indoor navigation */
@@ -181,7 +187,7 @@ void Sensors::initializeBME()
 
     if(rslt!=BME280_OK)
     {
-        Serial.print("Could not initialize BME280");
+        Serial.println("Could not initialize BME280");
     }
 }
 
