@@ -1,21 +1,25 @@
 #include <Arduino.h>
 #include <stdint.h>
-#include "io/pwmreceiver.h"
-#include "io/sensors.h"
-#include "math/pid.h"
-#include "actuators/motors.h"
+//#include "io/pwmreceiver.h"
+//#include "io/sensors.h"
+//#include "math/pid.h"
+//#include "actuators/motors.h"
 #include "hat_pcb.h"
+
+#include "BMI160Gen.h"
 
 #define PRESSURE_SEALEVEL 1013.25F
 
-PWMReceiver receiver;
+//PWMReceiver receiver;
 
+/*
 Sensors sensors;
 Motors motors(FL_MOTOR, FR_MOTOR, BR_MOTOR, BL_MOTOR);
 
 PID rollPID(1.0);
 PID pitchPID(1.0);
 PID yawPID(1.0);
+*/
 
 //use these in debug only!!
 bool has_bmi = false;
@@ -30,12 +34,28 @@ void setup()
 	Serial.println("#### STARTING SETUP ####");
 	pinMode(LED_STATUS, OUTPUT); 
 
-	sensors.setup();
+	//sensors.setup();
 	
-	motors.setupESCs();
+	/*
+	if (!BMI160.begin(BMI160GenClass::SPI_MODE, 8))
+	{
+		Serial.println("BMI160 setup failed");
+	}
+	else
+	{
+		BMI160.setGyroRate(25);
+		BMI160.setAccelerometerRate(25);
+		BMI160.setGyroRange(250);
+		BMI160.setAccelerometerRange(2);
+		delay(200);
+	}
+	*/
 	
-	int8_t channels[6] = {CH1, CH2, CH3, CH4, CH5, CH6};
-	receiver.setChannels(channels);
+	
+	//motors.setupESCs();
+	
+	//int8_t channels[6] = {CH1, CH2, CH3, CH4, CH5, CH6};
+	//receiver.setChannels(channels);
 
 	Serial.println("##### SETUP READY ######");
 }
@@ -47,7 +67,12 @@ void loop()
 	digitalWrite(LED_STATUS, LOW);
 	delay(500);
 	
-	sensors.setup();
+	/*
+	int x, y, z;
+	BMI160.readAccelerometer(x, y, z);
+	Serial.println(x);
+	*/
+	//sensors.setup();
 
 	/*
 	//filter these receiver values?
