@@ -8,7 +8,7 @@ PID::PID(float Kp, float Ki, float Kd) : m_Kp(Kp), m_Ki(Ki), m_Kd(Kd)
 	m_integral = 0;
 }
 
-float PID::update(float value)
+int PID::update(int value)
 {
 	float error = m_target - value;
 

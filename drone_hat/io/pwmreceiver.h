@@ -1,12 +1,24 @@
 #pragma once
 #include <stdint.h>
 
+#define MID 1500
+
 class PWMReceiver
 {
 public:
+	enum CHANNEL 
+	{
+			THRUST = 0,
+			ROLL,
+			PITCH,
+			YAW,
+			MODE,
+			UNUSED
+	};
+
 	PWMReceiver();
 
-  void SetChannels(const int8_t channels[6]);
+  void setChannels(const int8_t channels[6]);
 
-  uint16_t getChannel(int8_t channel);
+  uint16_t getChannel(CHANNEL c);
 };

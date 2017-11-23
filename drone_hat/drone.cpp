@@ -35,18 +35,8 @@ void setup()
 	motors.setupESCs();
 	
 	int8_t channels[6] = {CH1, CH2, CH3, CH4, CH5, CH6};
-	receiver.SetChannels(channels);
-	
-	float roll = 0.0;
-	float pitch = 0.0;
-	float yaw = 0.0;
-	
-	//TODO: save calibrated accel values to eeprom
-	
-	rollPID.setTarget(roll);
-	pitchPID.setTarget(pitch);
-	yawPID.setTarget(yaw);
-	
+	receiver.setChannels(channels);
+
 	Serial.println("##### SETUP READY ######");
 }
 
@@ -57,16 +47,29 @@ void loop()
 	digitalWrite(LED_STATUS, LOW);
 	delay(500);
 
-	sensors.update();
-	//get accel values
-	float roll = 0.0;
-	float pitch = 0.0;
-	float yaw = 0.0;
-	//hacky since we cant use floats in the motors class (PWM 1000 - 2000)
-	int r = rollPID.update(roll) * 10;
-	int p = pitchPID.update(pitch) * 10;
-	int y = yawPID.update(yaw) * 10;
+	//filter these receiver values?
+	int thrust = receiver.getChannel(PWMReceiver::CHANNEL::THRUST);
+	int rc_roll = receiver.getChannel(PWMReceiver::CHANNEL::ROLL);
+	int rc_pitch = receiver.getChannel(PWMReceiver::CHANNEL::PITCH);
+	int rc_yaw = receiver.getChannel(PWMReceiver::CHANNEL::YAW);
 	
-	int thrust = 0; //get thrust from receiver channel
-	motors.update(thrust, r, p, 0);
+	rollPID.setTarget(rc_roll);
+	pitchPID.setTarget(rc_pitch);
+	yawPID.setTarget(rc_yaw);
+	
+	sensors.update();
+	//get accel values and map to 1000 - 2000
+	
+	
+	
+	
+	int roll = 0;
+	int pitch = 0;
+	int yaw = 0;
+
+	int r = rollPID.update(roll);
+	int p = pitchPID.update(pitch);
+	int y = yawPID.update(yaw);
+	
+	motors.update(thrust, r, p, y);
 }

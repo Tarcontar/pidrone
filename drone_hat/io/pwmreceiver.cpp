@@ -32,7 +32,7 @@ PWMReceiver::PWMReceiver()
  
 }
 
-void PWMReceiver::SetChannels(const int8_t channels[6])
+void PWMReceiver::setChannels(const int8_t channels[6])
 {
   for (uint8_t i = 0; i < 6; i++)
   {
@@ -46,12 +46,12 @@ void PWMReceiver::SetChannels(const int8_t channels[6])
   }
 }
 
-uint16_t PWMReceiver::getChannel(int8_t channel)
+uint16_t PWMReceiver::getChannel(CHANNEL channel)
 {
-  if (channel_pin[channel - 1] == -1) 
-    return -1;
+	if (channel_pin[channel - 1] == -1) 
+		return -1;
 
-  return channel_length[channel - 1];
+	return channel_length[channel - 1];
 }
 
 

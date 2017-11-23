@@ -17,6 +17,9 @@ class Sensors
     void initializeBMI();
     void initializeBME();
 
+	float convertRawGyro(int gRaw);
+	float convertRawAccel(int gRaw);
+	
     void readBMI();
     void readBME();
 

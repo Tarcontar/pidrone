@@ -52,7 +52,7 @@ int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
 
     SPI.transfer(reg_addr);
 
-    for(int i=0;i<len;i++)
+    for(uint16_t i=0;i<len;i++)
         reg_data[i] = SPI.transfer(0); //where to store the bytes
 
     digitalWrite (pin, HIGH);
@@ -87,7 +87,7 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
     SPI.transfer(reg_addr); // Write the register address, ignore the return
 
-    for(int i=0;i<len;i++)
+    for(uint16_t i=0;i<len;i++)
         SPI.transfer(reg_data[i]);
 
     digitalWrite (pin, HIGH);
@@ -201,6 +201,20 @@ void Sensors::initializeBME()
     }
 }
 
+float Sensors::convertRawGyro(int gRaw)
+{
+	//we are using 2000 DPS range
+	float g = (gRaw * 2000.0) / 32768.0;
+	return g;
+}
+
+float Sensors::convertRawAccel(int aRaw)
+{
+	//2G range
+	float a = (aRaw * 2.0) / 32768.0;
+	return a;
+}
+
 void Sensors::readBMI()
 {
     bmi160_sensor_data accel;
@@ -210,6 +224,21 @@ void Sensors::readBMI()
     /* To read both Accel and Gyro data */
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
                             &accel, &gyro, &dev_bmi);
+							
+	if (rslt == BMI160_OK)
+	{
+		float gyroX = convertRawGyro(gyro.x);
+		float gyroY = convertRawGyro(gyro.y);
+		float gyroZ = convertRawGyro(gyro.z);
+		
+		float accX = convertRawGyro(accel.x);
+		float accY = convertRawGyro(accel.y);
+		float accZ = convertRawGyro(accel.z);
+		
+		double roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+		double pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+	}
+							
 }
 
 void Sensors::readBME()
