@@ -36,7 +36,7 @@ void setup()
 
 	//sensors.setup();
 	
-	/*
+	
 	if (!BMI160.begin(BMI160GenClass::SPI_MODE, 8))
 	{
 		Serial.println("BMI160 setup failed");
@@ -49,7 +49,6 @@ void setup()
 		BMI160.setAccelerometerRange(2);
 		delay(200);
 	}
-	*/
 	
 	
 	//motors.setupESCs();
@@ -67,11 +66,11 @@ void loop()
 	digitalWrite(LED_STATUS, LOW);
 	delay(500);
 	
-	/*
+	
 	int x, y, z;
 	BMI160.readAccelerometer(x, y, z);
 	Serial.println(x);
-	*/
+	
 	//sensors.setup();
 
 	/*
