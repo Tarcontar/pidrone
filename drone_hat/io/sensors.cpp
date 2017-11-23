@@ -5,8 +5,8 @@
 #include <bme280.h>
 
 // set up the speed, data order and data mode
-SPISettings set_bmi(2000000, MSBFIRST, SPI_MODE1);
-SPISettings set_bme(16000000, LSBFIRST, SPI_MODE3);
+SPISettings set_bmi(2000000, MSBFIRST, SPI_MODE0);
+SPISettings set_bme(2000000, MSBFIRST, SPI_MODE0);
 
 struct bmi160_dev dev_bmi;
 struct bme280_dev dev_bme;
@@ -52,7 +52,7 @@ int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
 
     SPI.transfer(reg_addr);
 
-    for(int i=0;i<len;++i)
+    for(int i=0;i<len;i++)
         reg_data[i] = SPI.transfer(0); //where to store the bytes
 
     digitalWrite (pin, HIGH);
@@ -87,7 +87,7 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
     SPI.transfer(reg_addr); // Write the register address, ignore the return
 
-    for(int i=0;i<len;++i)
+    for(int i=0;i<len;i++)
         SPI.transfer(reg_data[i]);
 
     digitalWrite (pin, HIGH);
