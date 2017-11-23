@@ -46,7 +46,10 @@ void loop()
 	delay(500);
 	digitalWrite(LED_STATUS, LOW);
 	delay(500);
+	
+	sensors.setup();
 
+	/*
 	//filter these receiver values?
 	int thrust = receiver.getChannel(PWMReceiver::CHANNEL::THRUST);
 	int rc_roll = receiver.getChannel(PWMReceiver::CHANNEL::ROLL);
@@ -60,9 +63,6 @@ void loop()
 	sensors.update();
 	//get accel values and map to 1000 - 2000
 	
-	
-	
-	
 	int roll = 0;
 	int pitch = 0;
 	int yaw = 0;
@@ -72,4 +72,5 @@ void loop()
 	int y = yawPID.update(yaw);
 	
 	motors.update(thrust, r, p, y);
+	*/
 }
