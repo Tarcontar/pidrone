@@ -2,18 +2,16 @@
 #include <Servo.h>
 
 #define MIN_THROTTLE 1000
-#define MAX_THROTTLE 1700
+#define MAX_THROTTLE 1700 //2000 set to 1700 for testing (safety)
 
 class Motors
 {
 public:
-
 	Motors(int FLpin, int FRpin, int BRpin, int BLpin);
-	~Motors();
+
+	void setupESCs();
 	
-	void SetupESCs();
-	
-	void Update(int throttle, int roll, int pitch, int yaw);
+	void update(int throttle, int roll, int pitch, int yaw);
 	
 private:
 	void Roll(int value);

@@ -1,264 +1,72 @@
 #include <Arduino.h>
 #include <stdint.h>
-#include <org1411.h>
-#include <Servo.h>
 #include "io/pwmreceiver.h"
 #include "io/sensors.h"
+#include "math/pid.h"
+#include "actuators/motors.h"
+#include "hat_pcb.h"
 
-#define STATUS_LED 2
-
-#define MIN_THROTTLE 1000
-#define MAX_THROTTLE 1700
+#define PRESSURE_SEALEVEL 1013.25F
 
 PWMReceiver receiver;
 
-uint16_t FLSpeed = 0;
-uint16_t FRSpeed = 0;
-uint16_t BRSpeed = 0;
-uint16_t BLSpeed = 0;
+Sensors sensors;
+Motors motors(FL_MOTOR, FR_MOTOR, BR_MOTOR, BL_MOTOR);
 
-Servo motorFL;
-Servo motorFR;
-Servo motorBR;
-Servo motorBL;
+PID rollPID(1.0);
+PID pitchPID(1.0);
+PID yawPID(1.0);
 
-// BME280 bme(BME280_PIN);
-Org1411 gps;
-
+//use these in debug only!!
 bool has_bmi = false;
 bool has_bme = false;
 bool has_gps = false;
 
-#define PRESSURE_SEALEVEL 1013.25F
-
-// void printAccel()
-// {
-// 	if (has_bmi)
-// 	{
-// 		int x, y, z;
-// 		BMI160.readAccelerometer(x, y, z);
-		
-// 		Serial.print("Accel: ");
-// 		Serial.print(" X: ");
-// 		Serial.print(x);
-// 		Serial.print(" Y: ");
-// 		Serial.print(y);
-// 		Serial.print(" Z: ");
-// 		Serial.print(z);
-		
-// 		Serial.println();
-// 	}
-// }
-
-// void printBME()
-// {
-// 	if (has_bme)
-// 	{
-// 		Serial.print("Temperature = ");
-// 		Serial.print(bme.readTemperature());
-// 		Serial.println(" C");
-		
-// 		Serial.print("Pressure = ");
-// 		Serial.print(bme.readPressure() / 100.0F);
-// 		Serial.println(" hPa");
-		
-// 		Serial.print("Altitude = ");
-// 		Serial.print(bme.readAltitude(PRESSURE_SEALEVEL));
-// 		Serial.println(" m");
-		
-// 		Serial.print("Humidity = ");
-// 		Serial.print(bme.readHumidity());
-// 		Serial.println(" %");
-// 	}
-// }
-
-void printGPS()
-{
-	if (has_gps)
-	{
-		gps.read();
-	}
-}
-
-void setupMotors()
-{
-	FLSpeed = MIN_THROTTLE;
-	FRSpeed = MIN_THROTTLE;
-	BRSpeed = MIN_THROTTLE;
-	BLSpeed = MIN_THROTTLE;
-	
-	motorFL.attach(10);
-	motorFR.attach(9);
-	motorBR.attach(6);
-	motorBL.attach(3);
-	
-	uint16_t min = 1000;
-	uint16_t max = 2000;
-	motorFL.writeMicroseconds(min);
-	motorFR.writeMicroseconds(min);
-	motorBR.writeMicroseconds(min);
-	motorBL.writeMicroseconds(min);
-	delay(3000);
-	motorFL.writeMicroseconds(max);
-	motorFR.writeMicroseconds(max);
-	motorBR.writeMicroseconds(max);
-	motorBL.writeMicroseconds(max);
-	delay(2);
-	motorFL.writeMicroseconds(min);
-	motorFR.writeMicroseconds(min);
-	motorBR.writeMicroseconds(min);
-	motorBL.writeMicroseconds(min);
-}
-
-void setMotorSpeeds()
-{
-	FLSpeed = min(max(FLSpeed, MIN_THROTTLE), MAX_THROTTLE);
-	FRSpeed = min(max(FRSpeed, MIN_THROTTLE), MAX_THROTTLE);
-	BRSpeed = min(max(BRSpeed, MIN_THROTTLE), MAX_THROTTLE);
-	BLSpeed = min(max(BLSpeed, MIN_THROTTLE), MAX_THROTTLE);
-	
-	motorFL.writeMicroseconds(FLSpeed);
-	motorFR.writeMicroseconds(FRSpeed);
-	motorBR.writeMicroseconds(BRSpeed);
-	motorBL.writeMicroseconds(BLSpeed);
-}
-
-void Roll(int value)
-{
-	FLSpeed += value;
-	BLSpeed += value;
-	FRSpeed -= value;
-	BRSpeed -= value;
-}
-
-void Pitch(int value)
-{
-	FLSpeed += value;
-	BLSpeed -= value;
-	FRSpeed += value;
-	BRSpeed -= value;
-}
-
-void Yaw(int value)
-{
-	FLSpeed -= value;
-	BLSpeed += value;
-	FRSpeed += value;
-	BRSpeed -= value;
-}
-
-void Throttle(int value)
-{
-	FLSpeed += value;
-	BLSpeed += value;
-	FRSpeed += value;
-	BRSpeed += value;
-}
-
-void setMotors(int speed)
-{
-	motorFL.writeMicroseconds(speed);
-	motorFR.writeMicroseconds(speed);
-	motorBR.writeMicroseconds(speed);
-	motorBL.writeMicroseconds(speed);
-}
-
-void Foreward(int value)
-{
-	Pitch(value);
-	Throttle(value);
-}
-
-void Back(int value)
-{
-	Pitch(-value);
-	Throttle(value);
-}
-
-void Left(int value)
-{
-	Roll(-value);
-	Throttle(value);
-}
-
-void Right(int value)
-{
-	Roll(value);
-	Throttle(value);
-}
-
-Sensors sensors;
 
 void setup() 
 {
 	Serial.begin(9600);
 
 	Serial.println("#### STARTING SETUP ####");
-	pinMode(STATUS_LED, OUTPUT); 
+	pinMode(LED_STATUS, OUTPUT); 
 
 	sensors.setup();
-
-	// if (!BMI160.begin(BMI160GenClass::SPI_MODE, BMI160_PIN))
-	// {
-	// 	Serial.println("BMI SETUP ERROR!!!!");
-	// }
-	// else 
-	// {
-	// 	has_bmi = true;
-	// 	Serial.println("BMI SUCCESSFULL");
-	// 	BMI160.setGyroRate(25);
-	// 	BMI160.setAccelerometerRate(25);
-		
-	// 	BMI160.setGyroRange(250);
-	// 	BMI160.setAccelerometerRange(2);
-		
-	// 	delay(200);
-	// 	printAccel();
-	// }
 	
-	// if (!bme.begin())
-	// {
-	// 	Serial.println("BME SETUP ERROR");
-	// }
-	// else
-	// {
-	// 	has_bme = true;
-	// 	Serial.println("BME SUCCESSFULL");	
-	// 	printBME();
-	// }
+	motors.setupESCs();
 	
-	setupMotors();
-	
-	int8_t channels[6] = {A0, A1, A2, A3, A4, A5};
+	int8_t channels[6] = {CH1, CH2, CH3, CH4, CH5, CH6};
 	receiver.SetChannels(channels);
+	
+	float roll = 0.0;
+	float pitch = 0.0;
+	float yaw = 0.0;
+	
+	//TODO: save calibrated accel values to eeprom
+	
+	rollPID.setTarget(roll);
+	pitchPID.setTarget(pitch);
+	yawPID.setTarget(yaw);
 	
 	Serial.println("##### SETUP READY ######");
 }
 
 void loop() 
 {
-	digitalWrite(STATUS_LED, HIGH);
+	digitalWrite(LED_STATUS, HIGH);
 	delay(500);
-	digitalWrite(STATUS_LED, LOW);
+	digitalWrite(LED_STATUS, LOW);
 	delay(500);
 
 	sensors.update();
+	//get accel values
+	float roll = 0.0;
+	float pitch = 0.0;
+	float yaw = 0.0;
+	//hacky since we cant use floats in the motors class (PWM 1000 - 2000)
+	int r = rollPID.update(roll) * 10;
+	int p = pitchPID.update(pitch) * 10;
+	int y = yawPID.update(yaw) * 10;
 	
-	FLSpeed = MIN_THROTTLE;
-	FRSpeed = MIN_THROTTLE;
-	BRSpeed = MIN_THROTTLE;
-	BLSpeed = MIN_THROTTLE;
-	
-	int thrust = receiver.getChannel(3) - MIN_THROTTLE;
-	Throttle(thrust);
-	
-	/*
-	if (thrust > 0)
-	{
-		Roll(receiver.getChannel(1) - 1500);
-		Pitch(receiver.getChannel(2) - 1500);
-		Yaw(receiver.getChannel(4) - 1500);
-	}
-	*/
-	setMotorSpeeds();
+	int thrust = 0; //get thrust from receiver channel
+	motors.update(thrust, r, p, 0);
 }

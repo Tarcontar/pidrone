@@ -2,13 +2,13 @@
 
 //implement TPA for PID
 
-PID::PID() 
+PID::PID(float Kp, float Ki, float Kd) : m_Kp(Kp), m_Ki(Ki), m_Kd(Kd) 
 {
 	m_last_error = 0;
 	m_integral = 0;
 }
 
-float PID::Update(float value)
+float PID::update(float value)
 {
 	float error = m_target - value;
 

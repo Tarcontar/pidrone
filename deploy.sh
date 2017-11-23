@@ -1,5 +1,4 @@
 #!/bin/bash
-mkdir -p build
+bash compile.sh
 cd build
-cmake ..
-sudo make all
+make upload_drone_hat

@@ -10,45 +10,45 @@ Motors::Motors(int FLpin, int FRpin, int BRpin, int BLpin) :
 	m_BLmotor.attach(BLpin);
 }
 
-void Motors::SetupESCs()
+void Motors::setupESCs()
 {
 	int min = 1000;
 	int max = 2000;
-	m_motorFL.writeMicroseconds(min);
-	m_motorFR.writeMicroseconds(min);
-	m_motorBR.writeMicroseconds(min);
-	m_motorBL.writeMicroseconds(min);
+	m_FLmotor.writeMicroseconds(min);
+	m_FRmotor.writeMicroseconds(min);
+	m_BRmotor.writeMicroseconds(min);
+	m_BLmotor.writeMicroseconds(min);
 	delay(3000);
-	m_motorFL.writeMicroseconds(max);
-	m_motorFR.writeMicroseconds(max);
-	m_motorBR.writeMicroseconds(max);
-	m_motorBL.writeMicroseconds(max);
+	m_FLmotor.writeMicroseconds(max);
+	m_FRmotor.writeMicroseconds(max);
+	m_BRmotor.writeMicroseconds(max);
+	m_BLmotor.writeMicroseconds(max);
 	delay(2);
-	m_motorFL.writeMicroseconds(min);
-	m_motorFR.writeMicroseconds(min);
-	m_motorBR.writeMicroseconds(min);
-	m_motorBL.writeMicroseconds(min);
+	m_FLmotor.writeMicroseconds(min);
+	m_FRmotor.writeMicroseconds(min);
+	m_BRmotor.writeMicroseconds(min);
+	m_BLmotor.writeMicroseconds(min);
 }
 
-void Update(int throttle, int roll, int pitch, int yaw)
+void Motors::update(int throttle, int roll, int pitch, int yaw)
 {
-	Throttle(throttle);
+	Throttle(throttle + MIN_THROTTLE);
 	Roll(roll);
 	Pitch(pitch);
-	YAW(yaw);
+	Yaw(yaw);
 	
 	m_FLspeed = min(max(m_FLspeed, MIN_THROTTLE), MAX_THROTTLE);
 	m_FRspeed = min(max(m_FRspeed, MIN_THROTTLE), MAX_THROTTLE);
 	m_BRspeed = min(max(m_BRspeed, MIN_THROTTLE), MAX_THROTTLE);
 	m_BLspeed = min(max(m_BLspeed, MIN_THROTTLE), MAX_THROTTLE);
 	
-	m_motorFL.writeMicroseconds(m_FLspeed);
-	m_motorFR.writeMicroseconds(m_FRspeed);
-	m_motorBR.writeMicroseconds(m_BRspeed);
-	m_motorBL.writeMicroseconds(m_BLspeed);
+	m_FLmotor.writeMicroseconds(m_FLspeed);
+	m_FRmotor.writeMicroseconds(m_FRspeed);
+	m_BRmotor.writeMicroseconds(m_BRspeed);
+	m_BLmotor.writeMicroseconds(m_BLspeed);
 }
 
-void Roll(int value)
+void Motors::Roll(int value)
 {
 	m_FLspeed += value;
 	m_BLspeed += value;
@@ -56,7 +56,7 @@ void Roll(int value)
 	m_BRspeed -= value;
 }
 
-void Pitch(int value)
+void Motors::Pitch(int value)
 {
 	m_FLspeed += value;
 	m_BLspeed -= value;
@@ -64,7 +64,7 @@ void Pitch(int value)
 	m_BRspeed -= value;
 }
 
-void Yaw(int value)
+void Motors::Yaw(int value)
 {
 	m_FLspeed -= value;
 	m_BLspeed += value;
@@ -72,7 +72,7 @@ void Yaw(int value)
 	m_BRspeed -= value;
 }
 
-void Throttle(int value)
+void Motors::Throttle(int value)
 {
 	m_FLspeed += value;
 	m_BLspeed += value;
