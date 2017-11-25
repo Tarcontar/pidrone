@@ -16,8 +16,8 @@ struct bme280_dev dev_bme;
 void Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 {
     // set the Slave Select Pins as outputs:
-    pinMode (8, OUTPUT);
-    pinMode (7, OUTPUT);
+    pinMode (bmi_cs, OUTPUT);
+    pinMode (bmi_cs, OUTPUT);
     SPI.begin();
     initializeBMI();
     //initializeBME();
@@ -33,14 +33,14 @@ int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr,
                             uint8_t *reg_data, uint16_t len)
 {
     SPI.beginTransaction(set);
-    digitalWrite (8, LOW);
+    digitalWrite (cs, LOW);
 
     SPI.transfer(reg_addr); 
 
     for(uint16_t i = 0; i < len; i++)
         reg_data[i] = SPI.transfer(reg_data[i]);
 
-    digitalWrite (8, HIGH);
+    digitalWrite (cs, HIGH);
     SPI.endTransaction();
 
     return 0;
@@ -163,7 +163,12 @@ void Sensors::readBMI()
 
     /* To read both Accel and Gyro data */
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
-                            &accel, &gyro, &dev_bmi);						
+                            &accel, &gyro, &dev_bmi);
+	
+	Serial.println("###");
+	Serial.println(accel.x);
+	Serial.println(accel.y);
+	Serial.println(accel.z);						
 }
 
 void Sensors::readBME()

@@ -1,7 +1,7 @@
 #!/bin/bash
 unexport ()
 {
-	echo "unexport "
+	echo "unexport $1"
 	echo "$1" > /sys/class/gpio/unexport
 }
 unexport 18
