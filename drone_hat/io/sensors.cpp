@@ -15,7 +15,8 @@ struct bme280_dev dev_bme;
 
 void Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 {
-    // set the Slave Select Pins as outputs:
+    m_bmi_cs = bmi_cs;
+	m_bme_cs = bme_cs;
     pinMode (bmi_cs, OUTPUT);
     pinMode (bmi_cs, OUTPUT);
     SPI.begin();
@@ -54,7 +55,7 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
 void Sensors::initializeBMI()
 {
     /* You may assign a chip select identifier to be handled later */
-    dev_bmi.id = 8;
+    dev_bmi.id = m_bmi_cs;
     dev_bmi.interface = BMI160_SPI_INTF;
     dev_bmi.read = spi_transfer;
     dev_bmi.write = spi_transfer;
@@ -65,9 +66,9 @@ void Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("1Could not initialize BMI160: ");
+        Serial.print("Could not initialize BMI160: ");
         Serial.println(rslt);
-        //return;
+        return;
     }
 
     rslt = BMI160_OK;
@@ -93,7 +94,7 @@ void Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("2Could not initialize BMI160: ");
+        Serial.print("Could not initialize BMI160: ");
         Serial.println(rslt);
     }
 
@@ -165,10 +166,19 @@ void Sensors::readBMI()
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
                             &accel, &gyro, &dev_bmi);
 	
-	Serial.println("###");
-	Serial.println(accel.x);
-	Serial.println(accel.y);
-	Serial.println(accel.z);						
+	Serial.print("\n#accel: ");
+	Serial.print(accel.x);
+	Serial.print(" ");
+	Serial.print(accel.y);
+	Serial.print(" ");
+	Serial.print(accel.z);				
+
+	Serial.print("\n#gyro: ");
+	Serial.print(gyro.x);
+	Serial.print(" ");
+	Serial.print(gyro.y);
+	Serial.print(" ");
+	Serial.print(gyro.z);					
 }
 
 void Sensors::readBME()
@@ -176,4 +186,6 @@ void Sensors::readBME()
     bme280_data comp_data;
     int8_t rslt = BMI160_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
+	
+	Serial.println(comp_data.temperature);
 }
