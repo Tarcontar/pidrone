@@ -1,5 +1,5 @@
 add_avr_executable(drone_hat 
-        drone.cpp
+        drone_working.cpp
         math/pid.cpp
 		io/sensors.cpp
 		actuators/motors.cpp)
