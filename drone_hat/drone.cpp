@@ -45,7 +45,7 @@ void loop()
 	digitalWrite(LED_STATUS, LOW);
 	delay(500);
 
-	sensors.update();
+	sensors.setup();
 
 	/*
 	//filter these receiver values?

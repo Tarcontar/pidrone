@@ -15,11 +15,9 @@ struct bme280_dev dev_bme;
 
 void Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 {
-	m_bmi_cs = bmi_cs;
-	m_bme_cs = bme_cs;
     // set the Slave Select Pins as outputs:
-    pinMode (m_bmi_cs, OUTPUT);
-    pinMode (m_bme_cs, OUTPUT);
+    pinMode (8, OUTPUT);
+    pinMode (7, OUTPUT);
     SPI.begin();
     initializeBMI();
     //initializeBME();
@@ -56,7 +54,7 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
 void Sensors::initializeBMI()
 {
     /* You may assign a chip select identifier to be handled later */
-    dev_bmi.id = m_bmi_cs;
+    dev_bmi.id = 8;
     dev_bmi.interface = BMI160_SPI_INTF;
     dev_bmi.read = spi_transfer;
     dev_bmi.write = spi_transfer;
@@ -67,9 +65,9 @@ void Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("Could not initialize BMI160: ");
+        Serial.print("1Could not initialize BMI160: ");
         Serial.println(rslt);
-        return;
+        //return;
     }
 
     rslt = BMI160_OK;
@@ -95,7 +93,7 @@ void Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("Could not initialize BMI160: ");
+        Serial.print("2Could not initialize BMI160: ");
         Serial.println(rslt);
     }
 
