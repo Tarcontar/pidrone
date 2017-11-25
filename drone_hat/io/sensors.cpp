@@ -22,28 +22,27 @@ void Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
     pinMode (m_bme_cs, OUTPUT);
     SPI.begin();
     initializeBMI();
-    initializeBME();
+    //initializeBME();
 }
 
 void Sensors::update()
 {
     readBMI();
-    readBME();
+    //readBME();
 }
 
 int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr,
                             uint8_t *reg_data, uint16_t len)
 {
-    //send all bytes
     SPI.beginTransaction(set);
-    digitalWrite (cs, LOW);
+    digitalWrite (8, LOW);
 
-    SPI.transfer(reg_addr); // Write the register address, ignore the return
+    SPI.transfer(reg_addr); 
 
-    for(uint16_t i=0; i < len; i++)
+    for(uint16_t i = 0; i < len; i++)
         reg_data[i] = SPI.transfer(reg_data[i]);
 
-    digitalWrite (cs, HIGH);
+    digitalWrite (8, HIGH);
     SPI.endTransaction();
 
     return 0;
@@ -66,7 +65,7 @@ void Sensors::initializeBMI()
     int8_t rslt = BMI160_OK;
     rslt = bmi160_init(&dev_bmi);
 
-    if(rslt!=BMI160_OK)
+    if(rslt != BMI160_OK)
     {
         Serial.print("Could not initialize BMI160: ");
         Serial.println(rslt);
@@ -107,6 +106,10 @@ void Sensors::initializeBMI()
         Serial.print("BMI160 self test failed: ");
         Serial.println(rslt);
     }
+	else
+	{
+		Serial.println("BMI160 ready");
+	}
 }
 
 void Sensors::initializeBME()
@@ -121,7 +124,7 @@ void Sensors::initializeBME()
     int8_t rslt = BME280_OK;
     rslt = bme280_init(&dev_bme);
 
-    if(rslt!=BME280_OK)
+    if(rslt != BME280_OK)
     {
         Serial.print("Could not initialize BME280: ");
         Serial.println(rslt);
@@ -143,11 +146,15 @@ void Sensors::initializeBME()
 	rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
 	rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev_bme);
 
-    if(rslt!=BME280_OK)
+    if(rslt != BME280_OK)
     {
        Serial.print("Could not initialize BME280: ");
        Serial.println(rslt);
     }
+	else
+	{
+		Serial.println("BME280 ready");
+	}
 }
 
 void Sensors::readBMI()
