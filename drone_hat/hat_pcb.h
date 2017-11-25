@@ -2,6 +2,9 @@
 
 static const uint8_t LED_STATUS = 2;
 
+static const uint8_t BMI_CS = 8;
+static const uint8_t BME_CS = 7;
+
 static const uint8_t FL_MOTOR = 10;
 static const uint8_t FR_MOTOR = 9;
 static const uint8_t BR_MOTOR = 6;

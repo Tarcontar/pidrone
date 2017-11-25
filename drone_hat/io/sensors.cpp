@@ -5,17 +5,21 @@
 #include <bme280.h>
 
 // set up the speed, data order and data mode
-SPISettings set_bmi(2000000, MSBFIRST, SPI_MODE0);
-SPISettings set_bme(2000000, MSBFIRST, SPI_MODE0);
+//SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
+//SPISettings set_bme(1000000, MSBFIRST, SPI_MODE0);
+
+SPISettings set(1000000, MSBFIRST, SPI_MODE0);
 
 struct bmi160_dev dev_bmi;
 struct bme280_dev dev_bme;
 
-void Sensors::setup()
+void Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 {
+	m_bmi_cs = bmi_cs;
+	m_bme_cs = bme_cs;
     // set the Slave Select Pins as outputs:
-    pinMode (BMI_CS, OUTPUT);
-    pinMode (BME_CS, OUTPUT);
+    pinMode (m_bmi_cs, OUTPUT);
+    pinMode (m_bme_cs, OUTPUT);
     SPI.begin();
     initializeBMI();
     initializeBME();
@@ -27,70 +31,19 @@ void Sensors::update()
     readBME();
 }
 
-int8_t Sensors::user_spi_read(uint8_t dev_id, uint8_t reg_addr,
+int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr,
                             uint8_t *reg_data, uint16_t len)
 {
-    Serial.println("Do read");
-
-    SPISettings set;
-    int pin = 0;
-    switch(dev_id)
-    {
-        case ID_BMI:
-            set = set_bmi;
-            pin = BMI_CS; // Gpio used as a chip select
-            break;
-        case ID_BME:
-            set = set_bme;
-            pin = BME_CS;
-            break;
-    }
-
     //send all bytes
     SPI.beginTransaction(set);
-    digitalWrite (pin, LOW);
-
-    SPI.transfer(reg_addr);
-
-    for(uint16_t i=0;i<len;i++)
-        reg_data[i] = SPI.transfer(0); //where to store the bytes
-
-    digitalWrite (pin, HIGH);
-    SPI.endTransaction();
-
-    return 0;
-}
-
-int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
-                            uint8_t *reg_data, uint16_t len)
-{
-
-    Serial.println("Do write");
-
-    SPISettings set;
-    int pin = 0;
-    switch(dev_id)
-    {
-        case ID_BMI:
-            set = set_bmi;
-            pin = BMI_CS; // Gpio used as a chip select
-            break;
-        case ID_BME:
-            set = set_bme;
-            pin = BME_CS;
-            break;
-    }
-
-    //send all bytes
-    SPI.beginTransaction(set);
-    digitalWrite (pin, LOW);
+    digitalWrite (cs, LOW);
 
     SPI.transfer(reg_addr); // Write the register address, ignore the return
 
-    for(uint16_t i=0;i<len;i++)
-        SPI.transfer(reg_data[i]);
+    for(uint16_t i=0; i < len; i++)
+        reg_data[i] = SPI.transfer(reg_data[i]);
 
-    digitalWrite (pin, HIGH);
+    digitalWrite (cs, HIGH);
     SPI.endTransaction();
 
     return 0;
@@ -98,19 +51,16 @@ int8_t Sensors::user_spi_write(uint8_t dev_id, uint8_t reg_addr,
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    Serial.print("Do delay ");
-    Serial.println(milliseconds);
     delay(milliseconds);
 }
-
 
 void Sensors::initializeBMI()
 {
     /* You may assign a chip select identifier to be handled later */
-    dev_bmi.id = ID_BMI;
+    dev_bmi.id = m_bmi_cs;
     dev_bmi.interface = BMI160_SPI_INTF;
-    dev_bmi.read = user_spi_read;
-    dev_bmi.write = user_spi_write;
+    dev_bmi.read = spi_transfer;
+    dev_bmi.write = spi_transfer;
     dev_bmi.delay_ms = user_delay_ms;
 
     int8_t rslt = BMI160_OK;
@@ -126,7 +76,7 @@ void Sensors::initializeBMI()
     rslt = BMI160_OK;
 
     /* Select the Output data rate, range of accelerometer sensor */
-    dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_1600HZ;
+    dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_100HZ; //1600HZ
     dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
     dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
 
@@ -134,7 +84,7 @@ void Sensors::initializeBMI()
     dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
 
     /* Select the Output data rate, range of Gyroscope sensor */
-    dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_3200HZ;
+    dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_100HZ; //3200HZ
     dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
     dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
 
@@ -144,16 +94,15 @@ void Sensors::initializeBMI()
     /* Set the sensor configuration */
     rslt = bmi160_set_sens_conf(&dev_bmi);
 
-    if(rslt!=BMI160_OK)
+    if(rslt != BMI160_OK)
     {
         Serial.print("Could not initialize BMI160: ");
         Serial.println(rslt);
     }
 
-    rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
-                                    &dev_bmi);
+    rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &dev_bmi);
 
-    if(rslt!=BMI160_OK)
+    if(rslt != BMI160_OK)
     {
         Serial.print("BMI160 self test failed: ");
         Serial.println(rslt);
@@ -163,10 +112,10 @@ void Sensors::initializeBMI()
 void Sensors::initializeBME()
 {
     /* Sensor_0 interface over SPI with native chip select line */
-    dev_bme.dev_id = ID_BME;
+    dev_bme.dev_id = m_bme_cs;
     dev_bme.intf = BME280_SPI_INTF;
-    dev_bme.read = user_spi_read;
-    dev_bme.write = user_spi_write;
+    dev_bme.read = spi_transfer;
+    dev_bme.write = spi_transfer;
     dev_bme.delay_ms = user_delay_ms;
 
     int8_t rslt = BME280_OK;
@@ -201,20 +150,6 @@ void Sensors::initializeBME()
     }
 }
 
-float Sensors::convertRawGyro(int gRaw)
-{
-	//we are using 2000 DPS range
-	float g = (gRaw * 2000.0) / 32768.0;
-	return g;
-}
-
-float Sensors::convertRawAccel(int aRaw)
-{
-	//2G range
-	float a = (aRaw * 2.0) / 32768.0;
-	return a;
-}
-
 void Sensors::readBMI()
 {
     bmi160_sensor_data accel;
@@ -223,22 +158,7 @@ void Sensors::readBMI()
 
     /* To read both Accel and Gyro data */
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
-                            &accel, &gyro, &dev_bmi);
-							
-	if (rslt == BMI160_OK)
-	{
-		float gyroX = convertRawGyro(gyro.x);
-		float gyroY = convertRawGyro(gyro.y);
-		float gyroZ = convertRawGyro(gyro.z);
-		
-		float accX = convertRawGyro(accel.x);
-		float accY = convertRawGyro(accel.y);
-		float accZ = convertRawGyro(accel.z);
-		
-		double roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-		double pitch = atan2(-accX, accZ) * RAD_TO_DEG;
-	}
-							
+                            &accel, &gyro, &dev_bmi);						
 }
 
 void Sensors::readBME()
