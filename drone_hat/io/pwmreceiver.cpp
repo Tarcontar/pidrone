@@ -32,7 +32,7 @@ PWMReceiver::PWMReceiver()
  
 }
 
-void PWMReceiver::setChannels(const int8_t channels[6])
+void PWMReceiver::setChannels(const uint8_t channels[6])
 {
   for (uint8_t i = 0; i < 6; i++)
   {

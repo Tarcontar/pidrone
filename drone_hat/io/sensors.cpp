@@ -27,12 +27,6 @@ bool Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 	return true;
 }
 
-void Sensors::update()
-{
-    readBMI();
-    //readBME();
-}
-
 int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     SPI.beginTransaction(set);
@@ -162,7 +156,7 @@ bool Sensors::initializeBME()
 	return true;
 }
 
-void Sensors::readBMI()
+void Sensors::readBMI(double *roll, double *pitch, double * yaw)
 {
     bmi160_sensor_data accel;
     bmi160_sensor_data gyro;
@@ -171,20 +165,23 @@ void Sensors::readBMI()
     /* To read both Accel and Gyro data */
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
                             &accel, &gyro, &dev_bmi);
+							
+	if (rslt != BMI160_OK)
+	{
+		return;
+	}
 	
-	Serial.print("\n#accel: ");
-	Serial.print(accel.x);
-	Serial.print(" ");
-	Serial.print(accel.y);
-	Serial.print(" ");
-	Serial.print(accel.z);				
-
-	Serial.print("\n#gyro: ");
-	Serial.print(gyro.x);
-	Serial.print(" ");
-	Serial.print(gyro.y);
-	Serial.print(" ");
-	Serial.print(gyro.z);					
+	float gyroX = convertRawGyro(gyro.x);
+	float gyroY = convertRawGyro(gyro.y);
+	float gyroZ = convertRawGyro(gyro.z);
+	
+	float accX = convertRawAccel(accel.x);
+	float accY = convertRawAccel(accel.y);
+	float accZ = convertRawAccel(accel.z);
+	
+	*roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+	*pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    *yaw = 0.0; //how to calculate?
 }
 
 void Sensors::readBME()
@@ -200,4 +197,21 @@ void Sensors::readBME()
 	Serial.print(" pressure: ");
 	Serial.print(comp_data.pressure);
 	Serial.println();
+}
+
+float Sensors::convertRawGyro(int gRaw)
+{
+	//since we are using 250 degrees/second range
+	float g = (gRaw * 250.0) / 32768.0;
+	return g;
+}
+
+float Sensors::convertRawAccel(int aRaw)
+{
+	// since we are using 2G range
+	// -2g maps to a raw value of -32768
+	// +2g maps to a raw value of 32767
+
+	float a = (aRaw * 2.0) / 32768.0;
+	return a;
 }

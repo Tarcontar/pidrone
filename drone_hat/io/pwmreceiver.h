@@ -18,7 +18,7 @@ public:
 
 	PWMReceiver();
 
-  void setChannels(const int8_t channels[6]);
+  void setChannels(const uint8_t channels[6]);
 
   uint16_t getChannel(CHANNEL c);
 };
