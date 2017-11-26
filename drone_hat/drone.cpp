@@ -5,14 +5,18 @@
 
 Sensors sensors;
 
-void blink(int ms)
+void blink(int count)
 {
 	while (true)
 	{
-		digitalWrite(LED_STATUS, HIGH);
-		delay(ms);
-		digitalWrite(LED_STATUS, LOW);
-		delay(ms);
+		for (int i = 0; i < count; i++)
+		{
+			digitalWrite(LED_STATUS, HIGH);
+			delay(100);
+			digitalWrite(LED_STATUS, LOW);
+			delay(100);
+		}
+		delay(1000);
 	}
 }
 
@@ -26,7 +30,7 @@ void setup()
 	if (!sensors.setup(BMI_CS, BME_CS))
 	{
 		Serial.println("Sensor setup failed");
-		blink(500);
+		blink(2);
 	}
 	
 	digitalWrite(LED_STATUS, HIGH);
