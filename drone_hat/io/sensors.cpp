@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <bmi160.h>
-//#include <bme280.h>
+#include <bme280.h>
 
 // set up the speed, data order and data mode
 //SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
@@ -11,7 +11,7 @@
 SPISettings set(1000000, MSBFIRST, SPI_MODE0);
 
 struct bmi160_dev dev_bmi;
-//struct bme280_dev dev_bme;
+struct bme280_dev dev_bme;
 
 bool Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 {
@@ -19,17 +19,17 @@ bool Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
     m_bmi_cs = bmi_cs;
 	m_bme_cs = bme_cs;
     pinMode (m_bmi_cs, OUTPUT);
-    //pinMode (m_bme_cs, OUTPUT);
+    pinMode (m_bme_cs, OUTPUT);
     SPI.begin();
     result = initializeBMI();
-    //result = initializeBME();
+    result = initializeBME();
 	return result;
 }
 
 void Sensors::update()
 {
     readBMI();
-    //readBME();
+    readBME();
 }
 
 int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
@@ -115,7 +115,6 @@ bool Sensors::initializeBMI()
 	return true;
 }
 
-/*
 bool Sensors::initializeBME()
 {
     dev_bme.dev_id = m_bme_cs;
@@ -161,7 +160,6 @@ bool Sensors::initializeBME()
 	}
 	return true;
 }
-*/
 
 void Sensors::readBMI()
 {
@@ -188,13 +186,17 @@ void Sensors::readBMI()
 	Serial.print(gyro.z);					
 }
 
-/*
 void Sensors::readBME()
 {
     bme280_data comp_data;
     int8_t rslt = BMI160_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
 	
-	Serial.println(comp_data.temperature);
+	Serial.print("\n Temp: ");
+	Serial.print(comp_data.temperature);
+	Serial.print(" humidity: ");
+	Serial.print(comp_data.humidity);
+	Serial.print(" pressure: ");
+	Serial.print(comp_data.pressure);
+	Serial.println();
 }
-*/

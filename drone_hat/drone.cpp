@@ -23,7 +23,7 @@ void setup()
 	Serial.println("\n######### STARTING SETUP ############");
 	pinMode(LED_STATUS, OUTPUT);
 
-	if (!sensors.setup(8, 7))
+	if (!sensors.setup(BMI_CS, BME_CS))
 	{
 		Serial.println("Sensor setup failed");
 		blink(500);
