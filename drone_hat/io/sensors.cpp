@@ -18,19 +18,19 @@ bool Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
     m_bmi_cs = bmi_cs;
 	m_bme_cs = bme_cs;
     pinMode (m_bmi_cs, OUTPUT);
-    pinMode (m_bme_cs, OUTPUT);
+    //pinMode (m_bme_cs, OUTPUT);
     SPI.begin();
     if (!initializeBMI())
 		return false;
-    if (!initializeBME())
-		return false;
+    //if (!initializeBME())
+	//	return false;
 	return true;
 }
 
 void Sensors::update()
 {
     readBMI();
-    readBME();
+    //readBME();
 }
 
 int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
