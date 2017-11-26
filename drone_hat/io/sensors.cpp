@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <bmi160.h>
-#include <bme280.h>
+//#include <bme280.h>
 
 // set up the speed, data order and data mode
 //SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
@@ -11,17 +11,19 @@
 SPISettings set(1000000, MSBFIRST, SPI_MODE0);
 
 struct bmi160_dev dev_bmi;
-struct bme280_dev dev_bme;
+//struct bme280_dev dev_bme;
 
-void Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
+bool Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
 {
+	bool result = true;
     m_bmi_cs = bmi_cs;
 	m_bme_cs = bme_cs;
-    pinMode (bmi_cs, OUTPUT);
-    pinMode (bmi_cs, OUTPUT);
+    pinMode (m_bmi_cs, OUTPUT);
+    //pinMode (m_bme_cs, OUTPUT);
     SPI.begin();
-    initializeBMI();
-    //initializeBME();
+    result = initializeBMI();
+    //result = initializeBME();
+	return result;
 }
 
 void Sensors::update()
@@ -30,8 +32,7 @@ void Sensors::update()
     //readBME();
 }
 
-int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr,
-                            uint8_t *reg_data, uint16_t len)
+int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     SPI.beginTransaction(set);
     digitalWrite (cs, LOW);
@@ -52,7 +53,7 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
     delay(milliseconds);
 }
 
-void Sensors::initializeBMI()
+bool Sensors::initializeBMI()
 {
     /* You may assign a chip select identifier to be handled later */
     dev_bmi.id = m_bmi_cs;
@@ -68,7 +69,7 @@ void Sensors::initializeBMI()
     {
         Serial.print("Could not initialize BMI160: ");
         Serial.println(rslt);
-        return;
+        return false;
     }
 
     rslt = BMI160_OK;
@@ -96,6 +97,7 @@ void Sensors::initializeBMI()
     {
         Serial.print("Could not initialize BMI160: ");
         Serial.println(rslt);
+		return false;
     }
 
     rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &dev_bmi);
@@ -104,16 +106,18 @@ void Sensors::initializeBMI()
     {
         Serial.print("BMI160 self test failed: ");
         Serial.println(rslt);
+		//return false;
     }
 	else
 	{
 		Serial.println("BMI160 ready");
 	}
+	return true;
 }
 
-void Sensors::initializeBME()
+/*
+bool Sensors::initializeBME()
 {
-    /* Sensor_0 interface over SPI with native chip select line */
     dev_bme.dev_id = m_bme_cs;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
@@ -127,9 +131,9 @@ void Sensors::initializeBME()
     {
         Serial.print("Could not initialize BME280: ");
         Serial.println(rslt);
+		return false;
     }
 
-    /* Recommended mode of operation: Indoor navigation */
 	dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
 	dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
 	dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
@@ -149,12 +153,15 @@ void Sensors::initializeBME()
     {
        Serial.print("Could not initialize BME280: ");
        Serial.println(rslt);
+	   return false;
     }
 	else
 	{
 		Serial.println("BME280 ready");
 	}
+	return true;
 }
+*/
 
 void Sensors::readBMI()
 {
@@ -181,6 +188,7 @@ void Sensors::readBMI()
 	Serial.print(gyro.z);					
 }
 
+/*
 void Sensors::readBME()
 {
     bme280_data comp_data;
@@ -189,3 +197,4 @@ void Sensors::readBME()
 	
 	Serial.println(comp_data.temperature);
 }
+*/

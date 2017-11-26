@@ -3,20 +3,38 @@
 #include <SPI.h>
 #include "hat_pcb.h"
 
-
 Sensors sensors;
 
-void setup() {
+void blink(int ms)
+{
+	while (true)
+	{
+		digitalWrite(LED_STATUS, HIGH);
+		delay(ms);
+		digitalWrite(LED_STATUS, LOW);
+		delay(ms);
+	}
+}
+
+void setup() 
+{
 	Serial.begin(9600);
 
 	Serial.println("\n######### STARTING SETUP ############");
 	pinMode(LED_STATUS, OUTPUT);
 
-	sensors.setup(8, 7);
+	if (!sensors.setup(8, 7))
+	{
+		Serial.println("Sensor setup failed");
+		blink(500);
+	}
+	
+	digitalWrite(LED_STATUS, HIGH);
+	Serial.println("\n######### SETUP READY ##############");
 }
 
-void loop() {
+void loop() 
+{
 	delay(1000);
-	sensors.setup();
 	sensors.update();
 }
