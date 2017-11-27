@@ -5,7 +5,7 @@ static const uint8_t LED_STATUS = 2;
 
 static const uint8_t BMI_CS = 8;
 static const uint8_t BME_CS = 7;
-static const uin8t_t GPS_CS = 5;
+static const uint8_t GPS_CS = 5;
 
 static const uint8_t FL_MOTOR = 10;
 static const uint8_t FR_MOTOR = 9;

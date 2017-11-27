@@ -277,6 +277,7 @@ function( add_avr_executable EXECUTABLE_NAME )
         -funsigned-char
         -funsigned-bitfields
         -mmcu=${AVR_MCU}
+	-DARDUINO=10608
         -DF_CPU=${AVR_MCU_SPEED}
    )
 
@@ -433,6 +434,7 @@ function( add_avr_library LIBRARY_NAME )
         -funsigned-bitfields
         -mmcu=${AVR_MCU}
         -DF_CPU=${AVR_MCU_SPEED}
+	-DARDUINO=1060
    )
 
    if( NOT TARGET ${LIBRARY_NAME} )

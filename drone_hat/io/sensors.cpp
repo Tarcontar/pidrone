@@ -9,7 +9,7 @@
 // set up the speed, data order and data mode
 SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
 SPISettings set_bme(1000000, MSBFIRST, SPI_MODE0);
-SPISettings set_gps(1000000, MSBFIRST, SPI_MODE0);
+SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
 
 struct bmi160_dev dev_bmi;
 struct bme280_dev dev_bme;
@@ -18,18 +18,20 @@ TinyGPS gps;
 
 bool Sensors::setup()
 {
-    pinMode (BMI_CS, OUTPUT);
+	delay(3000);
+/*    pinMode (BMI_CS, OUTPUT);
     digitalWrite(BMI_CS,HIGH);
     pinMode (BME_CS, OUTPUT);
-    digitalWrite(BME_CS,HIGH);
+    digitalWrite(BME_CS,HIGH);*/
     pinMode(GPS_CS,OUTPUT);
     digitalWrite(BME_CS,HIGH);
 
     SPI.begin();
+/*
     if (!initializeBMI())
 		return false;
     if (!initializeBME())
-		return false;
+		return false;*/
 	return true;
 }
 
@@ -204,25 +206,25 @@ void Sensors::readBMI()
 void Sensors::readGPS()
 {
 
+    Serial.println("Read GPS");
     SPI.beginTransaction(set_gps);
     digitalWrite (GPS_CS, LOW);
-
-    SPI.transfer(reg_addr); 
 
     //read until new data is available
     bool receivedData = false;
 
     while(!receivedData)
     {
-        char c = SP.transfer(0);
-        Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+	//Serial.println("Transfer");
+        char c = SPI.transfer(0);
+        Serial.print(c); // uncomment this line if you want to see the GPS data flowing
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
 
     digitalWrite (GPS_CS, HIGH);
     SPI.endTransaction();
-
+    Serial.println("Received sth");
 }
 
 void Sensors::readBME()
@@ -265,7 +267,7 @@ float Sensors::convertRawAccel(int aRaw)
 
 void Sensors::update()
 {
-    readBME();
-    readBMI();
+    //readBME();
+    //readBMI();
     readGPS();
 }
