@@ -7,8 +7,6 @@ public:
     bool setup();
     
     void update();
-	void readBMI();
-    void readBME();
 
     inline float getRoll()  { return m_roll; }
     inline float getYaw()   { return m_yaw; } 
@@ -16,6 +14,10 @@ public:
 private:
     bool initializeBMI();
     bool initializeBME();
+
+    void readBMI();
+    void readBME();
+    void readGPS();
 
     static int8_t spi_transfer(uint8_t cs, uint8_t reg_addr,
                                 uint8_t *reg_data, uint16_t len);

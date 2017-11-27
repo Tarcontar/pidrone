@@ -3,21 +3,26 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <bmi160.h>
-#define BME280_FLOAT_ENABLE
 #include <bme280.h>
+#include <TinyGPS.h>
 
 // set up the speed, data order and data mode
 SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
 SPISettings set_bme(1000000, MSBFIRST, SPI_MODE0);
+SPISettings set_gps(1000000, MSBFIRST, SPI_MODE0);
 
 struct bmi160_dev dev_bmi;
 struct bme280_dev dev_bme;
+
+TinyGPS gps;
 
 bool Sensors::setup()
 {
     pinMode (BMI_CS, OUTPUT);
     digitalWrite(BMI_CS,HIGH);
     pinMode (BME_CS, OUTPUT);
+    digitalWrite(BME_CS,HIGH);
+    pinMode(GPS_CS,OUTPUT);
     digitalWrite(BME_CS,HIGH);
 
     SPI.begin();
@@ -196,6 +201,30 @@ void Sensors::readBMI()
     m_yaw = 0.0; //how to calculate?
 }
 
+void Sensors::readGPS()
+{
+
+    SPI.beginTransaction(set_gps);
+    digitalWrite (GPS_CS, LOW);
+
+    SPI.transfer(reg_addr); 
+
+    //read until new data is available
+    bool receivedData = false;
+
+    while(!receivedData)
+    {
+        char c = SP.transfer(0);
+        Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+        if (gps.encode(c)) // Did a new valid sentence come in?
+            receivedData = true;
+    }
+
+    digitalWrite (GPS_CS, HIGH);
+    SPI.endTransaction();
+
+}
+
 void Sensors::readBME()
 {
     bme280_data comp_data;
@@ -238,4 +267,5 @@ void Sensors::update()
 {
     readBME();
     readBMI();
+    readGPS();
 }

@@ -4,3 +4,6 @@
 [submodule "contrib/bosch/bmi160"]
 	path = contrib/bosch/bmi160
 	url = https://github.com/BoschSensortec/BMI160_driver.git
+[submodule "contrib/tinygps"]
+	path = contrib/tinygps
+	url = https://github.com/florind/TinyGPS.git
