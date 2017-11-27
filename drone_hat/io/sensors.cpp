@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <bmi160.h>
+#define BME280_FLOAT_ENABLE
 #include <bme280.h>
 
 // set up the speed, data order and data mode

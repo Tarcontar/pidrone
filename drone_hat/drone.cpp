@@ -74,9 +74,9 @@ void loop()
 	sensors.update();
 	
 	Serial.println();
-	Serial.print("roll: ");
+	Serial.print("Roll: ");
 	Serial.print(roll);
-	Serial.print(" pitch: ");
+	Serial.print(" Ritch: ");
 	Serial.print(pitch);
 	Serial.println();
 	
