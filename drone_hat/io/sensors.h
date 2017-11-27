@@ -4,11 +4,15 @@
 class Sensors 
 {
 public:
-    bool setup(uint8_t bmi_cs = -1, uint8_t bme_cs = -1);
+    bool setup();
     
-	void readBMI(double *roll, double *pitch, double * yaw);
+    void update();
+	void readBMI();
     void readBME();
 
+    inline float getRoll()  { return m_roll; }
+    inline float getYaw()   { return m_yaw; } 
+    inline float getPitch() { return m_pitch; }
 private:
     bool initializeBMI();
     bool initializeBME();
@@ -20,7 +24,8 @@ private:
 	
 	float convertRawGyro(int gRaw);
 	float convertRawAccel(int aRaw);
-private:
-	uint8_t m_bmi_cs;
-	uint8_t m_bme_cs;
+
+    float m_roll;
+    float m_pitch;
+    float m_yaw;
 };

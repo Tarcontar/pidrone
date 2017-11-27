@@ -40,7 +40,7 @@ void setup()
 	Serial.println("\n######### STARTING SETUP ############");
 	pinMode(LED_STATUS, OUTPUT);
 
-	if (!sensors.setup(BMI_CS, BME_CS))
+	if (!sensors.setup())
 	{
 		Serial.println("Sensor setup failed");
 		blink(2);
@@ -67,11 +67,11 @@ void loop()
 	pitchPID.setTarget(rc_pitch);
 	yawPID.setTarget(rc_yaw);
 	
-	double roll = 0;
-	double pitch = 0;
-	double yaw = 0;
+	float roll = sensors.getRoll();
+	float pitch = sensors.getPitch();
+	float yaw = sensors.getYaw();
 	
-	sensors.readBMI(&roll, &pitch, &yaw);
+	sensors.update();
 	
 	Serial.println();
 	Serial.print("roll: ");

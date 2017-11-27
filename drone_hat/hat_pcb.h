@@ -1,4 +1,5 @@
 #pragma once
+#include <Arduino.h>
 
 static const uint8_t LED_STATUS = 2;
 

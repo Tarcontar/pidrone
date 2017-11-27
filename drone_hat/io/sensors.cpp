@@ -1,34 +1,45 @@
 #include "sensors.h"
+#include "../hat_pcb.h"
 #include <Arduino.h>
 #include <SPI.h>
 #include <bmi160.h>
 #include <bme280.h>
 
 // set up the speed, data order and data mode
-//SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
-//SPISettings set_bme(1000000, MSBFIRST, SPI_MODE0);
-
-SPISettings set(1000000, MSBFIRST, SPI_MODE0);
+SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
+SPISettings set_bme(1000000, MSBFIRST, SPI_MODE0);
 
 struct bmi160_dev dev_bmi;
 struct bme280_dev dev_bme;
 
-bool Sensors::setup(uint8_t bmi_cs, uint8_t bme_cs)
+bool Sensors::setup()
 {
-    m_bmi_cs = bmi_cs;
-	m_bme_cs = bme_cs;
-    pinMode (m_bmi_cs, OUTPUT);
-    //pinMode (m_bme_cs, OUTPUT);
+    pinMode (BMI_CS, OUTPUT);
+    digitalWrite(BMI_CS,HIGH);
+    pinMode (BME_CS, OUTPUT);
+    digitalWrite(BME_CS,HIGH);
+
     SPI.begin();
     if (!initializeBMI())
 		return false;
-    //if (!initializeBME())
-	//	return false;
+    if (!initializeBME())
+		return false;
 	return true;
 }
 
 int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
+    SPISettings set;
+    switch(cs)
+    {
+        case BMI_CS:
+            set = set_bmi;
+            break;
+        case BME_CS:
+            set = set_bme;
+            break;
+    }
+
     SPI.beginTransaction(set);
     digitalWrite (cs, LOW);
 
@@ -51,7 +62,7 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
 bool Sensors::initializeBMI()
 {
     /* You may assign a chip select identifier to be handled later */
-    dev_bmi.id = m_bmi_cs;
+    dev_bmi.id = BMI_CS;
     dev_bmi.interface = BMI160_SPI_INTF;
     dev_bmi.read = spi_transfer;
     dev_bmi.write = spi_transfer;
@@ -112,7 +123,7 @@ bool Sensors::initializeBMI()
 
 bool Sensors::initializeBME()
 {
-    dev_bme.dev_id = m_bme_cs;
+    dev_bme.dev_id = BME_CS;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
     dev_bme.write = spi_transfer;
@@ -156,7 +167,7 @@ bool Sensors::initializeBME()
 	return true;
 }
 
-void Sensors::readBMI(double *roll, double *pitch, double * yaw)
+void Sensors::readBMI()
 {
     bmi160_sensor_data accel;
     bmi160_sensor_data gyro;
@@ -171,17 +182,17 @@ void Sensors::readBMI(double *roll, double *pitch, double * yaw)
 		return;
 	}
 	
-	float gyroX = convertRawGyro(gyro.x);
-	float gyroY = convertRawGyro(gyro.y);
-	float gyroZ = convertRawGyro(gyro.z);
+	// float gyroX = convertRawGyro(gyro.x);
+	// float gyroY = convertRawGyro(gyro.y);
+	// float gyroZ = convertRawGyro(gyro.z);
 	
 	float accX = convertRawAccel(accel.x);
 	float accY = convertRawAccel(accel.y);
 	float accZ = convertRawAccel(accel.z);
 	
-	*roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-	*pitch = atan2(-accX, accZ) * RAD_TO_DEG;
-    *yaw = 0.0; //how to calculate?
+	m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+	m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    m_yaw = 0.0; //how to calculate?
 }
 
 void Sensors::readBME()
@@ -189,7 +200,13 @@ void Sensors::readBME()
     bme280_data comp_data;
     int8_t rslt = BMI160_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
-	
+	if(rslt != BMI160_OK)
+    {
+       Serial.print("Could not read BME280: ");
+       Serial.println(rslt);
+	   return;
+    }
+
 	Serial.print("\n Temp: ");
 	Serial.print(comp_data.temperature);
 	Serial.print(" humidity: ");
@@ -214,4 +231,10 @@ float Sensors::convertRawAccel(int aRaw)
 
 	float a = (aRaw * 2.0) / 32768.0;
 	return a;
+}
+
+void Sensors::update()
+{
+    readBME();
+    readBMI();
 }
