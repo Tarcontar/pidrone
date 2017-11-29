@@ -1,0 +1,17 @@
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_PROCESSOR arm-eabi)
+
+set(TRIPLE arm-none-eabi)
+
+set(CMAKE_C_COMPILER_WORKS 1)
+set(CMAKE_CXX_COMPILER_WORKS 1)
+set(CMAKE_C_COMPILER ${TRIPLE}-gcc)
+set(CMAKE_CXX_COMPILER ${TRIPLE}-g++)
+set(CMAKE_ASM_COMPILER ${TRIPLE}-as)
+set(CMAKE_OBJCOPY ${TRIPLE}-objcopy)
+set(CMAKE_OBJDUMP ${TRIPLE}-objdump)
+
+set(SHARED_FLAGS "--specs=nosys.specs -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16")
+set(CMAKE_C_FLAGS "${SHARED_FLAGS} -Os -g -Wall")
+set(CMAKE_CXX_FLAGS "${SHARED_FLAGS} -fno-builtin -Wall")
+set(CMAKE_ASM_FLAGS "${SHARED_FLAGS} -g -Wa,--no-warn -x assembler-with-cpp")
