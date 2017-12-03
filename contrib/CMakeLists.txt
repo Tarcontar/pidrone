@@ -7,14 +7,26 @@ set(LC_SRC
         NemaTode/src/NMEAParser.cpp 
         NemaTode/src/NumberConversion.cpp)
 
+
+set(OPENCM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3)
+set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32f3.a)
+        
+add_custom_target(OPENCM
+        COMMAND make
+        WORKING_DIRECTORY ${OPENCM_DIR}
+)
+        
+
 add_library(contrib ${LC_SRC})
 
 target_include_directories(contrib PUBLIC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3/include
+        ${OPENCM_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bme280
         ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmi160
         ${CMAKE_CURRENT_SOURCE_DIR}/NemaTode/include)
 
-target_link_libraries(contrib ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3/lib/libopencm3_stm32f3.a)
+add_dependencies(contrib OPENCM)
+
+target_link_libraries(contrib ${OPENCM_LIB})
 
 target_compile_definitions(contrib PUBLIC -DSTM32F3)

@@ -13,8 +13,10 @@ message("${CMAKE_CURRENT_SOURCE_DIR}/openocd.conf")
 message("${CMAKE_CURRENT_BINARY_DIR}")
 
 add_custom_target(upload
-	COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE_DIR:drone_hat>
-									 ${CMAKE_CURRENT_SOURCE_DIR}
+	COMMAND ${OPENOCD}
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_dependencies(upload drone_hat)
