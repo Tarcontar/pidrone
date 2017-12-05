@@ -10,10 +10,6 @@ set(LC_SRC
 
 set(OPENCM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3)
 set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32f1.a)
-        
-set(OPENCM_LIB_DIR ${OPENCM_DIR}/lib)
-link_directories(${OPENCM_LIB_DIR})
-
 
 add_custom_target(OPENCM
         COMMAND make

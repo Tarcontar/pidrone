@@ -12,9 +12,9 @@ set(CMAKE_OBJCOPY ${TRIPLE}-objcopy)
 set(CMAKE_OBJDUMP ${TRIPLE}-objdump)
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
 
-set(SHARED_FLAGS "-specs=nano.specs -specs=nosys.specs -mthumb -mcpu=cortex-m3 -msoft-float -mfix-cortex-m3-ldrd")
+set(SHARED_FLAGS "-specs=nano.specs -specs=nosys.specs -mthumb -mcpu=cortex-m3 -msoft-float")
 set(CMAKE_C_FLAGS "${SHARED_FLAGS} -Os -g -Wall")
 set(CMAKE_CXX_FLAGS "${SHARED_FLAGS} -fno-builtin -Wall")
 set(CMAKE_ASM_FLAGS "${SHARED_FLAGS} -g -Wa,--no-warn -x assembler-with-cpp")
 
-SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections -mthumb -mcpu=cortex-m3 -mabi=aapcs")
+SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections -mthumb -mcpu=cortex-m3 -nostartfiles -L${LINKER_SCRIPT_DIR}")
