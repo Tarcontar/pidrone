@@ -5,7 +5,7 @@
 static void gpio_setup(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOC);
-	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO8 | GPIO9);
+	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO8 | GPIO9);
 
 }
 

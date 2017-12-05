@@ -9,7 +9,7 @@ set(LC_SRC
 )
 
 set(OPENCM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3)
-set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32f3.a)
+set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32f1.a)
         
 add_custom_target(OPENCM
         COMMAND make
@@ -29,4 +29,4 @@ add_dependencies(contrib OPENCM)
 
 target_link_libraries(contrib ${OPENCM_LIB})
 
-target_compile_definitions(contrib PUBLIC -DSTM32F3)
+target_compile_definitions(contrib PUBLIC -DSTM32F1)
