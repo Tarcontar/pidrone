@@ -16,3 +16,5 @@ set(SHARED_FLAGS "-specs=nano.specs -specs=nosys.specs -mthumb -mcpu=cortex-m3 -
 set(CMAKE_C_FLAGS "${SHARED_FLAGS} -Os -g -Wall")
 set(CMAKE_CXX_FLAGS "${SHARED_FLAGS} -fno-builtin -Wall")
 set(CMAKE_ASM_FLAGS "${SHARED_FLAGS} -g -Wa,--no-warn -x assembler-with-cpp")
+
+SET(CMAKE_EXE_LINKER_FLAGS "-Wl,--gc-sections -mthumb -mcpu=cortex-m3 -mabi=aapcs")

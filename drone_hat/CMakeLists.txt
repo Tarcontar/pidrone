@@ -1,3 +1,6 @@
+set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
+
 add_executable(drone_hat 
         drone.cpp)
         # math/pid.cpp
@@ -6,6 +9,8 @@ add_executable(drone_hat
 		# actuators/motors.cpp)
 
 target_link_libraries(drone_hat contrib)
+
+#set_target_properties(drone_hat PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
 
 find_program(OPENOCD NAMES openocd)
 
