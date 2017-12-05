@@ -1,12 +1,12 @@
 set(LC_SRC 
         bosch/bme280/bme280.c
         bosch/bmi160/bmi160.c
-        NemaTode/src/GPSFix.cpp 
-        NemaTode/src/GPSService.cpp 
-        NemaTode/src/NMEACommand.cpp 
-        NemaTode/src/NMEAParser.cpp 
-        NemaTode/src/NumberConversion.cpp)
-
+#        NemaTode/src/GPSFix.cpp 
+#        NemaTode/src/GPSService.cpp 
+#        NemaTode/src/NMEACommand.cpp 
+#        NemaTode/src/NMEAParser.cpp 
+#        NemaTode/src/NumberConversion.cpp)
+)
 
 set(OPENCM_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libopencm3)
 set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32f3.a)

@@ -6,6 +6,7 @@ set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/stm32-toolchain.cmake")
 
 project(DRONE_HAT C CXX)
 set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 add_subdirectory(contrib)
 
