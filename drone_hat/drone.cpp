@@ -20,7 +20,7 @@ static void gpio_setup(void)
 
 int main(void)
 {
-	int i, j = 0, c = 0;
+	int j = 0, c = 0;
 	serial.begin(38400);
 	gpio_setup();
 	
@@ -31,12 +31,11 @@ int main(void)
 	{
 		gpio_toggle(GPIOC, GPIO8);
 		gpio_toggle(GPIOC, GPIO9);
-		usart_send_blocking(USART1, c + '0');
+		serial.print(c + '0');
 		c = (c == 9) ? 0 : c + 1;
 		if ((j++ % 80) == 0)
 		{
-			usart_send_blocking(USART1, '\r');
-			usart_send_blocking(USART1, '\n');
+			serial.println();
 		}
 		
 		delay(8000);

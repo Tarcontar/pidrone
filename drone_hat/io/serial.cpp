@@ -30,21 +30,25 @@ void Serial::print(int c)
 	usart_send_blocking(USART1, c);
 }
 
-void Serial::print(const std::string& str)
-{
-	for (char& c : str)
-		print(c);
-}
+//void Serial::print(std::string& str)
+//{
+	//for (char& c : str)
+	//	print(c);
+//}
 
+/*
 template <class T>
 void Serial::print(T t)
 {
-	print(std::to_string(t));
+	//print(std::to_string(t));
 }
+*/
 
+/*
 template <class T>
 void Serial::println(T t)
 {
 	print(t);
 	println();
 }
+*/
