@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
-
+#include <string>
 #include "io/serial.h"
 
 Serial serial;
@@ -26,7 +26,7 @@ int main(void)
 	
 	gpio_set(GPIOC, GPIO8);
 	gpio_clear(GPIOC, GPIO9);
-
+	std::string test = "hello world";
 	while(1)
 	{
 		gpio_toggle(GPIOC, GPIO8);
