@@ -5,7 +5,7 @@
 #include <libopencm3/cm3/systick.h>
 
 #include "io/serial.h"
-
+#include "io/pwm.h"
 
 
 Serial serial;
@@ -36,6 +36,11 @@ void sys_tick_handler(void)
 
 int main(void)
 {
+	PWM::init();
+	PWM::init_output();
+	PWM::start();
+	PWM::set_pulse_width();
+
 	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 	gpio_setup();
 
