@@ -1,30 +1,48 @@
 #include <stdint.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
+#include <string>
+#include <array>
+
+uint32_t temp32;
+std::array<uint32_t,4> test;
 
 static void gpio_setup(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOC);
 	gpio_set(GPIOC, GPIO8);
 	gpio_clear(GPIOC, GPIO9);
-	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_2_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO8 | GPIO9);
+	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, GPIO8 | GPIO9);
+}
+
+void sys_tick_handler(void)
+{
+	std::string test;
+	temp32++;
+	if (temp32 == 1000)
+	{
+		gpio_toggle(GPIOC, GPIO8);
+		temp32 = 0;
+	}
 }
 
 int main(void)
 {
-	//rcc_clock_setup_in_hse_8mhz_out_72mhz();
+	//rcc_clock_setup_in_hse_8mhz_out_8mhz();
 	gpio_setup();
+
+	temp32 = 0;
+
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_reload(8999);
+	systick_interrupt_enable();
+	systick_counter_enable();
 
 
 	/* Blink the LEDs (PC8 and PC9) on the board. */
-	while (1)
-	{
-		gpio_toggle(GPIOC, GPIO8);
-		gpio_toggle(GPIOC, GPIO9);
-
-		for (int i = 0; i < 100000; i++)
-			__asm__("nop");
-	}
+	while(1) {}
 
 	return 0;
 }
