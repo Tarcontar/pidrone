@@ -21,18 +21,14 @@
 
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/cm3/nvic.h>
+#include <libopencm3/cm3/systick.h>
 
-/* Set STM32 to 24 MHz. */
-static void clock_setup(void)
-{
-	rcc_clock_setup_in_hse_8mhz_out_24mhz();
-
-	/* Enable GPIOC clock. */
-	rcc_periph_clock_enable(RCC_GPIOC);
-}
+uint32_t temp32;
 
 static void gpio_setup(void)
 {
+	rcc_periph_clock_enable(RCC_GPIOC);
 	/* Set GPIO8/9 (in GPIO port C) to 'output push-pull'. */
 	gpio_set_mode(GPIOC, GPIO_MODE_OUTPUT_50_MHZ,
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO8);
@@ -40,12 +36,18 @@ static void gpio_setup(void)
 		      GPIO_CNF_OUTPUT_PUSHPULL, GPIO9);
 }
 
+
 int main(void)
 {
 	int i;
 
-	clock_setup();
+	rcc_clock_setup_in_hse_8mhz_out_72mhz();
 	gpio_setup();
+
+	temp32 = 0;
+
+	/* 72MHz / 8 => 9000000 counts per second */
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 
 	/* Set one LED for wigwag effect when toggling. */
 	gpio_set(GPIOC, GPIO8);
