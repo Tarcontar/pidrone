@@ -22,20 +22,20 @@ void sys_tick_handler(void)
 	temp32++;
 	if (temp32 == 1000)
 	{
-		gpio_toggle(GPIOC, GPIO8);
+		gpio_toggle(GPIOC, GPIO8 | GPIO9);
 		temp32 = 0;
 	}
 }
 
 int main(void)
 {
-	rcc_clock_setup_in_hse_16mhz_out_72mhz();
+	rcc_clock_setup_in_hse_16mhz_out_72mhz();//eig sind 8mhz verbaut aber geht nur mit 16?!?!
 	gpio_setup();
 
 	temp32 = 0;
 
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
-	systick_set_reload(8999);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_reload(499);
 	systick_interrupt_enable();
 	systick_counter_enable();
 
