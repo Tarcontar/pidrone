@@ -7,7 +7,7 @@
 #include <array>
 
 uint32_t temp32;
-std::array<uint32_t,4> test;
+std::array<uint32_t, 4> test;
 
 static void gpio_setup(void)
 {
@@ -19,7 +19,6 @@ static void gpio_setup(void)
 
 void sys_tick_handler(void)
 {
-	std::string test;
 	temp32++;
 	if (temp32 == 1000)
 	{
@@ -30,12 +29,12 @@ void sys_tick_handler(void)
 
 int main(void)
 {
-	//rcc_clock_setup_in_hse_8mhz_out_8mhz();
+	rcc_clock_setup_in_hse_16mhz_out_72mhz();
 	gpio_setup();
 
 	temp32 = 0;
 
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
 	systick_set_reload(8999);
 	systick_interrupt_enable();
 	systick_counter_enable();
