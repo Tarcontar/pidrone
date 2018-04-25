@@ -1,12 +1,14 @@
 #pragma once
+#include <string>
 
 class USART
 {
 public:
 	void begin(int baud);
 	
-	void print(int c);
+	void write(int c);
 	
+/*
 	void print(std::string& str);
 	
 	template <class T>
@@ -16,6 +18,7 @@ public:
 	void println(T t);
 	
 	inline void println() { print('\r'); print('\n'); }
+*/
 private:
 
 };

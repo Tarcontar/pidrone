@@ -1,18 +1,22 @@
 #pragma once
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/usart.h>
 
-static const uint8_t LED_STATUS_PORT = GPIOC;
-static const uint8_t LED_STATUS_PIN = GPIO12;
+//commented out parameters are for the stm32l4
 
-static const uint8_t RPI_USART_RCC_PORT = RCC_GPIOA;
-static const uint8_t RPI_USART_RCC
-static const uint8_t RPI_USART_PORT = GPIOA;
-static const uint8_t RPI_USART = USART1;
+static const rcc_periph_clken 		_LED_STATUS_RCC_PORT 	= RCC_GPIOC;
+static const uint32_t 				_LED_STATUS_PORT 		= GPIOC;
+static const uint32_t 				_LED_STATUS_PIN 		= GPIO8; //GPIO12;
+
+static const rcc_periph_clken 		_USART_RCC_PORT 		= RCC_GPIOA;
+static const rcc_periph_clken 		_USART_RCC_USART_PORT 	= RCC_USART1;
+static const uint32_t 				_USART_PORT 			= GPIOA;
+static const uint32_t 				_USART_TX 				= GPIO_USART1_TX;
+static const uint32_t 				_USART 					= USART1;
 
 
-static const uint8_t RPI_RX_PORT = GPIOC;
-static const uint8_t RPI_RX_PIN = GPIO10;
-static const uint8_t RPI_TX_PORT = GPIOC;
-static const uint8_t RPI_TX_PIN = GPIO11;
+/*
 
 static const uint8_t RPI_SPI_CS_PORT = GPIOB;
 static const uint8_t RPI_SPI_CS_PIN = GPIO12;
@@ -81,5 +85,5 @@ static const uint8_t US_TRIGG_PORT = GPIOC;
 static const uint8_t US_TRIGG_PIN = GPIO13;
 static const uint8_t US_ECHO_PORT = GPIOE;
 static const uint8_t US_ECHO_PIN = GPIO5;
-
+*/
 
