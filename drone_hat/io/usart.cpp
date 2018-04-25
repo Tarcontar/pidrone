@@ -4,11 +4,11 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/usart.h>
 
-void Serial::begin(int baud)
+void USART::begin(int baud)
 {
 	rcc_clock_setup_in_hse_8mhz_out_24mhz();
 	
-	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_GPIOA); //needed?
 	rcc_periph_clock_enable(RCC_USART1);
 	
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
@@ -25,30 +25,27 @@ void Serial::begin(int baud)
 	usart_enable(USART1);
 }
 
-void Serial::print(int c)
+void USART::print(int c)
 {
 	usart_send_blocking(USART1, c);
 }
 
-//void Serial::print(std::string& str)
-//{
-	//for (char& c : str)
-	//	print(c);
-//}
-
-/*
-template <class T>
-void Serial::print(T t)
+void USART::print(std::string& str)
 {
-	//print(std::to_string(t));
+	for (char& c : str)
+		print(c);
 }
-*/
 
-/*
 template <class T>
-void Serial::println(T t)
+void USART::print(T t)
+{
+	print(std::to_string(t));
+}
+
+template <class T>
+void USART::println(T t)
 {
 	print(t);
 	println();
 }
-*/
+
