@@ -3,7 +3,7 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
 
 add_executable(drone_hat 
         drone.cpp
-	io/serial.cpp
+	io/usart.cpp
 	io/pwm.cpp)
         # math/pid.cpp
 		# io/sensors.cpp
