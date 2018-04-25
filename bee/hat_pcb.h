@@ -3,6 +3,12 @@
 static const uint8_t LED_STATUS_PORT = GPIOC;
 static const uint8_t LED_STATUS_PIN = GPIO12;
 
+static const uint8_t RPI_USART_RCC_PORT = RCC_GPIOA;
+static const uint8_t RPI_USART_RCC
+static const uint8_t RPI_USART_PORT = GPIOA;
+static const uint8_t RPI_USART = USART1;
+
+
 static const uint8_t RPI_RX_PORT = GPIOC;
 static const uint8_t RPI_RX_PIN = GPIO10;
 static const uint8_t RPI_TX_PORT = GPIOC;

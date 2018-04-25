@@ -4,7 +4,8 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
 add_executable(bee 
 	drone.cpp
 	io/serial.cpp
-	io/pwm.cpp)
+	io/pwm.cpp
+	io/usart.cpp)
 	# math/pid.cpp
 	# io/sensors.cpp
 	# io/pwmreceiver.cpp
