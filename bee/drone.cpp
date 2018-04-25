@@ -5,9 +5,9 @@
 #include <libopencm3/cm3/systick.h>
 #include <string>
 #include <array>
+#include "io/serial.h"
 
 uint32_t temp32;
-std::array<uint32_t, 4> test;
 
 static void gpio_setup(void)
 {
@@ -31,6 +31,9 @@ int main(void)
 {
 	rcc_clock_setup_in_hse_16mhz_out_72mhz();//eig sind 8mhz verbaut aber geht nur mit 16?!?!
 	gpio_setup();
+
+	Serial ser(16000);
+	ser << "Test";
 
 	temp32 = 0;
 
