@@ -6,6 +6,10 @@
 
 #include "hat_pcb.h"
 
+#include <string>
+#include <array>
+#include "io/serial.h"
+
 uint32_t led_status_counter;
 
 void setup_status_led()
@@ -29,11 +33,16 @@ void sys_tick_handler(void)
 int main(void)
 {
 	rcc_clock_setup_in_hse_16mhz_out_72mhz();//eig sind 8mhz verbaut aber geht nur mit 16?!?!
+	
+	setup_status_led();
 
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 	systick_set_reload(71999);
 	systick_interrupt_enable();
 	systick_counter_enable();
+	
+	Serial ser(115200);
+	ser << "Test";
 
 	while(1) {}
 

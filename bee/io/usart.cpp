@@ -1,4 +1,5 @@
 #include "usart.h"
+
 #include "../hat_pcb.h"
 
 #include <libopencm3/stm32/rcc.h>
@@ -32,26 +33,3 @@ void USART::write(int c)
 	usart_send_blocking(_USART, c);
 }
 
-/*
-
-
-void USART::print(std::string& str)
-{
-	for (char& c : str)
-		print(c);
-}
-
-template <class T>
-void USART::print(T t)
-{
-	//does not compile, MinGW bug
-	//print(std::to_string(t));
-}
-
-template <class T>
-void USART::println(T t)
-{
-	print(t);
-	println();
-}
-*/
