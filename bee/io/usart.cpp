@@ -28,8 +28,8 @@ void USART::begin(int baud)
 	usart_enable(_USART);
 }
 
-void USART::write(int c)
+void USART::write(uint16_t data)
 {
-	usart_send_blocking(_USART, c);
+	usart_send_blocking(_USART, data);
 }
 
