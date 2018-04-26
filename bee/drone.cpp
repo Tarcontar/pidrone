@@ -12,7 +12,6 @@
 
 #include "actuators/motors.h"
 
-uint32_t led_status_counter;
 Serial ser(115200);
 Motors *motors;
 
@@ -21,18 +20,12 @@ void setup_status_led()
 	rcc_periph_clock_enable(_LED_STATUS_RCC_PORT);
 	gpio_clear(_LED_STATUS_PORT, _LED_STATUS_PIN);
 	gpio_set_mode(_LED_STATUS_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, _LED_STATUS_PIN);
-	led_status_counter = 0;
 }
 
 void sys_tick_handler(void)
 {
-	led_status_counter++;
-	if (led_status_counter == 1000)
-	{
-		gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
-		led_status_counter = 0;
-		ser << "loop";
-	}
+	gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
+	ser << "loop";
 }
 
 int main(void)
@@ -42,7 +35,7 @@ int main(void)
 	setup_status_led();
 
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_set_reload(71999);
+	systick_set_reload(71999999);
 	systick_interrupt_enable();
 	systick_counter_enable();
 
