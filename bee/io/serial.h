@@ -1,5 +1,4 @@
 #pragma once
-#include "usart.h"
 
 class Serial
 {
@@ -12,6 +11,5 @@ public:
 	void putc(char c) const;
 
 private:
-	USART *m_usart;
 	static bool m_ready;
 };

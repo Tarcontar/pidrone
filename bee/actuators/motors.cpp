@@ -1,33 +1,33 @@
 #include "motors.h"
-#include <Arduino.h>
+#include "../hat_pcb.h"
 
-Motors::Motors(int FLpin, int FRpin, int BRpin, int BLpin) :
- m_FLspeed(MIN_THROTTLE), m_FRspeed(MIN_THROTTLE), m_BRspeed(MIN_THROTTLE), m_BLspeed(MIN_THROTTLE)
+Motors::Motors() : m_FLspeed(MIN_THROTTLE), m_FRspeed(MIN_THROTTLE), m_BRspeed(MIN_THROTTLE), m_BLspeed(MIN_THROTTLE)
 {
-	m_FLmotor.attach(FLpin);
-	m_FRmotor.attach(FRpin);
-	m_BRmotor.attach(BRpin);
-	m_BLmotor.attach(BLpin);
+	m_timer = new Timer(_MOTORS_RCC_TIMER, _MOTORS_TIMER);
+	m_timer->enableCH(_MOTOR_1_RCC_PORT, _MOTOR_1_CHANNEL, _MOTOR_1_PORT, _MOTOR_1_PIN);
+	m_timer->enableCH(_MOTOR_2_RCC_PORT, _MOTOR_2_CHANNEL, _MOTOR_2_PORT, _MOTOR_2_PIN);
+	m_timer->enableCH(_MOTOR_3_RCC_PORT, _MOTOR_3_CHANNEL, _MOTOR_3_PORT, _MOTOR_3_PIN);
+	m_timer->enableCH(_MOTOR_4_RCC_PORT, _MOTOR_4_CHANNEL, _MOTOR_4_PORT, _MOTOR_4_PIN);
 }
 
 void Motors::setupESCs()
 {
-	int min = 1000;
-	int max = 2000;
-	m_FLmotor.writeMicroseconds(min);
-	m_FRmotor.writeMicroseconds(min);
-	m_BRmotor.writeMicroseconds(min);
-	m_BLmotor.writeMicroseconds(min);
-	delay(3000);
-	m_FLmotor.writeMicroseconds(max);
-	m_FRmotor.writeMicroseconds(max);
-	m_BRmotor.writeMicroseconds(max);
-	m_BLmotor.writeMicroseconds(max);
-	delay(2);
-	m_FLmotor.writeMicroseconds(min);
-	m_FRmotor.writeMicroseconds(min);
-	m_BRmotor.writeMicroseconds(min);
-	m_BLmotor.writeMicroseconds(min);
+	m_timer->setCH(_MOTOR_1_CHANNEL, MIN_THROTTLE);
+	m_timer->setCH(_MOTOR_2_CHANNEL, MIN_THROTTLE);
+	m_timer->setCH(_MOTOR_3_CHANNEL, MIN_THROTTLE);
+	m_timer->setCH(_MOTOR_4_CHANNEL, MIN_THROTTLE);
+	for (uint32_t i = 0; i < 3000; i++)
+		__asm__("NOP");
+	m_timer->setCH(_MOTOR_1_CHANNEL, MAX_THROTTLE);
+	m_timer->setCH(_MOTOR_2_CHANNEL, MAX_THROTTLE);
+	m_timer->setCH(_MOTOR_3_CHANNEL, MAX_THROTTLE);
+	m_timer->setCH(_MOTOR_4_CHANNEL, MAX_THROTTLE);
+	for (uint32_t i = 0; i < 2; i++)
+		__asm__("NOP");
+	m_timer->setCH(_MOTOR_1_CHANNEL, MIN_THROTTLE);
+	m_timer->setCH(_MOTOR_2_CHANNEL, MIN_THROTTLE);
+	m_timer->setCH(_MOTOR_3_CHANNEL, MIN_THROTTLE);
+	m_timer->setCH(_MOTOR_4_CHANNEL, MIN_THROTTLE);
 }
 
 void Motors::update(int throttle, int roll, int pitch, int yaw)
@@ -37,15 +37,15 @@ void Motors::update(int throttle, int roll, int pitch, int yaw)
 	Pitch(pitch);
 	Yaw(yaw);
 	
-	m_FLspeed = min(max(m_FLspeed, MIN_THROTTLE), MAX_THROTTLE);
-	m_FRspeed = min(max(m_FRspeed, MIN_THROTTLE), MAX_THROTTLE);
-	m_BRspeed = min(max(m_BRspeed, MIN_THROTTLE), MAX_THROTTLE);
-	m_BLspeed = min(max(m_BLspeed, MIN_THROTTLE), MAX_THROTTLE);
+	//m_FLspeed = min(max(m_FLspeed, MIN_THROTTLE), MAX_THROTTLE);
+	//m_FRspeed = min(max(m_FRspeed, MIN_THROTTLE), MAX_THROTTLE);
+	//m_BRspeed = min(max(m_BRspeed, MIN_THROTTLE), MAX_THROTTLE);
+	//m_BLspeed = min(max(m_BLspeed, MIN_THROTTLE), MAX_THROTTLE);
 	
-	m_FLmotor.writeMicroseconds(m_FLspeed);
-	m_FRmotor.writeMicroseconds(m_FRspeed);
-	m_BRmotor.writeMicroseconds(m_BRspeed);
-	m_BLmotor.writeMicroseconds(m_BLspeed);
+	m_timer->setCH(_MOTOR_1_CHANNEL, m_FLspeed);
+	m_timer->setCH(_MOTOR_2_CHANNEL, m_FRspeed);
+	m_timer->setCH(_MOTOR_3_CHANNEL, m_BRspeed);
+	m_timer->setCH(_MOTOR_4_CHANNEL, m_BLspeed);
 }
 
 void Motors::Roll(int value)

@@ -10,7 +10,11 @@
 #include <array>
 #include "io/serial.h"
 
+#include "actuators/motors.h"
+
 uint32_t led_status_counter;
+Serial ser(115200);
+Motors *motors;
 
 void setup_status_led()
 {
@@ -27,6 +31,7 @@ void sys_tick_handler(void)
 	{
 		gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
 		led_status_counter = 0;
+		ser << "loop";
 	}
 }
 
@@ -40,9 +45,11 @@ int main(void)
 	systick_set_reload(71999);
 	systick_interrupt_enable();
 	systick_counter_enable();
+
+	ser << "System starting";
 	
-	Serial ser(115200);
-	ser << "Test";
+	motors = new Motors();
+	motors->setupESCs();
 
 	while(1) {}
 

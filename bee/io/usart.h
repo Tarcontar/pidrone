@@ -4,9 +4,9 @@
 class USART
 {
 public:
-	void begin(int baud);
+	static void begin(int baud);
 	
-	void write(uint16_t data);
+	static void write(uint16_t data);
 
 private:
 	static bool m_ready;

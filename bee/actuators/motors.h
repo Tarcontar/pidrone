@@ -1,13 +1,14 @@
 #pragma once
-#include <Servo.h>
+
+#include "../io/timer.h"
 
 #define MIN_THROTTLE 1000
-#define MAX_THROTTLE 1700 //2000 set to 1700 for testing (safety)
+#define MAX_THROTTLE 2000
 
 class Motors
 {
 public:
-	Motors(int FLpin, int FRpin, int BRpin, int BLpin);
+	Motors();
 
 	void setupESCs();
 	
@@ -20,7 +21,7 @@ private:
 	void Throttle(int value);
 
 private:
-	Servo m_FLmotor, m_FRmotor, m_BRmotor, m_BLmotor;	
+	Timer *m_timer;
 	int m_FLspeed, m_FRspeed, m_BRspeed, m_BLspeed;
 
 };

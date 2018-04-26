@@ -5,11 +5,8 @@ add_executable(bee
 	drone.cpp
 	io/serial.cpp
 	io/timer.cpp
-	io/usart.cpp)
-	# math/pid.cpp
-	# io/sensors.cpp
-	# io/pwmreceiver.cpp
-	# actuators/motors.cpp)
+	io/usart.cpp
+	actuators/motors.cpp)
 
 target_link_libraries(bee contrib)
 
