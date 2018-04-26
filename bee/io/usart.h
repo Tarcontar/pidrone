@@ -9,5 +9,5 @@ public:
 	void write(uint16_t data);
 
 private:
-
+	static bool m_ready;
 };

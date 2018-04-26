@@ -16,6 +16,15 @@ static const uint32_t 				_USART_TX 				= GPIO_USART1_TX;
 static const uint32_t 				_USART 					= USART1;
 
 
+static const uint32_t MOTOR_1_PORT = GPIOC;
+static const uint32_t MOTOR_1_PIN = GPIO9;
+static const uint32_t MOTOR_2_PORT = GPIOC;
+static const uint32_t MOTOR_2_PIN = GPIO8;
+static const uint32_t MOTOR_3_PORT = GPIOB;
+static const uint32_t MOTOR_3_PIN = GPIO5;
+static const uint32_t MOTOR_4_PORT = GPIOB;
+static const uint32_t MOTOR_4_PIN = GPIO4;
+
 /*
 
 static const uint8_t RPI_SPI_CS_PORT = GPIOB;
@@ -59,14 +68,6 @@ static const uint8_t BMP_CS_PIN = GPIO2;
 static const uint8_t BMP_INT_PORT = GPIOE;
 static const uint8_t BMP_INT_PIN = GPIO7;
 
-static const uint8_t MOTOR_1_PORT = GPIOC;
-static const uint8_t MOTOR_1_PIN = GPIO9;
-static const uint8_t MOTOR_2_PORT = GPIOC;
-static const uint8_t MOTOR_2_PIN = GPIO8;
-static const uint8_t MOTOR_3_PORT = GPIOB;
-static const uint8_t MOTOR_3_PIN = GPIO5;
-static const uint8_t MOTOR_4_PORT = GPIOB;
-static const uint8_t MOTOR_4_PIN = GPIO4;
 
 static const uint8_t CH1_PORT = GPIOE;
 static const uint8_t CH1_PIN = GPIO2;
