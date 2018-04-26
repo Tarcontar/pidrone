@@ -4,15 +4,13 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
-#include "hat_pcb.h"
-
 #include <string>
-#include <array>
-#include "io/serial.h"
 
+#include "hat_pcb.h"
+#include "io/serial.h"
 #include "actuators/motors.h"
 
-Serial ser(115200);
+//Serial ser(9600);
 Motors *motors;
 
 void setup_status_led()
@@ -25,24 +23,27 @@ void setup_status_led()
 void sys_tick_handler(void)
 {
 	gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
-	ser << "loop";
+	//ser << "loop" << std::endl;
 }
 
 int main(void)
 {
 	rcc_clock_setup_in_hse_16mhz_out_72mhz();//eig sind 8mhz verbaut aber geht nur mit 16?!?!
-	
+
 	setup_status_led();
 
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_set_reload(71999999);
-	systick_interrupt_enable();
-	systick_counter_enable();
+	//ser << "System starting" << std::endl;
 
-	ser << "System starting";
-	
 	motors = new Motors();
 	motors->setupESCs();
+
+
+
+
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_reload(3999999 * 8); //hack for 8mhz clock issue
+	systick_interrupt_enable();
+	systick_counter_enable();
 
 	while(1) {}
 
