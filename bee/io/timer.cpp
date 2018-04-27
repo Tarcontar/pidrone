@@ -7,10 +7,10 @@ Timer::Timer(rcc_periph_clken rcc_timer, uint32_t timer, uint8_t prescaler, uint
 	rcc_periph_clock_enable(rcc_timer);
 	timer_reset(m_timer);
 	timer_set_mode(m_timer, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_CENTER_1, TIM_CR1_DIR_UP);
-	timer_set_prescaler(m_timer, prescaler); 
+	timer_set_prescaler(m_timer, prescaler);
 	timer_set_period(m_timer, period);
 	timer_enable_break_main_output(m_timer);
-	
+
 	timer_enable_counter(m_timer);
 }
 

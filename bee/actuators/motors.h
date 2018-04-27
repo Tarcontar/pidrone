@@ -11,9 +11,10 @@ public:
 	Motors();
 
 	void setupESCs();
-	
+
+	void update(int value);
 	void update(int throttle, int roll, int pitch, int yaw);
-	
+
 private:
 	void Roll(int value);
 	void Pitch(int value);

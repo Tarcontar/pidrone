@@ -10,6 +10,11 @@ Motors::Motors() : m_FLspeed(MIN_THROTTLE), m_FRspeed(MIN_THROTTLE), m_BRspeed(M
 	m_timer->enableCH(_MOTOR_4_RCC_PORT, _MOTOR_4_CHANNEL, _MOTOR_4_PORT, _MOTOR_4_PIN);
 }
 
+void Motors::update(int value)
+{
+	m_timer->setCH(_MOTOR_1_CHANNEL, value);
+}
+
 void Motors::setupESCs()
 {
 	m_timer->setCH(_MOTOR_1_CHANNEL, MIN_THROTTLE);
