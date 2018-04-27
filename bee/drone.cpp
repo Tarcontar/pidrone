@@ -36,7 +36,7 @@ int main(void)
 	//motors = new Motors();
 	//motors->setupESCs();
 
-	/*
+
 	rcc_periph_clock_enable(RCC_TIM3);
 	timer_reset(TIM3);
 	timer_set_mode(TIM3, TIM_CR1_CKD_CK_INT, TIM_CR1_CMS_EDGE, TIM_CR1_DIR_UP);
@@ -46,9 +46,7 @@ int main(void)
 	timer_set_period(TIM3, 20000);
 	//timer_continuous_mode(TIM3);
 	//timer_enable_counter(TIM3);
-	*/
 
-	/*
 	rcc_periph_clock_enable(RCC_GPIOA);
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO6);
 	timer_enable_oc_output(TIM3, TIM_OC1);
@@ -56,7 +54,6 @@ int main(void)
 	timer_set_oc_mode(TIM3, TIM_OC1, TIM_OCM_PWM1);
 
 	timer_enable_counter(TIM3);
-	*/
 
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 	systick_set_reload(23999999UL * 2);
@@ -65,16 +62,13 @@ int main(void)
 
 	while(1)
 	{
-		/*
-		uint32_t delay = 500000;
+		uint32_t delay = 5000000;
 		timer_set_oc_value(TIM3, TIM_OC1, 1700);
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
 		timer_set_oc_value(TIM3, TIM_OC1, 300);
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		gpio_toggle(GPIOC, GPIO8);
-		*/
 	}
 
 	return 0;
