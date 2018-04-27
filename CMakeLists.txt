@@ -1,20 +1,13 @@
 cmake_minimum_required(VERSION 3.3)
-set(DRONE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+set(BEEHIVE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(AVR_MCU "atmega328p" CACHE STRING "The MCU used")
-set(AVR_VARIANT "standard" CACHE STRING "The variant used")
-set(AVR_PROGRAMMER "pi_zero_w" CACHE STRING "The programmer used")
-set(AVR_CONFIG_FILE ${DRONE_ROOT}/drone_hat/avrdude_gpio.conf)
-set(AVR_UPLOADTOOL_PORT "gpio")
-set(AVR_MCU_SPEED 8000000UL)
+set(LINKER_SCRIPT_DIR ${BEEHIVE_ROOT}/contrib/libopencm3/lib)
+set(CMAKE_TOOLCHAIN_FILE "${BEEHIVE_ROOT}/cmake/stm32-toolchain.cmake")
 
-set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/cmake/avr-gcc-toolchain.cmake")
-
-project(DRONE_HAT C CXX ASM)
+project(BEEHIVE C CXX)
 set (CMAKE_CXX_STANDARD 11)
-
-add_subdirectory(libarduino)
+set (CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 add_subdirectory(contrib)
 
-add_subdirectory(drone_hat)
+add_subdirectory(bee)

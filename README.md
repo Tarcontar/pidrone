@@ -1,4 +1,4 @@
-# Drohne
+# Beehive
 
 This is the place where we design an autonomous DIY drone. The folder structure is as follows:
 
@@ -11,5 +11,9 @@ Contains data sheets and hardware specification for all the parts used in this p
 ## pcb
 This folder contains the fritzing PCB design
 
-## src
+## hive
 The software running on the Raspberry Pi, controlling our drone
+
+## bee
+
+The software running on our own PCB
