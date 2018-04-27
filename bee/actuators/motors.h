@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../io/timer.h"
+#include "../sys/timer.h"
 
 #define MIN_THROTTLE 1000
 #define MAX_THROTTLE 2000

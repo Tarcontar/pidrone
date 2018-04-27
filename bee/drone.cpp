@@ -37,19 +37,24 @@ int main(void)
 	//motors->setupESCs();
 
 	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_set_reload(23999999UL * 2);
+	systick_set_reload(23999999UL * 2); //still not sure why we need times 2 here
 	systick_interrupt_enable();
 	systick_counter_enable();
 
 	while(1)
 	{
+		//keep this for future testing
+		/*
 		uint32_t delay = 5000000;
-		motors->update(1700);
+		//motors->update(1700);
+		
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		motors->update(300);
+		
+		//motors->update(300);
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
+		*/
 	}
 
 	return 0;
