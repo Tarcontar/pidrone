@@ -1,15 +1,9 @@
 #include "serial.h"
-
 #include "usart.h"
-
-bool Serial::m_ready = false;
 
 Serial::Serial(int baud)
 {
-	if (!m_ready)
-	{
-		m_ready = true;
-	}
+	m_rate = baud;
 	USART::begin(baud);
 }
 

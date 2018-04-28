@@ -46,7 +46,7 @@ void PWMReceiver::setChannels(const uint8_t channels[6])
   }
 }
 
-uint16_t PWMReceiver::getChannel(CHANNEL channel)
+uint16_t PWMReceiver::getChannel(Channel channel)
 {
 	if (channel_pin[channel - 1] == -1) 
 		return -1;

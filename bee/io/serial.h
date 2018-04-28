@@ -10,7 +10,12 @@ public:
 
 	void putc(char c) const;
 
+	inline int getBaudrate() const
+	{
+		return m_rate;
+	}
+
 	static const char endl = '\n';
 private:
-	static bool m_ready;
+	 int m_rate;
 };

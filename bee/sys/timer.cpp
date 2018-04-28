@@ -2,7 +2,8 @@
 
 #include <libopencm3/stm32/gpio.h>
 
-Timer::Timer(rcc_periph_clken rcc_timer, uint32_t timer, uint8_t prescaler, uint16_t period) : m_timer(timer)
+Timer::Timer(rcc_periph_clken rcc_timer, uint32_t timer, uint8_t prescaler,
+						 uint16_t period) : m_timer(timer)
 {
 	rcc_periph_clock_enable(rcc_timer);
 	timer_reset(m_timer);
@@ -14,7 +15,8 @@ Timer::Timer(rcc_periph_clken rcc_timer, uint32_t timer, uint8_t prescaler, uint
 	timer_enable_counter(m_timer);
 }
 
-void Timer::enableCH(rcc_periph_clken rcc_port, tim_oc_id channel, uint32_t port, uint32_t pin)
+void Timer::enableChannel(rcc_periph_clken rcc_port, tim_oc_id channel, 
+	uint32_t port, uint32_t pin)
 {
 	rcc_periph_clock_enable(rcc_port);
 	gpio_set_mode(port, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, pin);
@@ -23,7 +25,7 @@ void Timer::enableCH(rcc_periph_clken rcc_port, tim_oc_id channel, uint32_t port
 	timer_set_oc_mode(m_timer, channel, TIM_OCM_PWM1);
 }
 
-void Timer::setCH(tim_oc_id channel, uint16_t value)
+void Timer::setChannel(tim_oc_id channel, uint16_t value)
 {
 	timer_set_oc_value(m_timer, channel, value);
 }

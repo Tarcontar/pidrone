@@ -1,45 +1,24 @@
-#include <stdint.h>
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/cm3/nvic.h>
-#include <libopencm3/cm3/systick.h>
-
-#include <string>
-
-#include "hat_pcb.h"
-#include "io/serial.h"
 #include "actuators/motors.h"
-
-//Serial ser(9600);
-Motors *motors;
-
-void setup_status_led()
-{
-	rcc_periph_clock_enable(_LED_STATUS_RCC_PORT);
-	gpio_clear(_LED_STATUS_PORT, _LED_STATUS_PIN);
-	gpio_set_mode(_LED_STATUS_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, _LED_STATUS_PIN);
-}
-
-void sys_tick_handler(void)
-{
-	gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
-}
+#include "io/serial.h"
+#include "sys/mcu.h"
+#include "sys/handler.h"
+#include <stdint.h>
+#include <string>
 
 int main(void)
 {
-	rcc_clock_setup_in_hse_8mhz_out_24mhz();
+	MCU::setup();
 
-	setup_status_led();
 	Serial ser(16000);
 	ser << "System starting" << ser.endl;
 
-	motors = new Motors();
-	//motors->setupESCs();
+	Motors motors;
+	motors.setupESCs();
 
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-	systick_set_reload(23999999UL * 2); //still not sure why we need times 2 here
-	systick_interrupt_enable();
-	systick_counter_enable();
+	Handler::queryTask([ser]()
+	{
+		ser << "This is a test";
+	});
 
 	while(1)
 	{

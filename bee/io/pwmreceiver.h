@@ -6,7 +6,7 @@
 class PWMReceiver
 {
 public:
-	enum CHANNEL 
+	enum Channel 
 	{
 			THRUST = 0,
 			ROLL,
@@ -20,5 +20,6 @@ public:
 
   void setChannels(const uint8_t channels[6]);
 
-  uint16_t getChannel(CHANNEL c);
+  uint16_t getChannel(const Channel c);
+	
 };
