@@ -13,12 +13,13 @@ Serial::Serial(int baud)
 	USART::begin(baud);
 }
 
-void Serial::operator<<(char c) const
+const Serial& Serial::operator<<(char c) const
 {
 	putc(c);
+	return *this;
 }
 
-void Serial::operator<<(const char *str) const
+const Serial& Serial::operator<<(const char *str) const
 {
 	char *it = const_cast<char *>(str);
 	while (it)
@@ -26,6 +27,8 @@ void Serial::operator<<(const char *str) const
 		putc(*it);
 		++it;
 	}
+
+	return *this;
 }
 
 void Serial::putc(char c) const

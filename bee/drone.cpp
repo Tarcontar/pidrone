@@ -30,8 +30,8 @@ int main(void)
 	rcc_clock_setup_in_hse_8mhz_out_24mhz();
 
 	setup_status_led();
-
-	//ser << "System starting" << std::endl;
+	Serial ser(16000);
+	ser << "System starting" << ser.endl;
 
 	motors = new Motors();
 	//motors->setupESCs();
