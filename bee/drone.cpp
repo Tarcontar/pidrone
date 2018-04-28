@@ -9,7 +9,7 @@ int main(void)
 {
 	MCU::setup();
 
-	Serial ser(16000);
+	Serial ser(9600);
 	ser << "System starting" << ser.endl;
 
 	Motors motors;
@@ -17,7 +17,7 @@ int main(void)
 
 	Handler::queryTask([ser]()
 	{
-		ser << "This is a test";
+		ser << "This is a test" << ser.endl;
 	});
 
 	while(1)
@@ -26,10 +26,10 @@ int main(void)
 		/*
 		uint32_t delay = 5000000;
 		//motors->update(1700);
-		
+
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		
+
 		//motors->update(300);
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
