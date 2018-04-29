@@ -22,15 +22,15 @@ void USART::begin(int baud)
 		usart_set_mode(_USART, USART_MODE_TX);
 		usart_set_parity(_USART, USART_PARITY_NONE);
 		usart_set_flow_control(_USART, USART_FLOWCONTROL_NONE);
-
-		usart_enable(_USART);
 		
 		m_ready = true;
 	}
 	
 	//did not work the last time, test first
-	usart_set_baudrate(_USART, baud);
-	//USART_BRR(_USART) = (uint16_t) ((24000000 << 4) / (baud * 16)); 
+	//usart_set_baudrate(_USART, baud);
+	USART_BRR(_USART) = (uint16_t) ((24000000 << 4) / (baud * 16)); 
+	
+	usart_enable(_USART);
 }
 
 void USART::write(uint16_t data)
