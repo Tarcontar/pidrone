@@ -30,20 +30,19 @@ int main(void)
 
 	rcc_periph_clock_enable(RCC_GPIOA);
 
-	rcc_periph_clock_enable(RCC_USART2);
+	rcc_periph_clock_enable(RCC_USART1);
 
-	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART2_TX);
+	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 
-	usart_set_databits(USART2, 8);
-	usart_set_stopbits(USART2, USART_STOPBITS_1);
-	usart_set_mode(USART2, USART_MODE_TX);
-	usart_set_parity(USART2, USART_PARITY_NONE);
-	usart_set_flow_control(USART2, USART_FLOWCONTROL_NONE);
+	usart_set_databits(USART1, 8);
+	usart_set_stopbits(USART1, USART_STOPBITS_1);
+	usart_set_mode(USART1, USART_MODE_TX);
+	usart_set_parity(USART1, USART_PARITY_NONE);
+	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 
-	usart_set_baudrate(USART2, 9600); //this function doesnt support 24 mhz yet
-	//USART_BRR (USART1) = (uint16_t) ((24000000 << 4) / (9600 * 16));
+	usart_set_baudrate(USART1, 9600);
 
-	usart_enable(USART2);
+	usart_enable(USART1);
 
 	while(1)
 	{
@@ -51,16 +50,16 @@ int main(void)
 		uint32_t delay = 500000;
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		usart_send_blocking(USART2, '0');
-		usart_send_blocking(USART2, '1');
-		usart_send_blocking(USART2, '\r');
-		usart_send_blocking(USART2, '\n');
+		usart_send_blocking(USART1, '0');
+		usart_send_blocking(USART1, '1');
+		usart_send_blocking(USART1, '\r');
+		usart_send_blocking(USART1, '\n');
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		usart_send_blocking(USART2, '2');
-		usart_send_blocking(USART2, '3');
-		usart_send_blocking(USART2, '\r');
-		usart_send_blocking(USART2, '\n');
+		usart_send_blocking(USART1, '2');
+		usart_send_blocking(USART1, '3');
+		usart_send_blocking(USART1, '\r');
+		usart_send_blocking(USART1, '\n');
 	}
 	return 0;
 }
