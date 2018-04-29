@@ -34,6 +34,7 @@ int main(void)
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
 		*/
+		ser << "Alive" << ser.endl;
 	}
 
 	return 0;

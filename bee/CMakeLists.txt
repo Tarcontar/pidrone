@@ -13,19 +13,20 @@ add_executable(bee
 
 target_link_libraries(bee contrib)
 
-find_program(PYTHON NAMES python3)
-
-add_custom_target(listen
-	DEPENDS bee
-	COMMAND ${PYTHON} ${BEEHIVE_ROOT}/listen.py 
-)
-
-find_program(OPENOCD NAMES openocd)
+find_Program(OPENOCD NAMES openocd)
 
 add_custom_target(upload
-	DEPENDS bee listen
+	DEPENDS bee
 	COMMAND ${OPENOCD}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+find_package(PythonInterp REQUIRED)
+
+add_custom_target(listen
+	DEPENDS upload
+	COMMAND ${PYTHON_EXECUTABLE} ./listen.py
+	WORKING_DIRECTORY ${BEEHIVE_ROOT}
 )
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
