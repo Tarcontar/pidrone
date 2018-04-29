@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <string>
 
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/usart.h>
+
 int main(void)
 {
 	MCU::setup();
@@ -22,8 +26,8 @@ int main(void)
 	});
 	*/
 	
-	rcc_periph_clock_enable(RCC_GPIOC);
-	rcc_periph_clock_enable(GPIOC);
+	rcc_periph_clock_enable(RCC_GPIOA);
+	rcc_periph_clock_enable(RCC_USART1);
 	
 	gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
 	
@@ -34,7 +38,7 @@ int main(void)
 	usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
 	
 	//usart_set_baudrate(USART1, 9600);
-	USART_BRR (USART1) = (uint16_t) ((24000000 << 4) / (baud * 16));
+	USART_BRR (USART1) = (uint16_t) ((24000000 << 4) / (9600 * 16));
 	
 	while(1)
 	{
