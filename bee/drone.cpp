@@ -43,6 +43,8 @@ int main(void)
 	usart_set_baudrate(USART2, 9600); //this function doesnt support 24 mhz yet
 	//USART_BRR (USART1) = (uint16_t) ((24000000 << 4) / (9600 * 16));
 
+	usart_enable(USART2);
+
 	while(1)
 	{
 		//keep this for future testing
@@ -51,14 +53,14 @@ int main(void)
 			__asm__("NOP");
 		usart_send_blocking(USART2, '0');
 		usart_send_blocking(USART2, '1');
-		//usart_send_blocking(USART1, '\r');
-		//usart_send_blocking(USART1, '\n');
+		usart_send_blocking(USART2, '\r');
+		usart_send_blocking(USART2, '\n');
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
 		usart_send_blocking(USART2, '2');
 		usart_send_blocking(USART2, '3');
-		//usart_send_blocking(USART1, '\r');
-		//usart_send_blocking(USART1, '\n');
+		usart_send_blocking(USART2, '\r');
+		usart_send_blocking(USART2, '\n');
 	}
 	return 0;
 }
