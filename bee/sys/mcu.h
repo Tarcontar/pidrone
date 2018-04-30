@@ -2,6 +2,8 @@
 
 class MCU
 {
-  public:
+public:
   static void setup();
+
+private:
 };

@@ -1,5 +1,7 @@
 #include "serial.h"
 #include "usart.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 const char* Serial::endl = "\r\n";
 
@@ -11,23 +13,24 @@ Serial::Serial(int baud)
 
 Serial& Serial::operator<<(char c)
 {
-	this->putc(c);
+	putchar(c);
 	return *this;
 }
-
 
 Serial& Serial::operator<<(const char* str)
 {
-	char *it = const_cast<char *>(str);
-	while (*it)
-	{
-		putc(*it);
-		++it;
-	}
+	printf("%s",str);
 	return *this;
 }
 
-void Serial::putc(char c) const
+Serial& Serial::operator<<(int num)
 {
-	USART::write(c);
+	printf("%i",num);
+	return *this;
+}
+
+Serial& Serial::operator<<(float num)
+{
+	printf("%f",num);
+	return *this;
 }

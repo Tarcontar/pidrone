@@ -7,8 +7,8 @@ public:
 
 	Serial& operator<<(char c);
 	Serial& operator<<(const char* str);
-
-	void putc(char c) const;
+	Serial& operator<<(int num);
+	Serial& operator<<(float num);
 
 	static const char* endl;
 
