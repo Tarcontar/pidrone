@@ -12,26 +12,26 @@ void USART::begin(int baud)
 {
 	if (!m_ready)
 	{
-		rcc_periph_clock_enable(RCC_GPIOA); 
-		rcc_periph_clock_enable(RCC_USART1);
+		rcc_periph_clock_enable(_USART_RCC_PORT);
+		rcc_periph_clock_enable(_USART_RCC_USART_PORT);
 
-		gpio_set_mode(GPIOA, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, GPIO_USART1_TX);
+		gpio_set_mode(_USART_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, _USART_TX);
 
-		usart_set_databits(USART1, 8);
-		usart_set_stopbits(USART1, USART_STOPBITS_1);
-		usart_set_mode(USART1, USART_MODE_TX);
-		usart_set_parity(USART1, USART_PARITY_NONE);
-		usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
-		
+		usart_set_databits(_USART, 8);
+		usart_set_stopbits(_USART, USART_STOPBITS_1);
+		usart_set_mode(_USART, USART_MODE_TX);
+		usart_set_parity(_USART, USART_PARITY_NONE);
+		usart_set_flow_control(_USART, USART_FLOWCONTROL_NONE);
+
 		m_ready = true;
 	}
-	
-	usart_set_baudrate(USART1, baud);
-	usart_enable(USART1);
+
+	usart_set_baudrate(_USART, baud);
+	usart_enable(_USART);
 }
 
 void USART::write(uint16_t data)
 {
-	usart_send_blocking(USART1, data);
+	usart_send_blocking(_USART, data);
 }
 
