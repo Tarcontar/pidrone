@@ -15,13 +15,20 @@ const Serial& Serial::operator<<(char c) const
 
 const Serial& Serial::operator<<(const char *str) const
 {
+	/*
 	char *it = const_cast<char *>(str);
-	while (it)
+	while (*str)
 	{
-		putc(*it);
-		++it;
+		putc('F');
+		++str;
 	}
-
+	*/
+	for (int i = 0; i < 5; i++)
+		putc('#');
+	putc('p');
+	putc('x');
+	putc('\r');
+	putc('\n');
 	return *this;
 }
 
