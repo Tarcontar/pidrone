@@ -5,14 +5,15 @@
 #include <stdint.h>
 #include <string>
 
-#include "io/usart.h"
-
 int main(void)
 {
 	MCU::setup();
 
-	USART::begin(9600);
-
+	Serial ser(9600);
+	
+	ser << "Starting!";
+	ser.putc('\r');
+	ser.putc('\n');
 	/*
 	Handler::queryTask([ser]()
 	{
@@ -26,10 +27,9 @@ int main(void)
 		uint32_t delay = 500000;
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		USART::write('h');
-		USART::write('i');
-		USART::write('\r');
-		USART::write('\n');
+		ser << "test";
+		ser.putc('\r');
+		ser.putc('\n');
 	}
 	return 0;
 }

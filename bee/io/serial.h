@@ -14,8 +14,6 @@ public:
 	{
 		return m_rate;
 	}
-
-	static const char endl = '\n';
 private:
 	 int m_rate;
 };
