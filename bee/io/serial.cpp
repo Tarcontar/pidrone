@@ -1,34 +1,29 @@
 #include "serial.h"
 #include "usart.h"
 
+const char* Serial::endl = "\r\n";
+
 Serial::Serial(int baud)
 {
 	m_rate = baud;
 	USART::begin(baud);
 }
 
-const Serial& Serial::operator<<(char c) const
+Serial& Serial::operator<<(char c)
 {
-	putc(c);
+	this->putc(c);
 	return *this;
 }
 
-const Serial& Serial::operator<<(const char *str) const
+
+Serial& Serial::operator<<(const char* str)
 {
-	/*
 	char *it = const_cast<char *>(str);
-	while (*str)
+	while (*it)
 	{
-		putc('F');
-		++str;
+		putc(*it);
+		++it;
 	}
-	*/
-	for (int i = 0; i < 5; i++)
-		putc('#');
-	putc('p');
-	putc('x');
-	putc('\r');
-	putc('\n');
 	return *this;
 }
 

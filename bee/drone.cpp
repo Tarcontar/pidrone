@@ -27,6 +27,7 @@ int main(void)
 
 	Serial ser(9600);
 
+	/*
 	//Analog Read Testcode
 	rcc_periph_clock_enable(RCC_ADC1);
 	rcc_periph_clock_enable(RCC_GPIOA);
@@ -45,7 +46,7 @@ int main(void)
 
 	adc_reset_calibration(ADC1);
 	adc_calibrate(ADC1);
-
+	*/
 
 	/*
 	Handler::queryTask([ser]()
@@ -60,9 +61,7 @@ int main(void)
 		uint32_t delay = 500000;
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		ser.putc('H');
-		ser.putc('\r');
-		ser.putc('\n');
+		ser << "Hi from Serial!" << ser.endl;
 	}
 	return 0;
 }

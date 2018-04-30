@@ -5,10 +5,12 @@ class Serial
 public:
 	Serial(int baudrate);
 
-	const Serial& operator<<(char c) const;
-	const Serial& operator<<(const char *str) const;
+	Serial& operator<<(char c);
+	Serial& operator<<(const char* str);
 
 	void putc(char c) const;
+
+	static const char* endl;
 
 	inline int getBaudrate() const
 	{
