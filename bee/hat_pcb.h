@@ -4,16 +4,24 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/timer.h>
 
-static const rcc_periph_clken 		_LED_STATUS_RCC_PORT 	= RCC_GPIOC;
-static const uint32_t 				_LED_STATUS_PORT 		= GPIOC;
-static const uint32_t 				_LED_STATUS_PIN 		= GPIO8;
+static const rcc_periph_clken 	_LED_STATUS_RCC_PORT 	= RCC_GPIOC;
+static const uint32_t 		_LED_STATUS_PORT 	= GPIOC;
+static const uint32_t 		_LED_STATUS_PIN 	= GPIO8;
 
-static const rcc_periph_clken 		_USART_RCC_PORT 		= RCC_GPIOA;
-static const rcc_periph_clken 		_USART_RCC_USART_PORT 	= RCC_USART1;
-static const uint32_t 				_USART_PORT 			= GPIOA;
-static const uint32_t 				_USART_TX 				= GPIO_USART1_TX;
-static const uint32_t 				_USART 					= USART1;
+static const rcc_periph_clken 	_USART_RCC_PORT 	= RCC_GPIOA;
+static const rcc_periph_clken 	_USART_RCC_USART_PORT 	= RCC_USART1;
+static const uint32_t 		_USART_PORT 		= GPIOA;
+static const uint32_t 		_USART_TX 		= GPIO_USART1_TX;
+static const uint32_t 		_USART 			= USART1;
 
+static const rcc_periph_clken	_SPI_RCC_SPI_PORT 	= RCC_SPI1;
+static const rcc_periph_clken	_SPI_RCC_PORT 		= RCC_GPIOA;
+static const uint32_t		_SPI_PORT 		= GPIOA;
+static const uint32_t		_SPI_SS 		= GPIO4;
+static const uint32_t		_SPI_SCK 		= GPIO5;
+static const uint32_t		_SPI_MISO 		= GPIO6;
+static const uint32_t		_SPI_MOSI 		= GPIO7;
+static const uint32_t 		_SPI 			= SPI1;
 
 static const rcc_periph_clken _MOTORS_RCC_TIMER = RCC_TIM3;
 static const uint32_t _MOTORS_TIMER = TIM3;
@@ -48,13 +56,6 @@ static const uint8_t RPI_SPI_MISO_PORT = GPIOB;
 static const uint8_t RPI_SPI_MISO_PIN = GPIO14;
 static const uint8_t RPI_SPI_MOSI_PORT = GPIOB;
 static const uint8_t RPI_SPI_MOSI_PIN = GPIO15;
-
-static const uint8_t SPI_SCK_PORT = GPIOA;
-static const uint8_t SPI_SCK_PIN = GPIO5;
-static const uint8_t SPI_MISO_PORT = GPIOA;
-static const uint8_t SPI_MISO_PIN = GPIO6;
-static const uint8_t SPI_MOSI_PORT = GPIOA;
-static const uint8_t SPI_MOSI_PIN = GPIO7;
 
 static const uint8_t BMI_GYRO_CS_PORT = GPIOE;
 static const uint8_t BMI_GYRO_CS_PIN = GPIO11;
