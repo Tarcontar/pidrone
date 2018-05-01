@@ -5,6 +5,27 @@
 
 const char* Serial::endl = "\r\n";
 
+//define the newlib syscall
+int _write(int file, char *ptr, int len)
+{
+	int i;
+
+	if (file == STDOUT_FILENO || file == STDERR_FILENO)
+	{
+		for (i = 0; i < len; i++)
+		{
+			if (ptr[i] == '\n')
+			{
+				USART::write('\r');
+			}
+			USART::write(ptr[i]);
+		}
+		return i;
+	}
+	errno = EIO;
+	return -1;
+}
+
 Serial::Serial(int baud)
 {
 	m_rate = baud;
@@ -34,3 +55,4 @@ Serial& Serial::operator<<(float num)
 	printf("%f",num);
 	return *this;
 }
+

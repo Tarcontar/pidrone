@@ -37,24 +37,3 @@ void USART::write(uint16_t data)
 {
 	usart_send_blocking(_USART, data);
 }
-
-//define the newlib syscall
-int _write(int file, char *ptr, int len)
-{
-	int i;
-
-	if (file == STDOUT_FILENO || file == STDERR_FILENO)
-	{
-		for (i = 0; i < len; i++)
-		{
-			if (ptr[i] == '\n')
-			{
-				USART::write('\r');
-			}
-			USART::write(ptr[i]);
-		}
-		return i;
-	}
-	errno = EIO;
-	return -1;
-}
