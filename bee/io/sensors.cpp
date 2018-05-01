@@ -1,7 +1,11 @@
 #include "sensors.h"
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/spi.h>
+
 #include "../hat_pcb.h"
-#include <Arduino.h>
-#include <SPI.h>
+
+/*
 #include <bmi160.h>
 #include <bme280.h>
 #include <TinyGPS.h>
@@ -15,28 +19,39 @@ struct bmi160_dev dev_bmi;
 struct bme280_dev dev_bme;
 
 TinyGPS gps;
+*/
 
 bool Sensors::setup()
 {
-	delay(3000);
-/*    pinMode (BMI_CS, OUTPUT);
-    digitalWrite(BMI_CS,HIGH);
-    pinMode (BME_CS, OUTPUT);
-    digitalWrite(BME_CS,HIGH);*/
-    pinMode(GPS_CS,OUTPUT);
-    digitalWrite(BME_CS,HIGH);
+	//setup spi_transfer
+	rcc_periph_clock_enable(_SPI_RCC_PORT);
+	rcc_periph_clock_enable(_SPI_RCC_SPI_PORT);
 
-    SPI.begin();
-/*
+	gpio_set_mode(_SPI_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, _SPI_SS | _SPI_SCK | _SPI_MOSI);
+	gpio_set_mode(_SPI_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, _SPI_MISO);
+
+	spi_reset(_SPI);
+	spi_init_master(_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+
+	//neede even if we handle the slave selects ourselves
+	spi_enable_software_slave_management(_SPI);
+	spi_set_nss_high(_SPI);
+	
+	spi_enable(_SPI);
+
+	/*
     if (!initializeBMI())
 		return false;
     if (!initializeBME())
-		return false;*/
+		return false;
+	*/
 	return true;
 }
 
 int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
+	/*
     SPISettings set;
     switch(cs)
     {
@@ -58,18 +73,19 @@ int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, ui
 
     digitalWrite (cs, HIGH);
     SPI.endTransaction();
-
+	*/
     return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    delay(milliseconds);
+    //delay(milliseconds);
 }
 
 bool Sensors::initializeBMI()
 {
-    /* You may assign a chip select identifier to be handled later */
+	/*
+    // You may assign a chip select identifier to be handled later 
     dev_bmi.id = BMI_CS;
     dev_bmi.interface = BMI160_SPI_INTF;
     dev_bmi.read = spi_transfer;
@@ -88,23 +104,23 @@ bool Sensors::initializeBMI()
 
     rslt = BMI160_OK;
 
-    /* Select the Output data rate, range of accelerometer sensor */
+    // Select the Output data rate, range of accelerometer sensor 
     dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_100HZ; //1600HZ
     dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
     dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
 
-    /* Select the power mode of accelerometer sensor */
+    // Select the power mode of accelerometer sensor
     dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
 
-    /* Select the Output data rate, range of Gyroscope sensor */
+    // Select the Output data rate, range of Gyroscope sensor
     dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_100HZ; //3200HZ
     dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
     dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
 
-    /* Select the power mode of Gyroscope sensor */
+    // Select the power mode of Gyroscope sensor 
     dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
 
-    /* Set the sensor configuration */
+    // Set the sensor configuration 
     rslt = bmi160_set_sens_conf(&dev_bmi);
 
     if(rslt != BMI160_OK)
@@ -126,11 +142,13 @@ bool Sensors::initializeBMI()
 	{
 		Serial.println("BMI160 ready");
 	}
+	*/
 	return true;
 }
 
 bool Sensors::initializeBME()
 {
+	/*
     dev_bme.dev_id = BME_CS;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
@@ -172,16 +190,18 @@ bool Sensors::initializeBME()
 	{
 		Serial.println("BME280 ready");
 	}
+	*/
 	return true;
 }
 
 void Sensors::readBMI()
 {
+	/*
     bmi160_sensor_data accel;
     bmi160_sensor_data gyro;
     int8_t rslt = BMI160_OK;
 
-    /* To read both Accel and Gyro data */
+    // To read both Accel and Gyro data 
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
                             &accel, &gyro, &dev_bmi);
 							
@@ -201,11 +221,12 @@ void Sensors::readBMI()
 	m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
 	m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
     m_yaw = 0.0; //how to calculate?
+	*/
 }
 
 void Sensors::readGPS()
 {
-
+	/*
     Serial.println("Read GPS");
     SPI.beginTransaction(set_gps);
     digitalWrite (GPS_CS, LOW);
@@ -225,10 +246,12 @@ void Sensors::readGPS()
     digitalWrite (GPS_CS, HIGH);
     SPI.endTransaction();
     Serial.println("Received sth");
+	*/
 }
 
 void Sensors::readBME()
 {
+	/*
     bme280_data comp_data;
     int8_t rslt = BMI160_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
@@ -246,6 +269,7 @@ void Sensors::readBME()
 	Serial.print(" pressure: ");
 	Serial.print(comp_data.pressure);
 	Serial.println();
+	*/
 }
 
 float Sensors::convertRawGyro(int gRaw)
@@ -269,5 +293,5 @@ void Sensors::update()
 {
     //readBME();
     //readBMI();
-    readGPS();
+    //readGPS();
 }

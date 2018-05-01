@@ -5,6 +5,7 @@ add_executable(bee
 	drone.cpp
 	io/serial.cpp
 	io/usart.cpp
+	io/sensors.cpp
 	sys/timer.cpp
 	sys/mcu.cpp 
 	sys/handler.cpp
