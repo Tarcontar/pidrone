@@ -15,12 +15,11 @@ int main(void)
 	while(1)
 	{
 		//keep this for future testing
-		uint32_t delay = 750000;
+		uint32_t delay = 4500000;
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("NOP");
-		ser << "Hi from Serial!" << ser.endl;
-		ser << "int test: " << 545 << ser.endl;
-		ser << "float test: " << 3.14 << ser.endl;
+		float t = 2.75;
+		ser << "Hi from Serial! " << 545 << " " << 3.14 << " " << t << ser.endl;
 
 	}
 	return 0;
