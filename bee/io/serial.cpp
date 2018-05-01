@@ -1,5 +1,6 @@
 #include "serial.h"
 #include "usart.h"
+#include <stdlib.h>
 #include <stdio.h>
 
 const char* Serial::endl = "\r\n";
@@ -14,7 +15,6 @@ Serial& Serial::operator<<(char c)
 	USART::write(c);
 	return *this;
 }
-
 
 Serial& Serial::operator<<(const char* str)
 {
@@ -38,5 +38,12 @@ Serial& Serial::operator<<(const float f)
 {
 	char str[30];
 	*this << sprintf(str, "%f", f);
+	return *this;
+}
+
+Serial& Serial::operator<<(const double d)
+{
+	char str[30];
+	*this << sprintf(str, "%lf", d);
 	return *this;
 }

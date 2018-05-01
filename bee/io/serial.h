@@ -9,7 +9,8 @@ public:
 	Serial& operator<<(const char* str);
 	Serial& operator<<(const int i);
 	Serial& operator<<(const float f);
-
+	Serial& operator<<(const double d);
+	
 	static const char* endl;
 
 private:

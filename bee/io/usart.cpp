@@ -34,4 +34,3 @@ void USART::write(uint16_t data)
 {
 	usart_send_blocking(_USART, data);
 }
-
