@@ -2,24 +2,35 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
-
-#include "../hat_pcb.h"
-
-/*
 #include <bmi160.h>
 #include <bme280.h>
+
+#include "../hat_pcb.h"
+#include "serial.h"
+
+/*
 #include <TinyGPS.h>
-
 // set up the speed, data order and data mode
-SPISettings set_bmi(1000000, MSBFIRST, SPI_MODE0);
-SPISettings set_bme(1000000, MSBFIRST, SPI_MODE0);
 SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
-
-struct bmi160_dev dev_bmi;
-struct bme280_dev dev_bme;
-
 TinyGPS gps;
 */
+
+enum DEVICES
+{
+	BMI = 0,
+	BME = 1
+};
+
+struct SPI_DEVICE
+{
+	uint32_t port;
+	uint32_t pin;
+};
+
+SPI_DEVICE devices[2] = {{GPIOA, GPIO1}, {GPIOA, GPIO2}};
+
+struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
+struct bme280_dev dev_bme;
 
 bool Sensors::setup()
 {
@@ -34,59 +45,46 @@ bool Sensors::setup()
 	spi_init_master(_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
 			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 
-	//neede even if we handle the slave selects ourselves
+	//needed even if we handle the slave selects ourselves
 	spi_enable_software_slave_management(_SPI);
 	spi_set_nss_high(_SPI);
 	
 	spi_enable(_SPI);
+	
+	//TODO: iterate over devices and set pins high
 
-	/*
     if (!initializeBMI())
 		return false;
+	/*
     if (!initializeBME())
 		return false;
 	*/
 	return true;
 }
 
-int8_t Sensors::spi_transfer(uint8_t cs, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-	/*
-    SPISettings set;
-    switch(cs)
-    {
-        case BMI_CS:
-            set = set_bmi;
-            break;
-        case BME_CS:
-            set = set_bme;
-            break;
-    }
-
-    SPI.beginTransaction(set);
-    digitalWrite (cs, LOW);
-
-    SPI.transfer(reg_addr); 
+	gpio_clear(devices[device_id].port, devices[device_id].pin);
+	
+	spi_write(_SPI, reg_addr);
 
     for(uint16_t i = 0; i < len; i++)
-        reg_data[i] = SPI.transfer(reg_data[i]);
+        reg_data[i] = spi_xfer(_SPI, reg_data[i]);
 
-    digitalWrite (cs, HIGH);
-    SPI.endTransaction();
-	*/
+	gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    //delay(milliseconds);
+	uint32_t prescaler = 24000; //depends on clockrate
+    for (uint32_t i = 0; i < milliseconds * prescaler; i++)
+			__asm__("NOP");
 }
 
 bool Sensors::initializeBMI()
 {
-	/*
-    // You may assign a chip select identifier to be handled later 
-    dev_bmi.id = BMI_CS;
+    dev_bmi.id = BMI;
     dev_bmi.interface = BMI160_SPI_INTF;
     dev_bmi.read = spi_transfer;
     dev_bmi.write = spi_transfer;
@@ -97,8 +95,7 @@ bool Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("Could not initialize BMI160: ");
-        Serial.println(rslt);
+        ser << "Could not initialize BMI160: " << rslt << ser.endl;
         return false;
     }
 
@@ -125,8 +122,7 @@ bool Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("Could not initialize BMI160: ");
-        Serial.println(rslt);
+		ser << "Could not configurate BMI160: " << rslt << ser.endl;
 		return false;
     }
 
@@ -134,15 +130,13 @@ bool Sensors::initializeBMI()
 
     if(rslt != BMI160_OK)
     {
-        Serial.print("BMI160 self test failed: ");
-        Serial.println(rslt);
-		//return false;
+        ser << "BMI160 self test failed: " << rslt << ser.endl;
+		return false;
     }
 	else
 	{
-		Serial.println("BMI160 ready");
+		ser << "BMI160 ready" << ser.endl;
 	}
-	*/
 	return true;
 }
 

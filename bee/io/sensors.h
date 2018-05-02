@@ -19,7 +19,7 @@ private:
     void readBME();
     void readGPS();
 
-    static int8_t spi_transfer(uint8_t cs, uint8_t reg_addr,
+    static int8_t spi_transfer(uint8_t device_id, uint8_t reg_addr,
                                 uint8_t *reg_data, uint16_t len);
 
     static void user_delay_ms(uint32_t milliseconds);

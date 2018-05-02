@@ -9,11 +9,11 @@
 int main(void)
 {
 	MCU::setup();
-	//Serial ser(9600);
+
 	ser << "Starting MCU..." << ser.endl;
 
-	//Sensors sensors;
-	//sensors.setup();
+	Sensors sensors;
+	sensors.setup();
 
 	while(1)
 	{
