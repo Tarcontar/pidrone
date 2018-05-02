@@ -5,9 +5,10 @@
 
 const char* Serial::endl = "\r\n";
 
-Serial::Serial(int baud)
+Serial ser;
+
+Serial::Serial()
 {
-	USART::begin(baud);
 }
 
 Serial& Serial::operator<<(char c)

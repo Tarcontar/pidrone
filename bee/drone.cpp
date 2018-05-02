@@ -6,17 +6,14 @@
 #include <stdint.h>
 #include <string>
 
-//for testing only
-#include <libopencm3/stm32/spi.h>
-
 int main(void)
 {
 	MCU::setup();
-	Serial ser(9600);
+	//Serial ser(9600);
 	ser << "Starting MCU..." << ser.endl;
-	
-	Sensors sensors;
-	sensors.setup();
+
+	//Sensors sensors;
+	//sensors.setup();
 
 	while(1)
 	{
@@ -26,14 +23,6 @@ int main(void)
 			__asm__("NOP");
 		float t = 2.75;
 		ser << "Hi from Serial! " << 545 << " " << 3.14 << " " << t << ser.endl;
-		
-		uint8_t testByte = 67;
-		spi_send(SPI1, testByte);
-		ser << "SPI_send: " << testByte << ser.endl;
-		
-		testByte = spi_read(SPI1);
-
-		ser << "SPI_rec: " << testByte << ser.endl;
 	}
 	return 0;
 }
