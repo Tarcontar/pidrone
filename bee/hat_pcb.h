@@ -9,7 +9,7 @@ static const rcc_periph_clken 	_LED_STATUS_RCC_PORT 	= RCC_GPIOC;
 static const uint32_t 		_LED_STATUS_PORT 	= GPIOC;
 static const uint32_t 		_LED_STATUS_PIN 	= GPIO8;
 
-static const uint32_t		_USART_BAUD		= 9600;
+static const uint32_t		_USART_BAUD		= 500000;
 static const rcc_periph_clken 	_USART_RCC_PORT 	= RCC_GPIOA;
 static const rcc_periph_clken 	_USART_RCC_USART_PORT 	= RCC_USART1;
 static const uint32_t 		_USART_PORT 		= GPIOA;

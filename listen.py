@@ -3,7 +3,7 @@ import serial
 import time
 import sys
 
-ser = serial.Serial("/dev/ttyS0", 9600, timeout=10)
+ser = serial.Serial("/dev/ttyS0", 500000, timeout=10)
 
 print("Start listening:")
 while 1:
