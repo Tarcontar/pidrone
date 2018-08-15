@@ -13,7 +13,8 @@ int main(void)
 	ser << "Starting MCU..." << ser.endl;
 
 	Sensors sensors;
-	sensors.setup();
+	if (!sensors.setup())
+		return -1;
 
 	while(1)
 	{
