@@ -6,7 +6,7 @@ add_executable(bee
 	io/serial.cpp
 	io/usart.cpp
 	io/sensors.cpp
-	sys/timer.cpp
+	#sys/timer.cpp
 	sys/mcu.cpp 
 	sys/handler.cpp
 	sys/status.cpp
