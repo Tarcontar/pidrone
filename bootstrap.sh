@@ -11,13 +11,13 @@ git pull
 cd ../NemaTode
 git checkout master
 git pull
-cd ../bme280
+cd ../bosch/bme280
 git checkout master
 git pull
 cd ../bmi160
 git checkout master
 git pull
-cd ../libopencm3
+cd ../../libopencm3
 git checkout master
 git pull
 cd ../..
