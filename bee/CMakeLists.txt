@@ -1,16 +1,17 @@
 set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -T ${LINKER_SCRIPT}")
 
-add_executable(bee 
+add_executable(bee
 	drone.cpp
 	io/serial.cpp
 	io/usart.cpp
-	io/sensors.cpp
+	#io/sensors.cpp
 	#sys/timer.cpp
-	sys/mcu.cpp 
-	sys/handler.cpp
+	sys/mcu.cpp
+	#sys/handler.cpp
 	sys/status.cpp
-	actuators/motors.cpp)
+	#actuators/motors.cpp
+)
 
 target_link_libraries(bee contrib)
 
