@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+rm -rf pidrone
 echo "Installing dependencies"
 sudo apt install python git gcc-arm-none-eabi cmake openocd
 echo "Cloning repository"
