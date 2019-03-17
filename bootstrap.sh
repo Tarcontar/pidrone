@@ -3,7 +3,7 @@ sudo apt-get update
 sudo apt-get upgrade
 rm -rf pidrone
 echo "Installing dependencies"
-sudo apt install python python-pip git gcc-arm-none-eabi cmake openocd autoconf libtool make pkg-config libusb-1.0-0 libusb-1.0-0-dev
+sudo apt install python python-pip git gcc-arm-none-eabi cmake autoconf libtool make pkg-config libusb-1.0-0 libusb-1.0-0-dev
 pip install pyserial
 echo "build openocd"
 rm -rf openocd
