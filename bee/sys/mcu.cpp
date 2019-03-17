@@ -6,12 +6,23 @@
 #include <libopencm3/cm3/systick.h>
 
 void* __dso_handle;
+static void clock_setup();
 
 void MCU::setup()
 {
-  rcc_clock_setup_in_hse_8mhz_out_24mhz();
-  systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
-  systick_set_reload(23999999UL * 2); //still not sure why we need times 2 here
-  systick_interrupt_enable();
-  systick_counter_enable();
+	clock_setup();
+}
+
+static void clock_setup()
+{
+	rcc_osc_on(RCC_HSI16);
+
+	flash_prefetch_enable();
+	flash_set_ws(4);
+	flash_dcache_enable();
+	flash_icache_enable();
+	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSI16, 4, 40, 0, 0, RCC_PLLCFGR_PLLR_DIV2);
+
+	rcc_osc_on(RCC_PLL);
+	//rcc_wait_for_osc_ready();
 }

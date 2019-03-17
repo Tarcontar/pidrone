@@ -9,14 +9,14 @@ void Status::initialize()
 {
   if(m_ready)
   {
-  	rcc_periph_clock_enable(_LED_STATUS_RCC_PORT);
-    gpio_clear(_LED_STATUS_PORT, _LED_STATUS_PIN);
-    gpio_set_mode(_LED_STATUS_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_PUSHPULL, _LED_STATUS_PIN);
-    m_ready = true;
+  	//rcc_periph_clock_enable(_LED_STATUS_RCC_PORT);
+	//gpio_mode_setup(_LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, _LED_STATUS_PIN);
+    	m_ready = true;
   }
 }
 
 void Status::update()
 {
-  initialize();
+  	initialize();
+	//gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
 }

@@ -9,7 +9,7 @@ set(LC_SRC
 )
 
 set(OPENCM_DIR ${BEEHIVE_ROOT}/contrib/libopencm3)
-set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32f1.a)
+set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32l4.a)
 
 add_custom_command(OUTPUT ${OPENCM_LIB}
   COMMAND make
@@ -27,4 +27,4 @@ target_include_directories(contrib PUBLIC
 
 target_link_libraries(contrib ${OPENCM_LIB})
 
-target_compile_definitions(contrib PUBLIC -DSTM32F1)
+target_compile_definitions(contrib PUBLIC -DSTM32L4)
