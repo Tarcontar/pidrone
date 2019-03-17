@@ -12,7 +12,7 @@ set(OPENCM_DIR ${BEEHIVE_ROOT}/contrib/libopencm3)
 set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32l4.a)
 
 add_custom_command(OUTPUT ${OPENCM_LIB}
-  COMMAND make
+  COMMAND make TARGETS=stm32/l4
   WORKING_DIRECTORY ${OPENCM_DIR}
   COMMENT "Build opencm3 lib"
 )
