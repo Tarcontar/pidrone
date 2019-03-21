@@ -13,11 +13,24 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/cm3/systick.h>
 
+void enablePin(uint32_t port, uint32_t pin)
+{
+	gpio_mode_setup(port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, pin);
+	gpio_set(port, pin);
+}
+
 int main()
 {
+	//status led
+	rcc_periph_clock_enable(RCC_GPIOB);
 	rcc_periph_clock_enable(RCC_GPIOC);
-	gpio_mode_setup(RCC_GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
-	gpio_set(RCC_GPIOC, GPIO12);
+	
+	enablePin(GPIOC, GPIO12);
+	
+	enablePin(GPIOB, GPIO6);
+	enablePin(GPIOB, GPIO7);
+	enablePin(GPIOB, GPIO9);
+	enablePin(GPIOB, GPIO8);
 
 	while(1)
 	{
