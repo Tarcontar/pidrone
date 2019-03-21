@@ -24,14 +24,19 @@ int main()
 	//status led
 	rcc_periph_clock_enable(RCC_GPIOB);
 	rcc_periph_clock_enable(RCC_GPIOC);
-	
-	enablePin(GPIOC, GPIO12);
-	
+
+	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
+	gpio_set(GPIOC, GPIO12);
+
 	enablePin(GPIOB, GPIO6);
 	enablePin(GPIOB, GPIO7);
 	enablePin(GPIOB, GPIO9);
 	enablePin(GPIOB, GPIO8);
 
+	//gpio_clear(GPIOB, GPIO6);
+	//gpio_clear(GPIOB, GPIO7);
+	//gpio_clear(GPIOB, GPIO9);
+	//gpio_clear(GPIOB, GPIO8);
 	while(1)
 	{
 		//gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
