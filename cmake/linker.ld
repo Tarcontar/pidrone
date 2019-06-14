@@ -5,7 +5,7 @@
 /* Define memory regions. */
 MEMORY
 {
-	rom (rx) : ORIGIN = 0x00800000, LENGTH = 1024K
+	rom (rx) : ORIGIN = 0x08000000, LENGTH = 1024K
 	ram (rwx) : ORIGIN = 0x20000000, LENGTH = 128K
 }
 
