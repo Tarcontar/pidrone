@@ -1,6 +1,6 @@
 #set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld)
 
-add_executable(bee
+add_executable(bee.elf
 	drone.cpp
 	#io/serial.cpp
 	#io/usart.cpp
@@ -13,15 +13,20 @@ add_executable(bee
 )
 
 #set_target_properties(bee PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
-target_link_libraries(bee contrib)
+target_link_libraries(bee.elf contrib)
 
 find_Program(OPENOCD NAMES openocd)
 
 add_custom_target(upload
-	DEPENDS bee
+	DEPENDS bee.elf
 	COMMAND ${OPENOCD}
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
+
+add_custom_target(upload_verbose
+	DEPENDS bee.elf
+	COMMAND ${OPENOCD} -d3
+	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 
 find_package(PythonInterp REQUIRED)
 
