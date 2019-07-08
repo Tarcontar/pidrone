@@ -27,6 +27,7 @@ add_custom_target(upload_verbose
 	DEPENDS bee.elf
 	COMMAND ${OPENOCD} -d3
 	WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 find_package(PythonInterp REQUIRED)
 
