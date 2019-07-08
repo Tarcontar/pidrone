@@ -5,15 +5,15 @@
 int main()
 {
 	//status led
-	rcc_periph_clock_enable(RCC_GPIOC);
-	gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
-	gpio_set(GPIOC, GPIO12);
+	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
+	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
+	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
 
 	while(1)
 	{
-		gpio_toggle(GPIOC, GPIO12);
+		gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
 		//keep this for future testing
-		uint32_t delay = 360000;
+		uint32_t delay = 160000;
 		for (uint32_t i = 0; i < delay; i++)
 			__asm__("nop");
 	}
