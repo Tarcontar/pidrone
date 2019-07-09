@@ -1,23 +1,34 @@
 #include "hat_pcb.h"
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+#include <libopencm3/stm32/flash.h>
 
-static void clock_setup()
+static void setup_internal_clock()
 {
-	//we have a 8 MHZ external HSE clock
-	rcc_osc_on(RCC_HSE);
+	rcc_osc_on(RCC_HSi16);
+	
+	flash_prefetch_enable();
+	flash_set_ws(4);
+	flash_dcache_enable();
+	flash_icache_enable();
+	
 	// 8mhz / 2 => 4 * 40 => 160mhz / 2 => 80 mhz
-	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 1, 40, 0, 0, RCC_PLLCFGR_PLLR_DIV2);
+	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 4, 40, 0, 0, RCC_PLLCFGR_PLLR_DIV2);
 	rcc_osc_on(RCC_PLL);
 	rcc_wait_for_osc_ready(RCC_PLL);
+	
 
-	//rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
-	//rcc_wait_for_sysclk_status(RCC_PLL);
+	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
+	rcc_wait_for_sysclk_status(RCC_PLL);
+	
+	rcc_ahb_frequency = 80e6;
+	rcc_apb1_frequency = 80e6;
+	rcc_apb2_frequency = 80e6;
 }
 
 int main()
 {
-	clock_setup();
+	setup_internal_clock();
 
 	//status led
 	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
