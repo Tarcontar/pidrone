@@ -3,6 +3,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/usart.h>
+#include "io/usart.h"
 
 static void setup_clock(void)
 {
@@ -26,18 +27,19 @@ int main()
 {
 	setup_clock();
 	USART::setup();
-	
-	USART::write('X');
-	printf("hi guys!\n");
+
+	USART::write(1);
+	//printf("hi guys!\n");
 
 	//status led
-	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
-	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
-	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
+	//rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
+	//gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
+	//gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
 
 	while(1)
 	{
-		gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
+		USART::write(2);
+		//gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
 		//keep this for future testing
 		uint32_t delay = 8000000;
 		for (uint32_t i = 0; i < delay; i++)

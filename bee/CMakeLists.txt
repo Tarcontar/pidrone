@@ -1,9 +1,7 @@
-#set(LINKER_SCRIPT ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld)
-
 add_executable(bee.elf
 	drone.cpp
 	#io/serial.cpp
-	#io/usart.cpp
+	io/usart.cpp
 	#io/sensors.cpp
 	#sys/timer.cpp
 	sys/mcu.cpp
@@ -12,7 +10,6 @@ add_executable(bee.elf
 	#actuators/motors.cpp
 )
 
-#set_target_properties(bee PROPERTIES LINK_DEPENDS ${LINKER_SCRIPT})
 target_link_libraries(bee.elf contrib)
 
 find_Program(OPENOCD NAMES openocd)
