@@ -17,7 +17,7 @@ void USART::setup()
 	gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11);
 	gpio_set_af(GPIOC, GPIO_AF7, GPIO10);
 
-	usart_set_baudrate(USART3, 9000);
+	usart_set_baudrate(USART3, 9600);
 	usart_set_databits(USART3, 8);
 	usart_set_stopbits(USART3, USART_STOPBITS_1);
 	usart_set_mode(USART3, USART_MODE_TX);
