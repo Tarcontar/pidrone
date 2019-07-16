@@ -27,7 +27,7 @@ static void setup_clock(void)
 	rcc_apb2_frequency = 8000000;
 }
 
-static void setupUart(void)
+static void setup_uart(void)
 {
 	rcc_periph_clock_enable(RCC_GPIOC);
 	rcc_periph_clock_enable(RCC_UART4);
@@ -35,23 +35,25 @@ static void setupUart(void)
 	gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11);
 	gpio_set_af(GPIOC, GPIO_AF8, GPIO10);
 
-	usart_set_baudrate(UART4, 9600);
-	usart_set_databits(UART4, 8);
-	usart_set_stopbits(UART4, USART_STOPBITS_1);
-	usart_set_mode(UART4, USART_MODE_TX);
-	usart_set_parity(UART4, USART_PARITY_NONE);
-	usart_set_flow_control(UART4, USART_FLOWCONTROL_NONE);
+	usart_set_baudrate(UART4_BASE, 9600);
+	usart_set_databits(UART4_BASE, 8);
+	usart_set_stopbits(UART4_BASE, USART_STOPBITS_1);
+	usart_set_mode(UART4_BASE, USART_MODE_TX);
+	usart_set_parity(UART4_BASE, USART_PARITY_NONE);
+	usart_set_flow_control(UART4_BASE, USART_FLOWCONTROL_NONE);
 
-	usart_enable(UART4);
+	usart_enable(UART4_BASE);
+}
+
+static void write_uart(int data)
+{
+	usart_send_blocking(UART4_BASE, data);
 }
 
 int main()
 {
 	setup_clock();
-	setupUart();
-
-	usart_send_blocking(UART4, 1);
-	//printf("hi guys!\n");
+	setup_uart();
 
 	//status led
 	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
@@ -60,7 +62,7 @@ int main()
 
 	while(1)
 	{
-		usart_send_blocking(UART4, 2);
+		write_uart(2);
 		gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
 		//keep this for future testing
 		uint32_t delay = 4000000;
