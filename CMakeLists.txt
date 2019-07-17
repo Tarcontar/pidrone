@@ -10,4 +10,4 @@ set (CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 add_subdirectory(contrib)
 
-add_subdirectory(bee)
+add_subdirectory(src)
