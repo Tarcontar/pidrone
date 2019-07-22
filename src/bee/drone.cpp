@@ -6,49 +6,50 @@
 #include <libopencm3/stm32/spi.h>
 #include "io/usart.h"
 
-// static void setup_clock()
-// {
-// 	rcc_osc_on(RCC_HSE);
+static void setup_clock()
+{
+ 	rcc_osc_on(RCC_HSE);
 
-// 	flash_prefetch_enable();
-// 	flash_set_ws(4);
-// 	flash_dcache_enable();
-// 	flash_icache_enable();
+ 	flash_prefetch_enable();
+ 	flash_set_ws(4);
+ 	flash_dcache_enable();
+ 	flash_icache_enable();
 
-// 	// 8mhz / 2 => 4 * 40 => 160mhz / 2 => 80 mhz
-// 	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 2, 40, 0, 0, RCC_PLLCFGR_PLLR_DIV2);
-// 	rcc_osc_on(RCC_PLL);
-// 	rcc_wait_for_osc_ready(RCC_PLL);
+ 	// 8mhz / 2 => 4 * 40 => 160mhz / 2 => 80 mhz
+ 	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 2, 40, 0, 0, RCC_PLLCFGR_PLLR_DIV2);
+ 	rcc_osc_on(RCC_PLL);
+ 	rcc_wait_for_osc_ready(RCC_PLL);
 
-// 	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
-// 	rcc_wait_for_sysclk_status(RCC_PLL);
+ 	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
+ 	rcc_wait_for_sysclk_status(RCC_PLL);
 
-// 	rcc_ahb_frequency = 8000000;
-// 	rcc_apb1_frequency = 8000000;
-// 	rcc_apb2_frequency = 8000000;
-// }
+ 	rcc_ahb_frequency = 8000000;
+ 	rcc_apb1_frequency = 8000000;
+ 	rcc_apb2_frequency = 8000000;
+}
 
-// static void setup_uart()
-// {
-// 	rcc_periph_clock_enable(RCC_GPIOC | RCC_UART4);
+static void setup_uart()
+{
+ 	rcc_periph_clock_enable(RCC_GPIOC);
+	rcc_periph_clock_enable(RCC_UART4);
 
-// 	gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11);
-// 	gpio_set_af(GPIOC, GPIO_AF8, GPIO10);
+ 	gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11);
+ 	gpio_set_af(GPIOC, GPIO_AF8, GPIO10);
 
-// 	usart_set_baudrate(UART4_BASE, 9600);
-// 	usart_set_databits(UART4_BASE, 8);
-// 	usart_set_stopbits(UART4_BASE, USART_STOPBITS_1);
-// 	usart_set_mode(UART4_BASE, USART_MODE_TX);
-// 	usart_set_parity(UART4_BASE, USART_PARITY_NONE);
-// 	usart_set_flow_control(UART4_BASE, USART_FLOWCONTROL_NONE);
+ 	usart_set_baudrate(UART4_BASE, 9600);
+ 	usart_set_databits(UART4_BASE, 8);
+ 	usart_set_stopbits(UART4_BASE, USART_STOPBITS_1);
+ 	usart_set_mode(UART4_BASE, USART_MODE_TX);
+ 	usart_set_parity(UART4_BASE, USART_PARITY_NONE);
+ 	usart_set_flow_control(UART4_BASE, USART_FLOWCONTROL_NONE);
 
-// 	usart_enable(UART4_BASE);
-// }
+ 	usart_enable(UART4_BASE);
+}
 
-// static void write_uart(int data)
-// {
-// 	usart_send_blocking(UART4_BASE, data);
-// }
+static void write_uart(int data)
+{
+ 	usart_send_blocking(UART4_BASE, data);
+}
 
 // //does this configure the stm32 as a spi master? do we need it as slave?
 // static void setup_spi()
@@ -92,28 +93,28 @@
 // 	gpio_set(GPIOA, GPIO4);
 // }
 
-// static void setup_statusLED()
-// {
-// 	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
-// 	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
-// 	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
-// }
+static void setup_statusLED()
+{
+ 	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
+ 	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
+ 	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
+}
 
-// static void blink_statusLED()
-// {
-// 	gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
-// }
+static void blink_statusLED()
+{
+ 	gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
+}
 
 int main()
 {
-	// setup_clock();
-	// setup_uart();
-	// setup_statusLED();
+	//setup_clock();
+	setup_uart();
+	//setup_statusLED();
 
 	while(1)
 	{
-		// write_uart(2);
-		// blink_statusLED();
+		write_uart(2);
+		//blink_statusLED();
 		//keep this for future testing
 		uint32_t delay = 4000000;
 		for (uint32_t i = 0; i < delay; i++)
