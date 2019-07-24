@@ -3,18 +3,28 @@ import serial
 import time
 import sys
 
-ser = serial.Serial(port='/dev/ttyS0', baudrate = 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize = serial.EIGHTBITS, timeout=10)
+ser = serial.Serial(port='/dev/ttyS0', baudrate = 9600, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE, bytesize = serial.EIGHTBITS, timeout=0)
 
 print("Start listening:")
-while 1:
+print (ser.name)
+while True:
+	#time.sleep(0.5)
 	try:
-		text = ser.readline() #[:-2].decode().strip()
-		if (len(text) > 0):
-			print (text)
-			time.sleep(0.05)
+		print (ser.read(1))
+		#text = ser.readline() #.decode().strip() #[:-2].strip()
+		#print len(text)
+		#print text.decode('utf-8')
+		#if (len(text) > 0):
+		#	print len(text) + " -" + text + "-"
+			#print text
+		#else:
+		#	print "#"
 	except KeyboardInterrupt:
-		print("Canceling listen")
-		break;
+		print "Canceling listen"
+		break
 	except: #geht das so? ausprobieren
-		print("Timeout")
-	#	continue
+		#print "Timeout"
+		print sys.exc_info()[0]
+		continue
+
+ser.close()

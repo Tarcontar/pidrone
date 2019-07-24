@@ -95,7 +95,7 @@ static void write_uart(int data)
 
 static void setup_statusLED()
 {
- 	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
+ 	//rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
  	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
  	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
 }
@@ -107,14 +107,18 @@ static void blink_statusLED()
 
 int main()
 {
-	//setup_clock();
+	setup_clock();
 	setup_uart();
-	//setup_statusLED();
+	setup_statusLED();
 
 	while(1)
 	{
-		write_uart(2);
-		//blink_statusLED();
+		//write_uart(2);
+		usart_send_blocking(UART4_BASE, 'h');
+		usart_send_blocking(UART4_BASE, 'i');
+		//usart_send_blocking(UART4_BASE, '\r');
+		usart_send_blocking(UART4_BASE, '\n');
+		blink_statusLED();
 		//keep this for future testing
 		uint32_t delay = 4000000;
 		for (uint32_t i = 0; i < delay; i++)
