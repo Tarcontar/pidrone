@@ -22,8 +22,8 @@ static void msleep(uint32_t delay)
 
 static void setup_systick()
 {
-	systick_set_reload(80000);
-	systick_set_clocksource(STK_CSR_CLKSOURCE_HSE);
+	systick_set_reload(8000);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
 	systick_counter_enable();
 	systick_interrupt_enable();
 }
@@ -129,7 +129,8 @@ static void blink_statusLED()
 
 int main()
 {
-	setup_clock();
+	system_millis = 0;
+	//setup_clock();
 	setup_systick();
 	//setup_uart();
 	setup_statusLED();
@@ -146,7 +147,7 @@ int main()
 		blink_statusLED();
 		//keep this for future testing
 
-		msleep(1000);
+		msleep(100);
 
 		//for (uint32_t i = 0; i < delay; i++)
 		//	__asm__("nop");
