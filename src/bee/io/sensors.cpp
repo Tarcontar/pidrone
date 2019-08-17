@@ -27,7 +27,7 @@ struct SPI_DEVICE
 	uint32_t pin;
 };
 
-SPI_DEVICE devices[2] = {{GPIOA, GPIO1}, {GPIOA, GPIO2}};
+SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPIOA, GPIO2}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
 // struct bme280_dev dev_bme;
@@ -60,12 +60,12 @@ bool Sensors::setup()
 	
 	//TODO: iterate over devices and set pins high
 
-    if (!initializeBMI())
-		return false;
-	/*
+    // if (!initializeBMI())
+	// 	return false;
+	
     if (!initializeBME())
 		return false;
-	*/
+
 	return true;
 }
 
@@ -149,7 +149,6 @@ bool Sensors::initializeBMI()
 
 bool Sensors::initializeBME()
 {
-	/*
     dev_bme.dev_id = BME_CS;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
@@ -183,15 +182,14 @@ bool Sensors::initializeBME()
 
     if(rslt != BME280_OK)
     {
-       Serial.print("Could not initialize BME280: ");
-       Serial.println(rslt);
+       ser << "Could not initialize BME280: " << rslt;
 	   return false;
     }
 	else
 	{
-		Serial.println("BME280 ready");
+		ser << "BME280 ready";
 	}
-	*/
+	
 	return true;
 }
 
@@ -252,25 +250,18 @@ void Sensors::readGPS()
 
 void Sensors::readBME()
 {
-	/*
     bme280_data comp_data;
     int8_t rslt = BMI160_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
 	if(rslt != BMI160_OK)
     {
-       Serial.print("Could not read BME280: ");
-       Serial.println(rslt);
+       ser << "Could not read BME280: " << rslt;
 	   return;
     }
 
-	Serial.print("\n Temp: ");
-	Serial.print(comp_data.temperature);
-	Serial.print(" humidity: ");
-	Serial.print(comp_data.humidity);
-	Serial.print(" pressure: ");
-	Serial.print(comp_data.pressure);
-	Serial.println();
-	*/
+	ser << "Temp: " << comp_data.temperature;
+	ser << "Humidity: " << comp_data.temperature;
+	ser << "Pressure: " << comp_data.pressure;
 }
 
 float Sensors::convertRawGyro(int gRaw)
@@ -292,7 +283,7 @@ float Sensors::convertRawAccel(int aRaw)
 
 void Sensors::update()
 {
-    //readBME();
+    readBME();
     //readBMI();
     //readGPS();
 }
