@@ -71,13 +71,18 @@ bool Sensors::setup()
 
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-    ser << "SPI transfer\n"; 
+    ser << "SPI transfer: dev=" << device_id << " reg=" << reg_addr << " len=" << len << "\n"; 
     gpio_clear(devices[device_id].port, devices[device_id].pin);
 
     spi_write(SPI, reg_addr);
 
+    ser << "Wrote register\n";
+
     for (uint16_t i = 0; i < len; i++)
+    {
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
+        ser << "Transfered byte\n";
+    }
 
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
