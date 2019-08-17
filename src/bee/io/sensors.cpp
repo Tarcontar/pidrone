@@ -17,14 +17,14 @@ TinyGPS gps;
 
 enum DEVICES
 {
-	BMI = 0,
-	BME = 1
+    BMI = 0,
+    BME = 1
 };
 
 struct SPI_DEVICE
 {
-	uint32_t port;
-	uint32_t pin;
+    uint32_t port;
+    uint32_t pin;
 };
 
 static const uint32_t BME280_DEVICE_ID = 0;
@@ -35,59 +35,62 @@ struct bme280_dev dev_bme;
 
 bool Sensors::setup()
 {
-	rcc_periph_clock_enable(SPI_RCC_PORT);
-	rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
+    ser << "Setting up SPI\n"; 
+    rcc_periph_clock_enable(SPI_RCC_PORT);
+    rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
-	gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
-	gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
-	gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, SPI_SCK | SPI_MOSI);
-	gpio_set(SPI_PORT, SPI_SS);
-	gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
+    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
+    gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
+    gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, SPI_SCK | SPI_MOSI);
+    gpio_set(SPI_PORT, SPI_SS);
+    gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
 
-	// 	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 | SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_CPHA | SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
+    // 	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 | SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_CPHA | SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
 
-	// 	SPI_CR2(SPI1) |= SPI_CR2_SSOE;
-	// 	SPI_CR1(SPI1) = cr_tmp;
+    // 	SPI_CR2(SPI1) |= SPI_CR2_SSOE;
+    // 	SPI_CR1(SPI1) = cr_tmp;
 
-	spi_reset(SPI);
-	spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
+    spi_reset(SPI);
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                    SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
-	//needed even if we handle the slave selects ourselves
-	spi_enable_software_slave_management(SPI);
-	spi_set_nss_high(SPI);
+    //needed even if we handle the slave selects ourselves
+    spi_enable_software_slave_management(SPI);
+    spi_set_nss_high(SPI);
 
-	spi_enable(SPI);
+    spi_enable(SPI);
 
-	//TODO: iterate over devices and set pins high
+    ser << "SPI enabled\n"; 
+
+    //TODO: iterate over devices and set pins high
 
     // if (!initializeBMI())
-	// 	return false;
+    // 	return false;
 
     if (!initializeBME())
-		return false;
+        return false;
 
-	return true;
+    return true;
 }
 
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-	gpio_clear(devices[device_id].port, devices[device_id].pin);
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
 
-	spi_write(SPI, reg_addr);
+    spi_write(SPI, reg_addr);
 
-    for(uint16_t i = 0; i < len; i++)
+    for (uint16_t i = 0; i < len; i++)
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
 
-	gpio_set(devices[device_id].port, devices[device_id].pin);
+    gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-	uint32_t prescaler = 24000; //depends on clockrate
+    uint32_t prescaler = 24000; //depends on clockrate
     for (uint32_t i = 0; i < milliseconds * prescaler; i++)
-			__asm__("NOP");
+        __asm__("NOP");
 }
 
 bool Sensors::initializeBMI()
@@ -109,7 +112,7 @@ bool Sensors::initializeBMI()
 
     // rslt = BMI160_OK;
 
-    // // Select the Output data rate, range of accelerometer sensor 
+    // // Select the Output data rate, range of accelerometer sensor
     // dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_100HZ; //1600HZ
     // dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
     // dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
@@ -122,16 +125,16 @@ bool Sensors::initializeBMI()
     // dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
     // dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
 
-    // // Select the power mode of Gyroscope sensor 
-    // dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
+    // // Select the power mode of Gyroscope sensor
+    // dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE;
 
-    // // Set the sensor configuration 
+    // // Set the sensor configuration
     // rslt = bmi160_set_sens_conf(&dev_bmi);
 
     // if(rslt != BMI160_OK)
     // {
-	// 	ser << "Could not configurate BMI160: " << rslt << ser.endl;
-	// 	return false;
+    // 	ser << "Could not configurate BMI160: " << rslt << ser.endl;
+    // 	return false;
     // }
 
     // rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &dev_bmi);
@@ -139,17 +142,18 @@ bool Sensors::initializeBMI()
     // if(rslt != BMI160_OK)
     // {
     //     ser << "BMI160 self test failed: " << rslt << ser.endl;
-	// 	return false;
+    // 	return false;
     // }
-	// else
-	// {
-	// 	ser << "BMI160 ready" << ser.endl;
-	// }
-	return true;
+    // else
+    // {
+    // 	ser << "BMI160 ready" << ser.endl;
+    // }
+    return true;
 }
 
 bool Sensors::initializeBME()
 {
+    ser << "Initializing BME280...\n"; 
     dev_bme.dev_id = BME280_DEVICE_ID;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
@@ -159,49 +163,49 @@ bool Sensors::initializeBME()
     int8_t rslt = BME280_OK;
     rslt = bme280_init(&dev_bme);
 
-    if(rslt != BME280_OK)
+    if (rslt != BME280_OK)
     {
-        ser << "Could not initialize BME280: " << (int32_t)rslt;
+        ser << "Could not initialize BME280: " << (int32_t)rslt << "\n";
         //Serial.println(rslt);
-	return false;
+        return false;
     }
 
-	dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
-	dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
-	dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
-	dev_bme.settings.filter = BME280_FILTER_COEFF_16;
-	dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
+    ser << "Done\n"; 
+
+    dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
+    dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
+    dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
+    dev_bme.settings.filter = BME280_FILTER_COEFF_16;
+    dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
 
     uint8_t settings_sel;
-	settings_sel = BME280_OSR_PRESS_SEL;
-	settings_sel |= BME280_OSR_TEMP_SEL;
-	settings_sel |= BME280_OSR_HUM_SEL;
-	settings_sel |= BME280_STANDBY_SEL;
-	settings_sel |= BME280_FILTER_SEL;
-	rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
-	rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev_bme);
+    settings_sel = BME280_OSR_PRESS_SEL;
+    settings_sel |= BME280_OSR_TEMP_SEL;
+    settings_sel |= BME280_OSR_HUM_SEL;
+    settings_sel |= BME280_STANDBY_SEL;
+    settings_sel |= BME280_FILTER_SEL;
+    rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
+    rslt = bme280_set_sensor_mode(BME280_NORMAL_MODE, &dev_bme);
 
-    if(rslt != BME280_OK)
+    if (rslt != BME280_OK)
     {
-       ser << "Could not initialize BME280: " << (int32_t)rslt;
-	   return false;
+        ser << "Could not initialize BME280: " << (int32_t)rslt << "\n";
+        return false;
     }
-	else
-	{
-		ser << "BME280 ready";
-	}
 
-	return true;
+    ser << "BME280 ready\n";
+
+    return true;
 }
 
 void Sensors::readBMI()
 {
-	/*
+    /*
     bmi160_sensor_data accel;
     bmi160_sensor_data gyro;
     int8_t rslt = BMI160_OK;
 
-    // To read both Accel and Gyro data 
+    // To read both Accel and Gyro data
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
                             &accel, &gyro, &dev_bmi);
 
@@ -226,7 +230,7 @@ void Sensors::readBMI()
 
 void Sensors::readGPS()
 {
-	/*
+    /*
     Serial.println("Read GPS");
     SPI.beginTransaction(set_gps);
     digitalWrite (GPS_CS, LOW);
@@ -254,32 +258,32 @@ void Sensors::readBME()
     bme280_data comp_data;
     int8_t rslt = BME280_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
-	if(rslt != BME280_OK)
+    if (rslt != BME280_OK)
     {
-       ser << "Could not read BME280: " << (int32_t)rslt;
-	   return;
+        ser << "Could not read BME280: " << (int32_t)rslt;
+        return;
     }
 
-	ser << "Temp: " << comp_data.temperature;
-	ser << "Humidity: " << comp_data.temperature;
-	ser << "Pressure: " << comp_data.pressure;
+    ser << "Temp: " << comp_data.temperature;
+    ser << "Humidity: " << comp_data.temperature;
+    ser << "Pressure: " << comp_data.pressure;
 }
 
 float Sensors::convertRawGyro(int gRaw)
 {
-	//since we are using 250 degrees/second range
-	float g = (gRaw * 250.0) / 32768.0;
-	return g;
+    //since we are using 250 degrees/second range
+    float g = (gRaw * 250.0) / 32768.0;
+    return g;
 }
 
 float Sensors::convertRawAccel(int aRaw)
 {
-	// since we are using 2G range
-	// -2g maps to a raw value of -32768
-	// +2g maps to a raw value of 32767
+    // since we are using 2G range
+    // -2g maps to a raw value of -32768
+    // +2g maps to a raw value of 32767
 
-	float a = (aRaw * 2.0) / 32768.0;
-	return a;
+    float a = (aRaw * 2.0) / 32768.0;
+    return a;
 }
 
 void Sensors::update()

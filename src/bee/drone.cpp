@@ -24,7 +24,8 @@ extern "C"
 static void msleep(uint32_t delay)
 {
 	uint32_t wake = system_millis + delay;
-	while (wake > system_millis);
+	while (wake > system_millis)
+		;
 }
 
 static void setup_systick()
@@ -34,8 +35,6 @@ static void setup_systick()
 	systick_counter_enable();
 	systick_interrupt_enable();
 }
-
-
 
 // uint16_t read_spi_reg(int reg)
 // {
@@ -65,14 +64,14 @@ static void setup_systick()
 
 static void setup_statusLED()
 {
- 	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
- 	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
- 	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
+	rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
+	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
+	gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
 }
 
 static void blink_statusLED()
 {
- 	gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
+	gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
 }
 
 int main()
@@ -83,14 +82,13 @@ int main()
 	USART::setup();
 	setup_statusLED();
 
+	ser << "Setup finished!\n";
+
 	Sensors sensors;
 	sensors.setup();
 
-	while(1)
+	while (1)
 	{
-		//write_uart(2);
-		printf("hi\n");
-		ser << "Wie geht es?";
 		blink_statusLED();
 		sensors.update();
 		//keep this for future testing
