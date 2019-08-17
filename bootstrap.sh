@@ -21,4 +21,5 @@ mkdir build
 cd build
 cmake ..
 make all
-echo "Finished now"
+echo "Finished"
+echo "Make sure you enabled USART with 'sudo raspbi-config'"

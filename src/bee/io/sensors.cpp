@@ -84,6 +84,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
+    ser << "Doing a user delay: " << milliseconds << "\n";
     SysTick::sleep(milliseconds);
 }
 
