@@ -130,7 +130,7 @@ static void blink_statusLED()
 int main()
 {
 	system_millis = 0;
-	//setup_clock();
+	setup_clock();
 	setup_systick();
 	//setup_uart();
 	setup_statusLED();
