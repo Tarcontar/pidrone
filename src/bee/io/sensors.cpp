@@ -56,14 +56,14 @@ bool Sensors::setup()
 	//needed even if we handle the slave selects ourselves
 	spi_enable_software_slave_management(SPI);
 	spi_set_nss_high(SPI);
-	
+
 	spi_enable(SPI);
-	
+
 	//TODO: iterate over devices and set pins high
 
     // if (!initializeBMI())
 	// 	return false;
-	
+
     if (!initializeBME())
 		return false;
 
@@ -73,7 +73,7 @@ bool Sensors::setup()
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
 	gpio_clear(devices[device_id].port, devices[device_id].pin);
-	
+
 	spi_write(SPI, reg_addr);
 
     for(uint16_t i = 0; i < len; i++)
@@ -161,9 +161,9 @@ bool Sensors::initializeBME()
 
     if(rslt != BME280_OK)
     {
-        Serial.print("Could not initialize BME280: ");
-        Serial.println(rslt);
-		return false;
+        ser << "Could not initialize BME280: " << (int32_t)rslt;
+        //Serial.println(rslt);
+	return false;
     }
 
 	dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
@@ -183,14 +183,14 @@ bool Sensors::initializeBME()
 
     if(rslt != BME280_OK)
     {
-       ser << "Could not initialize BME280: " << rslt;
+       ser << "Could not initialize BME280: " << (int32_t)rslt;
 	   return false;
     }
 	else
 	{
 		ser << "BME280 ready";
 	}
-	
+
 	return true;
 }
 
@@ -204,20 +204,20 @@ void Sensors::readBMI()
     // To read both Accel and Gyro data 
     rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
                             &accel, &gyro, &dev_bmi);
-							
+
 	if (rslt != BMI160_OK)
 	{
 		return;
 	}
-	
+
 	// float gyroX = convertRawGyro(gyro.x);
 	// float gyroY = convertRawGyro(gyro.y);
 	// float gyroZ = convertRawGyro(gyro.z);
-	
+
 	float accX = convertRawAccel(accel.x);
 	float accY = convertRawAccel(accel.y);
 	float accZ = convertRawAccel(accel.z);
-	
+
 	m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
 	m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
     m_yaw = 0.0; //how to calculate?
@@ -252,11 +252,11 @@ void Sensors::readGPS()
 void Sensors::readBME()
 {
     bme280_data comp_data;
-    int8_t rslt = BMI160_OK;
+    int8_t rslt = BME280_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
-	if(rslt != BMI160_OK)
+	if(rslt != BME280_OK)
     {
-       ser << "Could not read BME280: " << rslt;
+       ser << "Could not read BME280: " << (int32_t)rslt;
 	   return;
     }
 

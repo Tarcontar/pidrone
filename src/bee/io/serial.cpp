@@ -11,24 +11,18 @@ Serial::Serial()
 {
 }
 
-Serial& Serial::operator<<(char c)
-{
-	USART::write(c);
-	return *this;
-}
-
 Serial& Serial::operator<<(const char* str)
 {
 	char *it = const_cast<char *>(str);
 	while (*it)
 	{
-		*this << *it;
+		USART::write(*it);
 		++it;
 	}
 	return *this;
 }
 
-Serial& Serial::operator<<(const int i)
+Serial& Serial::operator<<(const int32_t i)
 {
 	char str[30];
 	sprintf(str, "%d", i);
@@ -36,7 +30,7 @@ Serial& Serial::operator<<(const int i)
 	return *this;
 }
 
-Serial& Serial::operator<<(const unsigned int i)
+Serial& Serial::operator<<(const uint32_t i)
 {
 	char str[30];
 	sprintf(str, "%d", i);
