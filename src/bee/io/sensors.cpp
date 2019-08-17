@@ -37,9 +37,18 @@ bool Sensors::setup()
 	//setup spi_transfer
 	rcc_periph_clock_enable(SPI_RCC_PORT);
 	rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
+	rcc_periph_clock_enable(SPI_PORT);
 
-	gpio_set_mode(SPI_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, SPI_SS | SPI_SCK | SPI_MOSI);
-	gpio_set_mode(SPI_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, SPI_MISO);
+	gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
+	gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
+	gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, SPI_SCK | SPI_MOSI);
+	gpio_set(SPI_PORT, SPI_SS);
+	gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
+
+	// 	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 | SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_CPHA | SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
+
+	// 	SPI_CR2(SPI1) |= SPI_CR2_SSOE;
+	// 	SPI_CR1(SPI1) = cr_tmp;
 
 	spi_reset(SPI);
 	spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
@@ -69,7 +78,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 	spi_write(SPI, reg_addr);
 
     for(uint16_t i = 0; i < len; i++)
-        reg_data[i] = spi_xfer(_SPI, reg_data[i]);
+        reg_data[i] = spi_xfer(SPI, reg_data[i]);
 
 	gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;

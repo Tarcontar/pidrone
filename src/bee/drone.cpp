@@ -36,21 +36,6 @@ static void setup_systick()
 }
 
 
-// //does this configure the stm32 as a spi master? do we need it as slave?
-// static void setup_spi()
-// {
-// 	rcc_periph_clock_enable(RCC_GPIOA | RCC_SPI1);
-// 	gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, GPIO5 | GPIO6 | GPIO7);
-// 	gpio_set_af(GPIOA, GPIO_AF6, GPIO5 | GPIO6 | GPIO7);
-// 	gpio_set_output_options(GPIOA, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, GPIO5 | GPIO7);
-// 	gpio_set(GPIOA, GPIO4);
-// 	gpio_mode_setup(GPIOA, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO4);
-
-// 	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 | SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_CPHA | SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
-
-// 	SPI_CR2(SPI1) |= SPI_CR2_SSOE;
-// 	SPI_CR1(SPI1) = cr_tmp;
-// }
 
 // uint16_t read_spi_reg(int reg)
 // {
