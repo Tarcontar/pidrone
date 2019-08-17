@@ -44,7 +44,7 @@ extern "C"
 			{
 				if (ptr[i] == '\n')
 				{
-					USART::write('\r')
+					USART::write('\r');
 				}
 				USART::write(ptr[i]);
 			}
