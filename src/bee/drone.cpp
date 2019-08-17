@@ -8,7 +8,7 @@
 #include "io/usart.h"
 #include <cstdio>
 
-uint32_t system_millis;
+volatile uint32_t system_millis;
 static void blink_statusLED();
 
 extern "C"
