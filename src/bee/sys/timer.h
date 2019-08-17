@@ -3,7 +3,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/timer.h>
 
-
 class Timer
 {
 public:

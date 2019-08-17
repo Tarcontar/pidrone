@@ -7,6 +7,7 @@
 
 #include "../hat_pcb.h"
 #include "serial.h"
+#include "../sys/systick.h"
 
 /*
 #include <TinyGPS.h>
@@ -44,11 +45,6 @@ bool Sensors::setup()
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, SPI_SCK | SPI_MOSI);
     gpio_set(SPI_PORT, SPI_SS);
     gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
-
-    // 	cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 | SPI_CR1_MSTR | SPI_CR1_SPE | SPI_CR1_CPHA | SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
-
-    // 	SPI_CR2(SPI1) |= SPI_CR2_SSOE;
-    // 	SPI_CR1(SPI1) = cr_tmp;
 
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
@@ -88,9 +84,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    uint32_t prescaler = 24000; //depends on clockrate
-    for (uint32_t i = 0; i < milliseconds * prescaler; i++)
-        __asm__("NOP");
+    SysTick::sleep(milliseconds);
 }
 
 bool Sensors::initializeBMI()
