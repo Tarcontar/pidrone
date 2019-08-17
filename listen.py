@@ -10,7 +10,7 @@ print (ser.name)
 while True:
 	#time.sleep(0.5)
 	try:
-		print (ser.readline())
+		print (ser.readline().replace("\n", " "))
 	except KeyboardInterrupt:
 		print "Canceling listen"
 		break
