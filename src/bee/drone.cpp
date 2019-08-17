@@ -5,8 +5,10 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/systick.h>
-#include "io/usart.h"
 #include <cstdio>
+#include "io/usart.h"
+#include "io/serial.h"
+#include "sys/clock.h"
 
 volatile uint32_t system_millis;
 static void blink_statusLED();
@@ -33,33 +35,6 @@ static void setup_systick()
 	systick_interrupt_enable();
 }
 
-static void setup_clock()
-{
- 	rcc_osc_on(RCC_HSE);
-
- 	flash_prefetch_enable();
- 	flash_set_ws(4);
- 	flash_dcache_enable();
- 	flash_icache_enable();
-
- 	// 8mhz / 2 => 4 * 40 => 160mhz / 2 => 80 mhz
- 	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 2, 40, 0, 0, RCC_PLLCFGR_PLLR_DIV2);
- 	rcc_osc_on(RCC_PLL);
- 	rcc_wait_for_osc_ready(RCC_PLL);
-
- 	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
- 	rcc_wait_for_sysclk_status(RCC_PLL);
-
- 	rcc_ahb_frequency = 80e6;
- 	rcc_apb1_frequency = 80e6;
- 	rcc_apb2_frequency = 80e6;
-}
-
-
-static void write_uart(int data)
-{
- 	usart_send_blocking(UART4_BASE, data);
-}
 
 // //does this configure the stm32 as a spi master? do we need it as slave?
 // static void setup_spi()
@@ -118,7 +93,7 @@ static void blink_statusLED()
 int main()
 {
 	system_millis = 0;
-	setup_clock();
+	Clock::setup();
 	setup_systick();
 	USART::setup();
 	setup_statusLED();
@@ -129,13 +104,11 @@ int main()
 	{
 		//write_uart(2);
 		printf("hi\n");
+		ser << "Wie geht es?";
 		blink_statusLED();
 		//keep this for future testing
 
 		msleep(1000);
-
-		//for (uint32_t i = 0; i < delay; i++)
-		//	__asm__("nop");
 	}
 	return 0;
 }

@@ -1,10 +1,11 @@
 add_executable(bee.elf
 	drone.cpp
-	#io/serial.cpp
+	io/serial.cpp
 	io/usart.cpp
 	#io/sensors.cpp
-	#sys/timer.cpp
+	sys/timer.cpp
 	sys/mcu.cpp
+	sys/clock.cpp
 	#sys/handler.cpp
 	sys/status.cpp
 	#actuators/motors.cpp
