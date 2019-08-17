@@ -29,27 +29,27 @@ struct SPI_DEVICE
 
 SPI_DEVICE devices[2] = {{GPIOA, GPIO1}, {GPIOA, GPIO2}};
 
-struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
-struct bme280_dev dev_bme;
+// struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
+// struct bme280_dev dev_bme;
 
 bool Sensors::setup()
 {
 	//setup spi_transfer
-	rcc_periph_clock_enable(_SPI_RCC_PORT);
-	rcc_periph_clock_enable(_SPI_RCC_SPI_PORT);
+	rcc_periph_clock_enable(SPI_RCC_PORT);
+	rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
-	gpio_set_mode(_SPI_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, _SPI_SS | _SPI_SCK | _SPI_MOSI);
-	gpio_set_mode(_SPI_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, _SPI_MISO);
+	gpio_set_mode(SPI_PORT, GPIO_MODE_OUTPUT_50_MHZ, GPIO_CNF_OUTPUT_ALTFN_PUSHPULL, SPI_SS | SPI_SCK | SPI_MOSI);
+	gpio_set_mode(SPI_PORT, GPIO_MODE_INPUT, GPIO_CNF_INPUT_FLOAT, SPI_MISO);
 
-	spi_reset(_SPI);
-	spi_init_master(_SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+	spi_reset(SPI);
+	spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
 			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
 
 	//needed even if we handle the slave selects ourselves
-	spi_enable_software_slave_management(_SPI);
-	spi_set_nss_high(_SPI);
+	spi_enable_software_slave_management(SPI);
+	spi_set_nss_high(SPI);
 	
-	spi_enable(_SPI);
+	spi_enable(SPI);
 	
 	//TODO: iterate over devices and set pins high
 
@@ -66,7 +66,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 {
 	gpio_clear(devices[device_id].port, devices[device_id].pin);
 	
-	spi_write(_SPI, reg_addr);
+	spi_write(SPI, reg_addr);
 
     for(uint16_t i = 0; i < len; i++)
         reg_data[i] = spi_xfer(_SPI, reg_data[i]);

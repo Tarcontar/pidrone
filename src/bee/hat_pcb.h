@@ -20,7 +20,7 @@ static const uint32_t USART_ = UART4_BASE;
 static const uint32_t USART_AF = GPIO_AF8;
 
 static const rcc_periph_clken SPI_RCC_SPI_PORT = RCC_SPI1;
-static const rcc_periph_clken _PI_RCC_PORT = RCC_GPIOA;
+static const rcc_periph_clken SPI_RCC_PORT = RCC_GPIOA;
 static const uint32_t SPI_PORT = GPIOA;
 static const uint32_t SPI_SS = GPIO4;
 static const uint32_t SPI_SCK = GPIO5;
