@@ -12,11 +12,11 @@ static const uint32_t LED_STATUS_PIN = GPIO12;
 
 static const uint32_t USART_BAUD = 9600;
 static const rcc_periph_clken USART_RCC_PORT = RCC_GPIOC;
-static const rcc_periph_clken USART_RCC_USART_PORT = RCC_USART1;
+static const rcc_periph_clken USART_RCC_USART_PORT = RCC_UART4;
 static const uint32_t USART_PORT = GPIOC;
 static const uint32_t USART_TX = GPIO10;
 static const uint32_t USART_RX = GPIO11;
-static const uint32_t USART_ = USART1;
+static const uint32_t USART_ = UART4_BASE;
 static const uint32_t USART_AF = GPIO_AF8;
 
 static const rcc_periph_clken SPI_RCC_SPI_PORT = RCC_SPI1;

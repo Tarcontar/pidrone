@@ -12,16 +12,10 @@ static void blink_statusLED();
 
 extern "C"
 {
-void sys_tick_handler(void)
-{
-	system_millis++;
-
-	if(system_millis == 1000)
+	void sys_tick_handler(void)
 	{
-		blink_statusLED();
-		system_millis = 0;
+		system_millis++;
 	}
-}
 }
 
 static void msleep(uint32_t delay)
@@ -60,23 +54,6 @@ static void setup_clock()
  	rcc_apb2_frequency = 80e6;
 }
 
-static void setup_uart()
-{
- 	rcc_periph_clock_enable(RCC_GPIOC);
-	rcc_periph_clock_enable(RCC_UART4);
-
- 	gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11);
- 	gpio_set_af(GPIOC, GPIO_AF8, GPIO10);
-
- 	usart_set_baudrate(UART4_BASE, 9600);
- 	usart_set_databits(UART4_BASE, 8);
- 	usart_set_stopbits(UART4_BASE, USART_STOPBITS_1);
- 	usart_set_mode(UART4_BASE, USART_MODE_TX);
-  	usart_set_parity(UART4_BASE, USART_PARITY_NONE);
- 	usart_set_flow_control(UART4_BASE, USART_FLOWCONTROL_NONE);
-
- 	usart_enable(UART4_BASE);
-}
 
 static void write_uart(int data)
 {
@@ -142,6 +119,7 @@ int main()
 	system_millis = 0;
 	setup_clock();
 	setup_systick();
+	USART::setup();
 	setup_uart();
 	setup_statusLED();
 
@@ -150,14 +128,11 @@ int main()
 	while(1)
 	{
 		//write_uart(2);
-		usart_send_blocking(UART4_BASE, 'h');
-		usart_send_blocking(UART4_BASE, 'i');
-		//usart_send_blocking(UART4_BASE, '\r');
-		usart_send_blocking(UART4_BASE, '\n');
-		//blink_statusLED();
+		printf("hi\n");
+		blink_statusLED();
 		//keep this for future testing
 
-		//msleep(1000);
+		msleep(1000);
 
 		//for (uint32_t i = 0; i < delay; i++)
 		//	__asm__("nop");

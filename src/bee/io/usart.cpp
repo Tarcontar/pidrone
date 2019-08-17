@@ -11,20 +11,20 @@
 
 void USART::setup()
 {
-	rcc_periph_clock_enable(RCC_GPIOC);
-	rcc_periph_clock_enable(RCC_USART3);
+	rcc_periph_clock_enable(USART_RCC_PORT);
+	rcc_periph_clock_enable(USART_RCC_USART_PORT);
 
-	gpio_mode_setup(GPIOC, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO10 | GPIO11);
-	gpio_set_af(GPIOC, GPIO_AF7, GPIO10);
+ 	gpio_mode_setup(USART_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USART_TX | USART_RX);
+ 	gpio_set_af(USART_PORT, GPIO_AF8, GPIO10);
 
-	usart_set_baudrate(USART3, 9600);
-	usart_set_databits(USART3, 8);
-	usart_set_stopbits(USART3, USART_STOPBITS_1);
-	usart_set_mode(USART3, USART_MODE_TX);
-	usart_set_parity(USART3, USART_PARITY_NONE);
-	usart_set_flow_control(USART3, USART_FLOWCONTROL_NONE);
+ 	usart_set_baudrate(USART_, 9600);
+ 	usart_set_databits(USART_, 8);
+ 	usart_set_stopbits(USART_, USART_STOPBITS_1);
+ 	usart_set_mode(USART_, USART_MODE_TX);
+  	usart_set_parity(USART_, USART_PARITY_NONE);
+ 	usart_set_flow_control(USART_, USART_FLOWCONTROL_NONE);
 
-	usart_enable(USART3);
+ 	usart_enable(USART_);
 }
 
 void USART::write(uint16_t data)
