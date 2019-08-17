@@ -120,7 +120,6 @@ int main()
 	setup_clock();
 	setup_systick();
 	USART::setup();
-	setup_uart();
 	setup_statusLED();
 
 	uint32_t delay = 4000000;
