@@ -39,7 +39,7 @@ int main()
 		sensors.update();
 		//keep this for future testing
 
-		SysTick::sleep(50);
+		SysTick::sleep(100);
 	}
 	return 0;
 }

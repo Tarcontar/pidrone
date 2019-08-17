@@ -47,8 +47,8 @@ bool Sensors::setup()
     gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
 
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_4, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                    SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
     //needed even if we handle the slave selects ourselves
     spi_enable_software_slave_management(SPI);
@@ -95,8 +95,8 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
         SPI_DR8(SPI) = reg_data[i];
 
         while (!(SPI_SR(SPI) & SPI_SR_BSY));
-        
-        reg_data[i] = SPI_DR8(SPI);
+
+      	reg_data[i] = SPI_DR8(SPI);
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
@@ -198,14 +198,14 @@ bool Sensors::initializeBME()
     dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
     dev_bme.settings.osr_t = BME280_OVERSAMPLING_2X;
     dev_bme.settings.filter = BME280_FILTER_COEFF_16;
-    //dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
+    dev_bme.settings.standby_time = BME280_STANDBY_TIME_62_5_MS;
 
     uint8_t settings_sel;
     settings_sel = BME280_OSR_PRESS_SEL;
     settings_sel |= BME280_OSR_TEMP_SEL;
     settings_sel |= BME280_OSR_HUM_SEL;
     settings_sel |= BME280_STANDBY_SEL;
-    //settings_sel |= BME280_FILTER_SEL;
+    settings_sel |= BME280_FILTER_SEL;
     rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
     rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, &dev_bme);
 

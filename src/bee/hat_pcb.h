@@ -27,7 +27,7 @@ static const uint32_t SPI_SCK = GPIO5;
 static const uint32_t SPI_MISO = GPIO6;
 static const uint32_t SPI_MOSI = GPIO7;
 static const uint32_t SPI = SPI1;
-static const uint32_t SPI_AF = GPIO_AF6;
+static const uint32_t SPI_AF = GPIO_AF5;
 
 static const uint32_t BME280_CS_PORT = GPIOA;
 static const uint32_t BME280_CS_PIN = GPIO3;
