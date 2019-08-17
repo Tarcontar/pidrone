@@ -32,15 +32,19 @@ void USART::write(uint16_t data)
 	usart_send_blocking(USART3, data);
 }
 
-int _write(int file, char *ptr, int len)
-{
-	int i;
 
-	if (file == STDOUT_FILENO || file == STDERR_FILENO)
+extern "C"
+{
+	int _write(int file, char *ptr, int len)
 	{
-		for (i = 0; i < len; i++) USART::write('\n');
-		return i;
+		int i;
+
+		if (file == STDOUT_FILENO || file == STDERR_FILENO)
+		{
+			for (i = 0; i < len; i++) USART::write('\n');
+			return i;
+		}
+		errno = EIO;
+		return -1;
 	}
-	errno = EIO;
-	return -1;
 }
