@@ -33,6 +33,7 @@ SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPIOA, GPIO2}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
 struct bme280_dev dev_bme;
+bool init_bme=false;
 
 bool Sensors::setup()
 {
@@ -42,12 +43,12 @@ bool Sensors::setup()
 
     gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
-    gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_25MHZ, SPI_SCK | SPI_MOSI);
+    gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
     gpio_set(SPI_PORT, SPI_SS);
     gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
 
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_4, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
     //needed even if we handle the slave selects ourselves
@@ -191,7 +192,7 @@ bool Sensors::initializeBME()
         //Serial.println(rslt);
         return false;
     }
-
+    init_bme = true;
     ser << "Done\n"; 
 
     dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
@@ -277,6 +278,8 @@ void Sensors::readGPS()
 
 void Sensors::readBME()
 {
+    if(!init_bme)
+      return;
     bme280_data comp_data;
     int8_t rslt = BME280_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
