@@ -6,6 +6,7 @@
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/cm3/systick.h>
 #include "io/usart.h"
+#include <cstdio>
 
 uint32_t system_millis;
 static void blink_statusLED();

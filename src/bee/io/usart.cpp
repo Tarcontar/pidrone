@@ -29,9 +29,8 @@ void USART::setup()
 
 void USART::write(uint16_t data)
 {
-	usart_send_blocking(USART3, data);
+	usart_send_blocking(USART_, data);
 }
-
 
 extern "C"
 {
@@ -41,7 +40,14 @@ extern "C"
 
 		if (file == STDOUT_FILENO || file == STDERR_FILENO)
 		{
-			for (i = 0; i < len; i++) USART::write('\n');
+			for (i = 0; i < len; i++)
+			{
+				if (ptr[i] == '\n')
+				{
+					USART::write('\r')
+				}
+				USART::write(ptr[i]);
+			}
 			return i;
 		}
 		errno = EIO;
