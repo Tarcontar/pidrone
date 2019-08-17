@@ -85,13 +85,6 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     spi_write(SPI, reg_addr);
 
-    ser << "Wrote register\n";
-
-    // for (uint16_t i = 0; i < len; i++)
-    // {
-    //     reg_data[i] = spi_xfer(SPI, reg_data[i]);
-    // }
-
     // For each byte of data we want to transmit
     for (uint8_t i = 0; i < len; i++) {
         // Wait for the peripheral to become ready to transmit (transmit buffer
@@ -100,7 +93,6 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
         // Place the next data in the data register for transmission
         SPI_DR8(SPI) = reg_data[i];
-        ser << "Transfered byte\n";
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
@@ -290,9 +282,9 @@ void Sensors::readBME()
         return;
     }
 
-    ser << "Temp: " << comp_data.temperature;
-    ser << "Humidity: " << comp_data.temperature;
-    ser << "Pressure: " << comp_data.pressure;
+    ser << "Temp: " << comp_data.temperature << "\n";
+    ser << "Humidity: " << comp_data.temperature << "\n";
+    ser << "Pressure: " << comp_data.pressure << "\n";
 }
 
 float Sensors::convertRawGyro(int gRaw)
