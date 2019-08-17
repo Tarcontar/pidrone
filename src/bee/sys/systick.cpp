@@ -2,7 +2,6 @@
 #include <libopencm3/cm3/systick.h>
 
 volatile uint32_t system_millis;
-static void blink_statusLED();
 
 extern "C"
 {

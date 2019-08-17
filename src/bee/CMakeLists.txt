@@ -6,7 +6,7 @@ add_executable(bee.elf
 	#sys/timer.cpp
 	sys/mcu.cpp
 	sys/clock.cpp
-	#sys/handler.cpp
+	sys/systick.cpp
 	sys/status.cpp
 	#actuators/motors.cpp
 )
