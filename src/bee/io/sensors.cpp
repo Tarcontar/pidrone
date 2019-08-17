@@ -27,6 +27,7 @@ struct SPI_DEVICE
 	uint32_t pin;
 };
 
+static const uint32_t BME280_DEVICE_ID = 0;
 SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPIOA, GPIO2}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
@@ -149,7 +150,7 @@ bool Sensors::initializeBMI()
 
 bool Sensors::initializeBME()
 {
-    dev_bme.dev_id = BME_CS;
+    dev_bme.dev_id = BME280_DEVICE_ID;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
     dev_bme.write = spi_transfer;

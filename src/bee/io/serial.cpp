@@ -36,6 +36,14 @@ Serial& Serial::operator<<(const int i)
 	return *this;
 }
 
+Serial& Serial::operator<<(const unsigned int i)
+{
+	char str[30];
+	sprintf(str, "%d", i);
+	*this << str;
+	return *this;
+}
+
 Serial& Serial::operator<<(const float f)
 {
 	char str[30];
