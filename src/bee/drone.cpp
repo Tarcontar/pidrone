@@ -92,6 +92,7 @@ int main()
 		printf("hi\n");
 		ser << "Wie geht es?";
 		blink_statusLED();
+		sensors.update();
 		//keep this for future testing
 
 		msleep(1000);
