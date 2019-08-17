@@ -87,11 +87,27 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     ser << "Wrote register\n";
 
-    for (uint16_t i = 0; i < len; i++)
-    {
-        reg_data[i] = spi_xfer(SPI, reg_data[i]);
+    // for (uint16_t i = 0; i < len; i++)
+    // {
+    //     reg_data[i] = spi_xfer(SPI, reg_data[i]);
+    // }
+
+    // For each byte of data we want to transmit
+    for (uint8_t i = 0; i < len; i++) {
+        // Wait for the peripheral to become ready to transmit (transmit buffer
+        // empty flag set)
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+
+        // Place the next data in the data register for transmission
+        SPI_DR8(SPI) = reg_data[i];
         ser << "Transfered byte\n";
     }
+
+    // Putting data into the SPI_DR register doesn't block - it will start
+    // sending the data asynchronously with the main CPU. To make sure that the
+    // data is finished sending before we pull the register clock high again,
+    // we wait here until the busy flag is cleared on the SPI peripheral.
+    while (SPI_SR(SPI2) & SPI_SR_BSY);
 
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
