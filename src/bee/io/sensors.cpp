@@ -58,7 +58,7 @@ bool Sensors::setup()
     // unidirectional mode means that this is the only chip initiating
     // transfers, not that it will ignore any incoming data on the MISO pin.
     // Enabling duplex is required to read data back however.
-    spi_set_unidirectional_mode(SPI);
+    //spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
@@ -94,7 +94,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
         // Place the next data in the data register for transmission
         SPI_DR8(SPI) = reg_data[i];
 
-        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+        while (!(SPI_SR(SPI) & SPI_SR_BSY));
         
         reg_data[i] = SPI_DR8(SPI);
     }
