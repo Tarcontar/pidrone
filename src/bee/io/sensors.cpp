@@ -34,10 +34,8 @@ SPI_DEVICE devices[2] = {{GPIOA, GPIO1}, {GPIOA, GPIO2}};
 
 bool Sensors::setup()
 {
-	//setup spi_transfer
 	rcc_periph_clock_enable(SPI_RCC_PORT);
 	rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
-	rcc_periph_clock_enable(SPI_PORT);
 
 	gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
 	gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
@@ -52,7 +50,7 @@ bool Sensors::setup()
 
 	spi_reset(SPI);
 	spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
+			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_CRCL_8BIT, SPI_CR1_MSBFIRST);
 
 	//needed even if we handle the slave selects ourselves
 	spi_enable_software_slave_management(SPI);
