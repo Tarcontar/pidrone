@@ -2,8 +2,8 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
-#include <bmi160.h>
-#include <bme280.h>
+// #include <bmi160.h>
+// #include <bme280.h>
 
 #include "../hat_pcb.h"
 #include "serial.h"
@@ -84,59 +84,59 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
 
 bool Sensors::initializeBMI()
 {
-    dev_bmi.id = BMI;
-    dev_bmi.interface = BMI160_SPI_INTF;
-    dev_bmi.read = spi_transfer;
-    dev_bmi.write = spi_transfer;
-    dev_bmi.delay_ms = user_delay_ms;
+    // dev_bmi.id = BMI;
+    // dev_bmi.interface = BMI160_SPI_INTF;
+    // dev_bmi.read = spi_transfer;
+    // dev_bmi.write = spi_transfer;
+    // dev_bmi.delay_ms = user_delay_ms;
 
-    int8_t rslt = BMI160_OK;
-    rslt = bmi160_init(&dev_bmi);
+    // int8_t rslt = BMI160_OK;
+    // rslt = bmi160_init(&dev_bmi);
 
-    if(rslt != BMI160_OK)
-    {
-        ser << "Could not initialize BMI160: " << rslt << ser.endl;
-        return false;
-    }
+    // if(rslt != BMI160_OK)
+    // {
+    //     ser << "Could not initialize BMI160: " << rslt << ser.endl;
+    //     return false;
+    // }
 
-    rslt = BMI160_OK;
+    // rslt = BMI160_OK;
 
-    // Select the Output data rate, range of accelerometer sensor 
-    dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_100HZ; //1600HZ
-    dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
-    dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
+    // // Select the Output data rate, range of accelerometer sensor 
+    // dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_100HZ; //1600HZ
+    // dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
+    // dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
 
-    // Select the power mode of accelerometer sensor
-    dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
+    // // Select the power mode of accelerometer sensor
+    // dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
 
-    // Select the Output data rate, range of Gyroscope sensor
-    dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_100HZ; //3200HZ
-    dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
-    dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
+    // // Select the Output data rate, range of Gyroscope sensor
+    // dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_100HZ; //3200HZ
+    // dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
+    // dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
 
-    // Select the power mode of Gyroscope sensor 
-    dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
+    // // Select the power mode of Gyroscope sensor 
+    // dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE; 
 
-    // Set the sensor configuration 
-    rslt = bmi160_set_sens_conf(&dev_bmi);
+    // // Set the sensor configuration 
+    // rslt = bmi160_set_sens_conf(&dev_bmi);
 
-    if(rslt != BMI160_OK)
-    {
-		ser << "Could not configurate BMI160: " << rslt << ser.endl;
-		return false;
-    }
+    // if(rslt != BMI160_OK)
+    // {
+	// 	ser << "Could not configurate BMI160: " << rslt << ser.endl;
+	// 	return false;
+    // }
 
-    rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &dev_bmi);
+    // rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &dev_bmi);
 
-    if(rslt != BMI160_OK)
-    {
-        ser << "BMI160 self test failed: " << rslt << ser.endl;
-		return false;
-    }
-	else
-	{
-		ser << "BMI160 ready" << ser.endl;
-	}
+    // if(rslt != BMI160_OK)
+    // {
+    //     ser << "BMI160 self test failed: " << rslt << ser.endl;
+	// 	return false;
+    // }
+	// else
+	// {
+	// 	ser << "BMI160 ready" << ser.endl;
+	// }
 	return true;
 }
 

@@ -7,6 +7,7 @@
 #include <cstdio>
 #include "io/usart.h"
 #include "io/serial.h"
+#include "io/sensors.h"
 #include "sys/clock.h"
 
 volatile uint32_t system_millis;
@@ -97,7 +98,8 @@ int main()
 	USART::setup();
 	setup_statusLED();
 
-	uint32_t delay = 4000000;
+	Sensors sensors;
+	sensors.setup();
 
 	while(1)
 	{
