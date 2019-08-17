@@ -54,6 +54,15 @@ bool Sensors::setup()
     spi_enable_software_slave_management(SPI);
     spi_set_nss_high(SPI);
 
+    // The terminology around directionality can be a little confusing here -
+    // unidirectional mode means that this is the only chip initiating
+    // transfers, not that it will ignore any incoming data on the MISO pin.
+    // Enabling duplex is required to read data back however.
+    spi_set_unidirectional_mode(SPI);
+
+    // We're using 8 bit, not 16 bit, transfers
+    spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
+
     spi_enable(SPI);
 
     ser << "SPI enabled\n"; 
