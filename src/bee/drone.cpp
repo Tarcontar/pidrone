@@ -7,11 +7,21 @@
 #include <libopencm3/cm3/systick.h>
 #include "io/usart.h"
 
-volatile uint32_t system_millis;
+uint32_t system_millis;
+static void blink_statusLED();
 
-void sys_tick_handler()
+extern "C"
+{
+void sys_tick_handler(void)
 {
 	system_millis++;
+
+	if(system_millis == 1000)
+	{
+		blink_statusLED();
+		system_millis = 0;
+	}
+}
 }
 
 static void msleep(uint32_t delay)
@@ -22,8 +32,8 @@ static void msleep(uint32_t delay)
 
 static void setup_systick()
 {
-	systick_set_reload(8000);
-	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB);
+	systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
+	systick_set_reload(10000);
 	systick_counter_enable();
 	systick_interrupt_enable();
 }
@@ -62,7 +72,7 @@ static void setup_uart()
  	usart_set_databits(UART4_BASE, 8);
  	usart_set_stopbits(UART4_BASE, USART_STOPBITS_1);
  	usart_set_mode(UART4_BASE, USART_MODE_TX);
- 	usart_set_parity(UART4_BASE, USART_PARITY_NONE);
+  	usart_set_parity(UART4_BASE, USART_PARITY_NONE);
  	usart_set_flow_control(UART4_BASE, USART_FLOWCONTROL_NONE);
 
  	usart_enable(UART4_BASE);
@@ -130,9 +140,9 @@ static void blink_statusLED()
 int main()
 {
 	system_millis = 0;
-	//setup_clock();
+	setup_clock();
 	setup_systick();
-	//setup_uart();
+	setup_uart();
 	setup_statusLED();
 
 	uint32_t delay = 4000000;
@@ -140,14 +150,14 @@ int main()
 	while(1)
 	{
 		//write_uart(2);
-		//usart_send_blocking(UART4_BASE, 'h');
-		//usart_send_blocking(UART4_BASE, 'i');
+		usart_send_blocking(UART4_BASE, 'h');
+		usart_send_blocking(UART4_BASE, 'i');
 		//usart_send_blocking(UART4_BASE, '\r');
-		//usart_send_blocking(UART4_BASE, '\n');
-		blink_statusLED();
+		usart_send_blocking(UART4_BASE, '\n');
+		//blink_statusLED();
 		//keep this for future testing
 
-		msleep(100);
+		//msleep(1000);
 
 		//for (uint32_t i = 0; i < delay; i++)
 		//	__asm__("nop");
