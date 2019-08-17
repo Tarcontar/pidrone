@@ -55,9 +55,9 @@ static void setup_clock()
  	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
  	rcc_wait_for_sysclk_status(RCC_PLL);
 
- 	rcc_ahb_frequency = 8000000;
- 	rcc_apb1_frequency = 8000000;
- 	rcc_apb2_frequency = 8000000;
+ 	rcc_ahb_frequency = 80e6;
+ 	rcc_apb1_frequency = 80e6;
+ 	rcc_apb2_frequency = 80e6;
 }
 
 static void setup_uart()
