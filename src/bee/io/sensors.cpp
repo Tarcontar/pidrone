@@ -3,7 +3,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 // #include <bmi160.h>
-// #include <bme280.h>
+#include <bme280.h>
 
 #include "../hat_pcb.h"
 #include "serial.h"
@@ -30,7 +30,7 @@ struct SPI_DEVICE
 SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPIOA, GPIO2}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
-// struct bme280_dev dev_bme;
+struct bme280_dev dev_bme;
 
 bool Sensors::setup()
 {
