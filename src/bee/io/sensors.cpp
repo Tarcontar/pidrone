@@ -93,6 +93,10 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
         // Place the next data in the data register for transmission
         SPI_DR8(SPI) = reg_data[i];
+
+        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+        
+        reg_data[i] = SPI_DR8(SPI);
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
