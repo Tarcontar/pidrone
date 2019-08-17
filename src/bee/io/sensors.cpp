@@ -50,7 +50,7 @@ bool Sensors::setup()
 
 	spi_reset(SPI);
 	spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_CRCL_8BIT, SPI_CR1_MSBFIRST);
+			SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
 	//needed even if we handle the slave selects ourselves
 	spi_enable_software_slave_management(SPI);
