@@ -3,6 +3,7 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
 // #include <bmi160.h>
+#include <cstdio>
 #include <bme280.h>
 #include <bmp3.h>
 #include <bmi08x.h>
@@ -110,11 +111,9 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     ser << "wrote reg\n";
 
-    while (!(SPI_SR(SPI) & SPI_SR_TXE))
-        ;
+    while (!(SPI_SR(SPI) & SPI_SR_TXE));
     ser << "ready to transmit\n";
-    while (!(SPI_SR(SPI) & SPI_SR_RXNE))
-        ;
+    while (!(SPI_SR(SPI) & SPI_SR_RXNE));
 
     ser << "ready to write data \n";
 
@@ -122,16 +121,14 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     for (uint8_t i = 0; i < len; i++)
     {
         // Wait for the peripheral to become ready to transmit (transmit buffer
-        while (!(SPI_SR(SPI) & SPI_SR_TXE))
-            ;
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
 
         ser << "ready to transmit\n";
         // Place the next data in the data register for transmission
         SPI_DR8(SPI) = reg_data[i];
 
         ser << "wrote data\n";
-        while (!(SPI_SR(SPI) & SPI_SR_RXNE))
-            ;
+        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
 
         ser << "ready to receive\n";
         reg_data[i] = SPI_DR8(SPI);
@@ -159,8 +156,6 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
 bool Sensors::initializeBMI()
 {
     ser << "Initializing BMI088...\n";
-    gpio_set(BMI088_CS_PORT, BMI088_CS_PIN);
-    gpio_mode_setup(BMI088_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_CS_PIN);
 
     dev_bmi.accel_id = BMI088_ACCEL_DEVICE_ID;
     dev_bmi.gyro_id = BMI088_GYRO_DEVICE_ID;
@@ -184,8 +179,6 @@ bool Sensors::initializeBMI()
 bool Sensors::initializeBMP()
 {
     ser << "Initializing BMP388...\n";
-    gpio_set(BMP388_CS_PORT, BMP388_CS_PIN);
-    gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
 
     dev_bmp.dev_id = BMP388_DEVICE_ID;
     dev_bmp.intf = BMP3_SPI_INTF;
@@ -234,8 +227,6 @@ bool Sensors::initializeBMP()
 bool Sensors::initializeBME()
 {
     ser << "Initializing BME280...\n";
-    gpio_set(BME280_CS_PORT, BME280_CS_PIN);
-    gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
 
     dev_bme.dev_id = BME280_DEVICE_ID;
     dev_bme.intf = BME280_SPI_INTF;

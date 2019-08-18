@@ -15,7 +15,7 @@ set(LC_SRC
 set(OPENCM_DIR ${BEEHIVE_ROOT}/contrib/libopencm3)
 set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32l4.a)
 
-//BM280 floating point api
+# BM280 floating point api
 add_definitions(-DBME280_FLOAT_ENABLE)
 add_definitions(-DBMP3_DOUBLE_PRECISION_COMPENSATION)
 add_definitions(-DBMI08X_ENABLE_BMI088)
