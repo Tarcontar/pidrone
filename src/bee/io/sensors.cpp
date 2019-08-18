@@ -5,6 +5,8 @@
 // #include <bmi160.h>
 #include <bme280.h>
 #include <bmp3.h>
+#include <bmi08x.h>
+#include <bmi088.h>
 
 #include "../hat_pcb.h"
 #include "serial.h"
@@ -28,15 +30,26 @@ struct SPI_DEVICE
 
 static const uint32_t BME280_DEVICE_ID = 0;
 static const uint32_t BMP388_DEVICE_ID = 1;
+static const uint32_t BMI088_ACCEL_DEVICE_ID = 2;
+static const uint32_t BMI088_GYRO_DEVICE_ID = 3;
 
-SPI_DEVICE devices[] = {{BME280_CS_PORT, BME280_CS_PIN},{BMP388_CS_PORT, BMP388_CS_PIN}};
+SPI_DEVICE devices[] = 
+{
+    {BME280_CS_PORT, BME280_CS_PIN}, 
+    {BMP388_CS_PORT, BMP388_CS_PIN},
+    {BMI088_ACCEL_CS_PORT,  BMI088_ACCEL_CS_PIN},
+    {BMI088_GYRO_CS_PORT,   BMI088_GYRO_CS_PIN}
+};
 
-// struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
+// BME280
 struct bme280_dev dev_bme;
-bool init_bme=false;
-
+bool init_bme = false;
+// BMP388
 struct bmp3_dev dev_bmp;
-bool init_bmp=false;
+bool init_bmp = false;
+// BMI088
+bmi08x_dev dev_bmi;
+bool init_bmi = false;
 
 bool Sensors::setup()
 {
@@ -70,7 +83,7 @@ bool Sensors::setup()
 
     spi_enable(SPI);
 
-    ser << "SPI enabled\n"; 
+    ser << "SPI enabled\n";
 
     //TODO: iterate over devices and set pins high
 
@@ -81,53 +94,60 @@ bool Sensors::setup()
     //     return false;
 
     //initializeBME();
-    initializeBMP();
+    //initializeBMP();
+    initializeBMI();
 
     return true;
 }
 
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-    ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n"; 
+    ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n";
     //gpio_clear(devices[device_id].port, devices[device_id].pin);
     gpio_clear(devices[device_id].port, devices[device_id].pin);
 
-	SPI_DR8(SPI) = reg_addr;
+    SPI_DR8(SPI) = reg_addr;
 
-	ser << "wrote reg\n";
+    ser << "wrote reg\n";
 
-	while(!(SPI_SR(SPI) & SPI_SR_TXE));
-	ser << "ready to transmit\n";
-	while(!(SPI_SR(SPI) & SPI_SR_RXNE));
+    while (!(SPI_SR(SPI) & SPI_SR_TXE))
+        ;
+    ser << "ready to transmit\n";
+    while (!(SPI_SR(SPI) & SPI_SR_RXNE))
+        ;
 
-	ser << "ready to write data \n";
+    ser << "ready to write data \n";
 
     // For each byte of data we want to transmit
-    for (uint8_t i = 0; i < len; i++) {
+    for (uint8_t i = 0; i < len; i++)
+    {
         // Wait for the peripheral to become ready to transmit (transmit buffer
-        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+        while (!(SPI_SR(SPI) & SPI_SR_TXE))
+            ;
 
-	ser << "ready to transmit\n";
+        ser << "ready to transmit\n";
         // Place the next data in the data register for transmission
-	SPI_DR8(SPI) = reg_data[i];
+        SPI_DR8(SPI) = reg_data[i];
 
-	ser << "wrote data\n";
-        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+        ser << "wrote data\n";
+        while (!(SPI_SR(SPI) & SPI_SR_RXNE))
+            ;
 
-	ser << "ready to receive\n";
-      	reg_data[i] = SPI_DR8(SPI);
-	ser << "received: " << (uint32_t)reg_data[i] << "\n";
+        ser << "ready to receive\n";
+        reg_data[i] = SPI_DR8(SPI);
+        ser << "received: " << (uint32_t)reg_data[i] << "\n";
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
     // sending the data asynchronously with the main CPU. To make sure that the
     // data is finished sending before we pull the register clock high again,
     // we wait here until the busy flag is cleared on the SPI peripheral.
-    while (SPI_SR(SPI2) & SPI_SR_BSY);
+    while (SPI_SR(SPI2) & SPI_SR_BSY)
+        ;
 
     //gpio_set(devices[device_id].port, devices[device_id].pin);
     gpio_set(devices[device_id].port, devices[device_id].pin);
-	return 0;
+    return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
@@ -138,65 +158,32 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
 
 bool Sensors::initializeBMI()
 {
-    // dev_bmi.id = BMI;
-    // dev_bmi.interface = BMI160_SPI_INTF;
-    // dev_bmi.read = spi_transfer;
-    // dev_bmi.write = spi_transfer;
-    // dev_bmi.delay_ms = user_delay_ms;
+    ser << "Initializing BMI088...\n";
+    gpio_set(BMI088_CS_PORT, BMI088_CS_PIN);
+    gpio_mode_setup(BMI088_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_CS_PIN);
 
-    // int8_t rslt = BMI160_OK;
-    // rslt = bmi160_init(&dev_bmi);
+    dev_bmi.accel_id = BMI088_ACCEL_DEVICE_ID;
+    dev_bmi.gyro_id = BMI088_GYRO_DEVICE_ID;
+    dev_bmi.intf = BMI08X_SPI_INTF;
+    dev_bmi.read = spi_transfer;
+    dev_bmi.write = spi_transfer;
+    dev_bmi.delay_ms = user_delay_ms
 
-    // if(rslt != BMI160_OK)
-    // {
-    //     ser << "Could not initialize BMI160: " << rslt << ser.endl;
-    //     return false;
-    // }
+    int8_t rslt = bmi088_init(&dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "Could not initialize BMI088: " << (int32_t)rslt << "\n";
+        //Serial.println(rslt);
+        //return false;
+    }
+    init_bmi = true;
 
-    // rslt = BMI160_OK;
-
-    // // Select the Output data rate, range of accelerometer sensor
-    // dev_bmi.accel_cfg.odr = BMI160_ACCEL_ODR_100HZ; //1600HZ
-    // dev_bmi.accel_cfg.range = BMI160_ACCEL_RANGE_2G;
-    // dev_bmi.accel_cfg.bw = BMI160_ACCEL_BW_NORMAL_AVG4;
-
-    // // Select the power mode of accelerometer sensor
-    // dev_bmi.accel_cfg.power = BMI160_ACCEL_NORMAL_MODE;
-
-    // // Select the Output data rate, range of Gyroscope sensor
-    // dev_bmi.gyro_cfg.odr = BMI160_GYRO_ODR_100HZ; //3200HZ
-    // dev_bmi.gyro_cfg.range = BMI160_GYRO_RANGE_2000_DPS;
-    // dev_bmi.gyro_cfg.bw = BMI160_GYRO_BW_NORMAL_MODE;
-
-    // // Select the power mode of Gyroscope sensor
-    // dev_bmi.gyro_cfg.power = BMI160_GYRO_NORMAL_MODE;
-
-    // // Set the sensor configuration
-    // rslt = bmi160_set_sens_conf(&dev_bmi);
-
-    // if(rslt != BMI160_OK)
-    // {
-    // 	ser << "Could not configurate BMI160: " << rslt << ser.endl;
-    // 	return false;
-    // }
-
-    // rslt = bmi160_perform_self_test((BMI160_ACCEL_SEL | BMI160_GYRO_SEL), &dev_bmi);
-
-    // if(rslt != BMI160_OK)
-    // {
-    //     ser << "BMI160 self test failed: " << rslt << ser.endl;
-    // 	return false;
-    // }
-    // else
-    // {
-    // 	ser << "BMI160 ready" << ser.endl;
-    // }
     return true;
 }
 
 bool Sensors::initializeBMP()
 {
-    ser << "Initializing BMP388...\n"; 
+    ser << "Initializing BMP388...\n";
     gpio_set(BMP388_CS_PORT, BMP388_CS_PIN);
     gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
 
@@ -246,7 +233,7 @@ bool Sensors::initializeBMP()
 
 bool Sensors::initializeBME()
 {
-    ser << "Initializing BME280...\n"; 
+    ser << "Initializing BME280...\n";
     gpio_set(BME280_CS_PORT, BME280_CS_PIN);
     gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
 
@@ -286,7 +273,7 @@ bool Sensors::initializeBME()
     settings_sel |= BME280_STANDBY_SEL;
     settings_sel |= BME280_FILTER_SEL;
     rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
-    
+
     if (rslt != BME280_OK)
     {
         ser << "Could not set BME280 sensor settings: " << (int32_t)rslt << "\n";
@@ -357,7 +344,7 @@ void Sensors::readGPS()
 }
 
 void Sensors::readBMP()
- {
+{
     int8_t rslt;
     /* Variable used to select the sensor component */
     uint8_t sensor_comp;
@@ -371,13 +358,13 @@ void Sensors::readBMP()
 
     /* Print the temperature and pressure data */
     printf("Temperature in deg celsius\t Pressure in Pascal\t\n");
-    printf("%0.2f\t\t %0.2f\t\t\n",data.temperature, data.pressure);
- }
+    printf("%0.2f\t\t %0.2f\t\t\n", data.temperature, data.pressure);
+}
 
 void Sensors::readBME()
 {
-    if(!init_bme)
-      return;
+    if (!init_bme)
+        return;
 
     bme280_data comp_data;
     int8_t rslt = BME280_OK;
@@ -414,6 +401,6 @@ void Sensors::update()
 {
     readBME();
     readBMP();
-    //readBMI();
+    readBMI();
     //readGPS();
 }

@@ -2,6 +2,9 @@ set(LC_SRC
   bosch/bme280/bme280.c
   bosch/bmi160/bmi160.c
   bosch/bmp388/bmp3.c
+  bosch/bmi088/bmi088.c
+  bosch/bmi088/bmi08a.c
+  bosch/bmi088/bmi08g.c
 #        NemaTode/src/GPSFix.cpp 
 #        NemaTode/src/GPSService.cpp 
 #        NemaTode/src/NMEACommand.cpp 
@@ -15,6 +18,7 @@ set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32l4.a)
 //BM280 floating point api
 add_definitions(-DBME280_FLOAT_ENABLE)
 add_definitions(-DBMP3_DOUBLE_PRECISION_COMPENSATION)
+add_definitions(-DBMI08X_ENABLE_BMI088)
 
 add_custom_command(OUTPUT ${OPENCM_LIB}
   COMMAND make TARGETS=stm32/l4
@@ -27,7 +31,7 @@ add_library(contrib ${LC_SRC} ${OPENCM_LIB})
 target_include_directories(contrib PUBLIC 
   ${OPENCM_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bme280
-  ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmi160
+  ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmi088
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmp388
   ${CMAKE_CURRENT_SOURCE_DIR}/NemaTode/include)
 

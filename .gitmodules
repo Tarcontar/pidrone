@@ -19,3 +19,6 @@
 [submodule "contrib/bosch/bmp388"]
 	path = contrib/bosch/bmp388
 	url = https://github.com/BoschSensortec/BMP3-Sensor-API.git
+[submodule "contrib/bosch/bmi088"]
+	path = contrib/bosch/bmi088
+	url = https://github.com/BoschSensortec/BMI08x-Sensor-API.git

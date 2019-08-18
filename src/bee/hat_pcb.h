@@ -38,6 +38,11 @@ static const uint32_t ORG1510_CS_PIN = GPIO8;
 static const uint32_t BMP388_CS_PORT = GPIOB;
 static const uint32_t BMP388_CS_PIN = GPIO2;
 
+static const uint32_t BMI088_GYRO_CS_PORT = GPIOE;
+static const uint32_t BMI088_GYRO_CS_PIN = GPIO11;
+static const uint32_t BMI088_ACCEL_CS_PORT = GPIOE;
+static const uint32_t BMI088_ACCEL_CS_PIN = GPIO12;
+
 static const rcc_periph_clken MOTORS_RCC_TIMER = RCC_TIM3;
 static const uint32_t MOTORS_TIMER = TIM3;
 
