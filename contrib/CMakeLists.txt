@@ -16,9 +16,10 @@ set(OPENCM_DIR ${BEEHIVE_ROOT}/contrib/libopencm3)
 set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32l4.a)
 
 # BM280 floating point api
-add_definitions(-DBME280_FLOAT_ENABLE)
-add_definitions(-DBMP3_DOUBLE_PRECISION_COMPENSATION)
-add_definitions(-DBMI08X_ENABLE_BMI088)
+add_compile_definitions(BME280_FLOAT_ENABLE)
+add_compile_definitions(BMP3_DOUBLE_PRECISION_COMPENSATION)
+add_compile_definitions(BMI08X_ENABLE_BMI088=1)
+add_compile_definitions(BMI08X_ENABLE_BMI085=0)
 
 add_custom_command(OUTPUT ${OPENCM_LIB}
   COMMAND make TARGETS=stm32/l4
@@ -27,6 +28,12 @@ add_custom_command(OUTPUT ${OPENCM_LIB}
 )
         
 add_library(contrib ${LC_SRC} ${OPENCM_LIB})
+
+target_compile_definitions(contrib PUBLIC 
+      BME280_FLOAT_ENABLE 
+      BMP3_DOUBLE_PRECISION_COMPENSATION 
+      BMI08X_ENABLE_BMI088=1 
+      BMI08X_ENABLE_BMI085=0)
 
 target_include_directories(contrib PUBLIC 
   ${OPENCM_DIR}/include
