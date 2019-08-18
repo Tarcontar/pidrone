@@ -4,6 +4,7 @@
 #include <libopencm3/stm32/spi.h>
 // #include <bmi160.h>
 #include <bme280.h>
+#include <bmp3.h>
 
 #include "../hat_pcb.h"
 #include "serial.h"
@@ -26,11 +27,16 @@ struct SPI_DEVICE
 };
 
 static const uint32_t BME280_DEVICE_ID = 0;
-SPI_DEVICE devices[1] = {{BME280_CS_PORT, BME280_CS_PIN}};
+static const uint32_t BMP388_DEVICE_ID = 1;
+
+SPI_DEVICE devices[] = {{BME280_CS_PORT, BME280_CS_PIN},{BMP388_CS_PORT, BMP388_CS_PIN}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
 struct bme280_dev dev_bme;
 bool init_bme=false;
+
+struct bmp3_dev dev_bmp;
+bool init_bmp=false;
 
 bool Sensors::setup()
 {
@@ -71,8 +77,11 @@ bool Sensors::setup()
     // if (!initializeBMI())
     // 	return false;
 
-    if (!initializeBME())
-        return false;
+    // if (!initializeBME())
+    //     return false;
+
+    intializeBME();
+    intializeBMP();
 
     return true;
 }
@@ -81,7 +90,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 {
     ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n"; 
     //gpio_clear(devices[device_id].port, devices[device_id].pin);
-    gpio_clear(BME280_CS_PORT, BME280_CS_PIN);
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
 
 	SPI_DR8(SPI) = reg_addr;
 
@@ -117,7 +126,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     while (SPI_SR(SPI2) & SPI_SR_BSY);
 
     //gpio_set(devices[device_id].port, devices[device_id].pin);
-    gpio_set(BME280_CS_PORT, BME280_CS_PIN);
+    gpio_set(devices[device_id].port, devices[device_id].pin);
 	return 0;
 }
 
@@ -185,6 +194,31 @@ bool Sensors::initializeBMI()
     return true;
 }
 
+bool Sensors::intializeBMP()
+{
+    ser << "Initializing BMP388...\n"; 
+    gpio_set(BMP388_CS_PORT, BMP388_CS_PIN);
+    gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
+
+    dev.dev_id = BMP388_DEVICE_ID;
+    dev.intf = BMP3_SPI_INTF;
+    dev.read = spi_transfer;
+    dev.write = spi_transfer;
+    dev.delay_ms = user_delay_ms;
+
+    rslt = bmp3_init(&dev);
+    if (rslt != BMP3_OK)
+    {
+        ser << "Could not initialize BMP388: " << (int32_t)rslt << "\n";
+        //Serial.println(rslt);
+        //return false;
+    }
+    init_bme = true;
+    ser << "Done\n";
+
+    return true;
+}
+
 bool Sensors::initializeBME()
 {
     ser << "Initializing BME280...\n"; 
@@ -198,8 +232,8 @@ bool Sensors::initializeBME()
     dev_bme.delay_ms = user_delay_ms;
 
     int8_t rslt = BME280_OK;
-    do
-    {
+    // do
+    // {
     rslt = bme280_init(&dev_bme);
 
     if (rslt != BME280_OK)
@@ -208,8 +242,8 @@ bool Sensors::initializeBME()
         //Serial.println(rslt);
         //return false;
     }
-    }
-    while(rslt!=BME280_OK);
+    // }
+    // while(rslt!=BME280_OK);
 
     init_bme = true;
     ser << "Done\n";

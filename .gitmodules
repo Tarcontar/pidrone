@@ -16,3 +16,6 @@
 [submodule "deps/libopencm3"]
 	path = deps/libopencm3
 	url = https://github.com/libopencm3/libopencm3
+[submodule "contrib/bosch/bmp388"]
+	path = contrib/bosch/bmp388
+	url = https://github.com/BoschSensortec/BMP3-Sensor-API.git

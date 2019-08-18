@@ -1,6 +1,7 @@
 set(LC_SRC 
   bosch/bme280/bme280.c
   bosch/bmi160/bmi160.c
+  bosch/bmp388/bmp3.c
 #        NemaTode/src/GPSFix.cpp 
 #        NemaTode/src/GPSService.cpp 
 #        NemaTode/src/NMEACommand.cpp 
@@ -23,6 +24,7 @@ target_include_directories(contrib PUBLIC
   ${OPENCM_DIR}/include
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bme280
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmi160
+  ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmp388
   ${CMAKE_CURRENT_SOURCE_DIR}/NemaTode/include)
 
 target_link_libraries(contrib ${OPENCM_LIB})

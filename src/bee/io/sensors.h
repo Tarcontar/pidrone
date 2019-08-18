@@ -14,9 +14,11 @@ public:
 private:
     bool initializeBMI();
     bool initializeBME();
+    bool initializeBMP();
 
     void readBMI();
     void readBME();
+    void readBMP();
     void readGPS();
 
     static int8_t spi_transfer(uint8_t device_id, uint8_t reg_addr,
