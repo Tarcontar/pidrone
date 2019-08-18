@@ -37,7 +37,7 @@ bool init_bme=false;
 
 bool Sensors::setup()
 {
-    ser << "Setting up SPI\n"; 
+    ser << "Setting up SPI\n";
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
@@ -46,10 +46,11 @@ bool Sensors::setup()
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
     gpio_set(SPI_PORT, SPI_SS);
     gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
+    //gpio_set_output_config(SPI_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_8MA, SPI_MOSI);
 
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                    SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
 
     //needed even if we handle the slave selects ourselves
     spi_enable_software_slave_management(SPI);
@@ -62,6 +63,7 @@ bool Sensors::setup()
     //spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
+    //spi_fifo_reception_threshold_8bit(SPI);
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
 
     spi_enable(SPI);
@@ -84,20 +86,23 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n"; 
     gpio_clear(devices[device_id].port, devices[device_id].pin);
 
-    spi_write(SPI, reg_addr);
+    spi_send8(SPI, reg_addr);
+    //spi_read8(SPI);
 
     // For each byte of data we want to transmit
     for (uint8_t i = 0; i < len; i++) {
         // Wait for the peripheral to become ready to transmit (transmit buffer
         // empty flag set)
-        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+	spi_send8(SPI, reg_data[i]);
+	reg_data[i] = spi_read8(SPI);
+        //while (!(SPI_SR(SPI) & SPI_SR_TXE));
 
         // Place the next data in the data register for transmission
-        SPI_DR8(SPI) = reg_data[i];
+	//PI_DR8(SPI) = reg_data[i];
 
-        while (!(SPI_SR(SPI) & SPI_SR_BSY));
+        //while (!(SPI_SR(SPI) & SPI_SR_BSY));
 
-      	reg_data[i] = SPI_DR8(SPI);
+      	//reg_data[i] = SPI_DR8(SPI);
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
@@ -184,14 +189,19 @@ bool Sensors::initializeBME()
     dev_bme.delay_ms = user_delay_ms;
 
     int8_t rslt = BME280_OK;
+    do
+    {
     rslt = bme280_init(&dev_bme);
 
     if (rslt != BME280_OK)
     {
         ser << "Could not initialize BME280: " << (int32_t)rslt << "\n";
         //Serial.println(rslt);
-        return false;
+        //return false;
     }
+    }
+    while(rslt!=BME280_OK);
+
     init_bme = true;
     ser << "Done\n"; 
 
