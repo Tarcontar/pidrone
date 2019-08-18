@@ -26,7 +26,7 @@ struct SPI_DEVICE
 };
 
 static const uint32_t BME280_DEVICE_ID = 0;
-SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPS1510_CS_PORT, GPS1510_CS_PIN}};
+SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
 struct bme280_dev dev_bme;
@@ -94,7 +94,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
         while (!(SPI_SR(SPI) & SPI_SR_TXE));
 
         // Place the next data in the data register for transmission
-	    PI_DR8(SPI) = reg_data[i];
+	    SPI_DR8(SPI) = reg_data[i];
 
         //while (!(SPI_SR(SPI) & SPI_SR_BSY));
 
@@ -262,7 +262,8 @@ void Sensors::readBMI()
 
 void Sensors::readGPS()
 {
-    ser << "Reading GPS1510";
+    /*
+	ser << "Reading GPS1510";
 
     //read until new data is available
     bool receivedData = false;
@@ -276,6 +277,7 @@ void Sensors::readGPS()
     }
 
     ser << "GPS1510 received sth\n";
+	*/
 }
 
 void Sensors::readBME()
