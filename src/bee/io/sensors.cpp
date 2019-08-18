@@ -41,7 +41,7 @@ bool Sensors::setup()
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
-    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
+    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
     gpio_set(SPI_PORT, SPI_SS);
@@ -49,12 +49,12 @@ bool Sensors::setup()
     //gpio_set_output_config(SPI_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_8MA, SPI_MOSI);
 
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_64, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
 
     //needed even if we handle the slave selects ourselves
-    spi_enable_software_slave_management(SPI);
-    spi_set_nss_high(SPI);
+    //spi_enable_software_slave_management(SPI);
+    //spi_set_nss_high(SPI);
 
     // The terminology around directionality can be a little confusing here -
     // unidirectional mode means that this is the only chip initiating
@@ -63,7 +63,7 @@ bool Sensors::setup()
     //spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
-    //spi_fifo_reception_threshold_8bit(SPI);
+    spi_fifo_reception_threshold_8bit(SPI);
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
 
     spi_enable(SPI);
