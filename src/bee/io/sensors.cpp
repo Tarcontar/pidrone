@@ -80,8 +80,8 @@ bool Sensors::setup()
     // if (!initializeBME())
     //     return false;
 
-    intializeBME();
-    intializeBMP();
+    //initializeBME();
+    initializeBMP();
 
     return true;
 }
@@ -194,19 +194,19 @@ bool Sensors::initializeBMI()
     return true;
 }
 
-bool Sensors::intializeBMP()
+bool Sensors::initializeBMP()
 {
     ser << "Initializing BMP388...\n"; 
     gpio_set(BMP388_CS_PORT, BMP388_CS_PIN);
     gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
 
-    dev.dev_id = BMP388_DEVICE_ID;
-    dev.intf = BMP3_SPI_INTF;
-    dev.read = spi_transfer;
-    dev.write = spi_transfer;
-    dev.delay_ms = user_delay_ms;
+    dev_bmp.dev_id = BMP388_DEVICE_ID;
+    dev_bmp.intf = BMP3_SPI_INTF;
+    dev_bmp.read = spi_transfer;
+    dev_bmp.write = spi_transfer;
+    dev_bmp.delay_ms = user_delay_ms;
 
-    rslt = bmp3_init(&dev);
+    int8_t rslt = bmp3_init(&dev_bmp);
     if (rslt != BMP3_OK)
     {
         ser << "Could not initialize BMP388: " << (int32_t)rslt << "\n";
