@@ -26,7 +26,7 @@ struct SPI_DEVICE
 };
 
 static const uint32_t BME280_DEVICE_ID = 0;
-SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}};
+SPI_DEVICE devices[1] = {{BME280_CS_PORT, BME280_CS_PIN}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
 struct bme280_dev dev_bme;
@@ -80,10 +80,10 @@ bool Sensors::setup()
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n"; 
-    gpio_clear(devices[device_id].port, devices[device_id].pin);
-
+    //gpio_clear(devices[device_id].port, devices[device_id].pin);
+    gpio_clear(BME280_CS_PORT, BME280_CS_PIN);
     spi_send8(SPI, reg_addr);
-    spi_read8(SPI);
+    //spi_read8(SPI);
 
     // For each byte of data we want to transmit
     for (uint8_t i = 0; i < len; i++) {
@@ -107,8 +107,9 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     // we wait here until the busy flag is cleared on the SPI peripheral.
     while (SPI_SR(SPI2) & SPI_SR_BSY);
 
-    gpio_set(devices[device_id].port, devices[device_id].pin);
-    return 0;
+    //gpio_set(devices[device_id].port, devices[device_id].pin);
+    gpio_set(BME280_CS_PORT, BME280_CS_PIN);
+	return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
