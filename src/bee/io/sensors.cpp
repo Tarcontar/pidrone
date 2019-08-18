@@ -214,6 +214,31 @@ bool Sensors::initializeBMP()
         //return false;
     }
     init_bme = true;
+
+    /* Used to select the settings user needs to change */
+    uint16_t settings_sel;
+
+    /* Select the pressure and temperature sensor to be enabled */
+    dev->settings.press_en = BMP3_ENABLE;
+    dev->settings.temp_en = BMP3_ENABLE;
+    /* Select the output data rate and oversampling settings for pressure and temperature */
+    dev->settings.odr_filter.press_os = BMP3_NO_OVERSAMPLING;
+    dev->settings.odr_filter.temp_os = BMP3_NO_OVERSAMPLING;
+    dev->settings.odr_filter.odr = BMP3_ODR_200_HZ;
+    /* Assign the settings which needs to be set in the sensor */
+    settings_sel = BMP3_PRESS_EN_SEL | BMP3_TEMP_EN_SEL | BMP3_PRESS_OS_SEL | BMP3_TEMP_OS_SEL | BMP3_ODR_SEL;
+    rslt = bmp3_set_sensor_settings(settings_sel, dev);
+
+    /* Set the power mode to normal mode */
+    dev->settings.op_mode = BMP3_NORMAL_MODE;
+    rslt = bmp3_set_op_mode(dev);
+
+    if (rslt != BMP3_OK)
+    {
+        ser << "Could not set BMP3 sensor settings: " << (int32_t)rslt << "\n";
+        return false;
+    }
+
     ser << "Done\n";
 
     return true;
@@ -261,11 +286,18 @@ bool Sensors::initializeBME()
     settings_sel |= BME280_STANDBY_SEL;
     settings_sel |= BME280_FILTER_SEL;
     rslt = bme280_set_sensor_settings(settings_sel, &dev_bme);
+    
+    if (rslt != BME280_OK)
+    {
+        ser << "Could not set BME280 sensor settings: " << (int32_t)rslt << "\n";
+        return false;
+    }
+
     rslt = bme280_set_sensor_mode(BME280_FORCED_MODE, &dev_bme);
 
     if (rslt != BME280_OK)
     {
-        ser << "Could not setup BME280: " << (int32_t)rslt << "\n";
+        ser << "Could not set BME280 sensor mode: " << (int32_t)rslt << "\n";
         return false;
     }
 
@@ -324,10 +356,29 @@ void Sensors::readGPS()
 	*/
 }
 
+void Sensors::readBMP()
+ {
+    int8_t rslt;
+    /* Variable used to select the sensor component */
+    uint8_t sensor_comp;
+    /* Variable used to store the compensated data */
+    struct bmp3_data data;
+
+    /* Sensor component selection */
+    sensor_comp = BMP3_PRESS | BMP3_TEMP;
+    /* Temperature and Pressure data are read and stored in the bmp3_data instance */
+    rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bme);
+
+    /* Print the temperature and pressure data */
+    printf("Temperature in deg celsius\t Pressure in Pascal\t\n");
+    printf("%0.2f\t\t %0.2f\t\t\n",data.temperature, data.pressure);
+ }
+
 void Sensors::readBME()
 {
     if(!init_bme)
       return;
+
     bme280_data comp_data;
     int8_t rslt = BME280_OK;
     rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
@@ -362,6 +413,7 @@ float Sensors::convertRawAccel(int aRaw)
 void Sensors::update()
 {
     readBME();
+    readBMP();
     //readBMI();
     //readGPS();
 }
