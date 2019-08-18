@@ -9,15 +9,14 @@
 #include "serial.h"
 #include "../sys/systick.h"
 
-#include <TinyGPS.h>
+//#include <TinyGPS.h>
 // set up the speed, data order and data mode
-SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
-TinyGPS gps;
+//SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
+//TinyGPS gps;
 
 enum DEVICES
 {
-    BMI = 0,
-    GPS = 1
+    BME = 0
 };
 
 struct SPI_DEVICE
@@ -39,7 +38,7 @@ bool Sensors::setup()
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
-    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, SPI_SCK | SPI_MISO | SPI_MOSI);
+    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
     gpio_set(SPI_PORT, SPI_SS);
@@ -84,22 +83,22 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     gpio_clear(devices[device_id].port, devices[device_id].pin);
 
     spi_send8(SPI, reg_addr);
-    //spi_read8(SPI);
+    spi_read8(SPI);
 
     // For each byte of data we want to transmit
     for (uint8_t i = 0; i < len; i++) {
         // Wait for the peripheral to become ready to transmit (transmit buffer
         // empty flag set)
-	spi_send8(SPI, reg_data[i]);
-	reg_data[i] = spi_read8(SPI);
-        //while (!(SPI_SR(SPI) & SPI_SR_TXE));
+	    //spi_send8(SPI, reg_data[i]);
+	    //reg_data[i] = spi_read8(SPI);
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
 
         // Place the next data in the data register for transmission
-	//PI_DR8(SPI) = reg_data[i];
+	    PI_DR8(SPI) = reg_data[i];
 
         //while (!(SPI_SR(SPI) & SPI_SR_BSY));
 
-      	//reg_data[i] = SPI_DR8(SPI);
+      	reg_data[i] = SPI_DR8(SPI);
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
@@ -179,6 +178,9 @@ bool Sensors::initializeBMI()
 bool Sensors::initializeBME()
 {
     ser << "Initializing BME280...\n"; 
+    gpio_set(BME280_CS_PORT, BME280_CS_PIN);
+    gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
+
     dev_bme.dev_id = BME280_DEVICE_ID;
     dev_bme.intf = BME280_SPI_INTF;
     dev_bme.read = spi_transfer;
