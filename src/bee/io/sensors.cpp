@@ -9,17 +9,15 @@
 #include "serial.h"
 #include "../sys/systick.h"
 
-/*
 #include <TinyGPS.h>
 // set up the speed, data order and data mode
 SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
 TinyGPS gps;
-*/
 
 enum DEVICES
 {
     BMI = 0,
-    BME = 1
+    GPS = 1
 };
 
 struct SPI_DEVICE
@@ -29,7 +27,7 @@ struct SPI_DEVICE
 };
 
 static const uint32_t BME280_DEVICE_ID = 0;
-SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPIOA, GPIO2}};
+SPI_DEVICE devices[2] = {{BME280_CS_PORT, BME280_CS_PIN}, {GPS1510_CS_PORT, GPS1510_CS_PIN}};
 
 // struct bmi160_dev dev_bmi; //1000000 msbfirst, spimode0
 struct bme280_dev dev_bme;
@@ -46,21 +44,20 @@ bool Sensors::setup()
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
     gpio_set(SPI_PORT, SPI_SS);
     gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
-    //gpio_set_output_config(SPI_PORT, GPIO_OTYPE_PP, GPIO_DRIVE_8MA, SPI_MOSI);
 
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
 
     //needed even if we handle the slave selects ourselves
-    //spi_enable_software_slave_management(SPI);
-    //spi_set_nss_high(SPI);
+    spi_enable_software_slave_management(SPI);
+    spi_set_nss_high(SPI);
 
     // The terminology around directionality can be a little confusing here -
     // unidirectional mode means that this is the only chip initiating
     // transfers, not that it will ignore any incoming data on the MISO pin.
     // Enabling duplex is required to read data back however.
-    //spi_set_unidirectional_mode(SPI);
+    spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
     spi_fifo_reception_threshold_8bit(SPI);
@@ -263,27 +260,20 @@ void Sensors::readBMI()
 
 void Sensors::readGPS()
 {
-    /*
-    Serial.println("Read GPS");
-    SPI.beginTransaction(set_gps);
-    digitalWrite (GPS_CS, LOW);
+    ser << "Reading GPS1510";
 
     //read until new data is available
     bool receivedData = false;
 
     while(!receivedData)
     {
-	//Serial.println("Transfer");
-        char c = SPI.transfer(0);
-        Serial.print(c); // uncomment this line if you want to see the GPS data flowing
+        char d = 0xff;
+        char c = spi_transfer(1, 0, &d, 1);
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
 
-    digitalWrite (GPS_CS, HIGH);
-    SPI.endTransaction();
-    Serial.println("Received sth");
-	*/
+    ser << "GPS1510 received sth\n";
 }
 
 void Sensors::readBME()
@@ -323,7 +313,7 @@ float Sensors::convertRawAccel(int aRaw)
 
 void Sensors::update()
 {
-    readBME();
+    //readBME();
     //readBMI();
-    //readGPS();
+    readGPS();
 }

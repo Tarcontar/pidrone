@@ -31,6 +31,8 @@ static const uint32_t SPI_AF = GPIO_AF5;
 
 static const uint32_t BME280_CS_PORT = GPIOA;
 static const uint32_t BME280_CS_PIN = GPIO3;
+static const uint32_t ORG1510_CS_PORT = GPIOD;
+static const uint32_t ORG1510_CS_PIN = GPIO8;
 
 static const rcc_periph_clken MOTORS_RCC_TIMER = RCC_TIM3;
 static const uint32_t MOTORS_TIMER = TIM3;
