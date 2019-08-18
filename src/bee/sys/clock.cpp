@@ -13,7 +13,7 @@ void Clock::setup()
  	flash_icache_enable();
 
  	// 8mhz / 2 => 4 * 40 => 160mhz / 2 => 80 mhz
- 	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 1, 20, RCC_PLLCFGR_PLLP_DIV7 RCC_PLLCFGR_PLLQ_DIV2, RCC_PLLCFGR_PLLR_DIV2);
+ 	rcc_set_main_pll(RCC_PLLCFGR_PLLSRC_HSE, 1, 20, RCC_PLLCFGR_PLLP_DIV7, RCC_PLLCFGR_PLLQ_DIV2, RCC_PLLCFGR_PLLR_DIV2);
  	rcc_osc_on(RCC_PLL);
  	rcc_wait_for_osc_ready(RCC_PLL);
 
