@@ -82,23 +82,32 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n"; 
     //gpio_clear(devices[device_id].port, devices[device_id].pin);
     gpio_clear(BME280_CS_PORT, BME280_CS_PIN);
-    spi_send8(SPI, reg_addr);
-    //spi_read8(SPI);
+
+	SPI_DR8(SPI) = reg_addr;
+
+	ser << "wrote reg\n";
+
+	while(!(SPI_SR(SPI) & SPI_SR_TXE));
+	ser << "ready to transmit\n";
+	while(!(SPI_SR(SPI) & SPI_SR_RXNE));
+
+	ser << "ready to write data \n";
 
     // For each byte of data we want to transmit
     for (uint8_t i = 0; i < len; i++) {
         // Wait for the peripheral to become ready to transmit (transmit buffer
-        // empty flag set)
-	    //spi_send8(SPI, reg_data[i]);
-	    //reg_data[i] = spi_read8(SPI);
         while (!(SPI_SR(SPI) & SPI_SR_TXE));
 
+	ser << "ready to transmit\n";
         // Place the next data in the data register for transmission
-	    SPI_DR8(SPI) = reg_data[i];
+	SPI_DR8(SPI) = reg_data[i];
 
-        //while (!(SPI_SR(SPI) & SPI_SR_BSY));
+	ser << "wrote data\n";
+        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
 
+	ser << "ready to receive\n";
       	reg_data[i] = SPI_DR8(SPI);
+	ser << "received: " << (uint32_t)reg_data[i] << "\n";
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
@@ -203,7 +212,7 @@ bool Sensors::initializeBME()
     while(rslt!=BME280_OK);
 
     init_bme = true;
-    ser << "Done\n"; 
+    ser << "Done\n";
 
     dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
     dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;
@@ -222,7 +231,7 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "Could not initialize BME280: " << (int32_t)rslt << "\n";
+        ser << "Could not setup BME280: " << (int32_t)rslt << "\n";
         return false;
     }
 
@@ -318,7 +327,7 @@ float Sensors::convertRawAccel(int aRaw)
 
 void Sensors::update()
 {
-    //readBME();
+    readBME();
     //readBMI();
-    readGPS();
+    //readGPS();
 }
