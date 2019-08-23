@@ -18,11 +18,6 @@
 //SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
 //TinyGPS gps;
 
-enum DEVICES
-{
-    BME = 0
-};
-
 struct SPI_DEVICE
 {
     uint32_t port;
@@ -64,10 +59,14 @@ bool Sensors::setup()
     gpio_set(SPI_PORT, SPI_SS);
     gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
 
+    gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
+    gpio_set(BME280_CS_PORT, BME280_CS_PIN);
+
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
 
+    spi_set_master_mode(SPI);
     //needed even if we handle the slave selects ourselves
     spi_enable_software_slave_management(SPI);
     spi_set_nss_high(SPI);
@@ -76,11 +75,11 @@ bool Sensors::setup()
     // unidirectional mode means that this is the only chip initiating
     // transfers, not that it will ignore any incoming data on the MISO pin.
     // Enabling duplex is required to read data back however.
-    spi_set_unidirectional_mode(SPI);
+    //spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
-    spi_fifo_reception_threshold_8bit(SPI);
-    spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
+    //spi_fifo_reception_threshold_8bit(SPI);
+    //spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
 
     spi_enable(SPI);
 
@@ -91,65 +90,66 @@ bool Sensors::setup()
     // if (!initializeBMI())
     // 	return false;
 
-    // if (!initializeBME())
+    while (!initializeBME()){}
     //     return false;
 
-    //initializeBME();
+    initializeBME();
     //initializeBMP();
-    initializeBMI();
+    //initializeBMI();
 
     return true;
 }
 
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
-    ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n";
-    //gpio_clear(devices[device_id].port, devices[device_id].pin);
+    //ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n";
     gpio_clear(devices[device_id].port, devices[device_id].pin);
 
-    SPI_DR8(SPI) = reg_addr;
+    //SPI_DR8(SPI) = reg_addr;
+    spi_send(SPI, reg_addr);
+    //ser << "reg response: " << (uint32_t)spi_read(SPI) << "\n";
 
-    ser << "wrote reg\n";
+    //ser << "wrote reg\n";
 
-    while (!(SPI_SR(SPI) & SPI_SR_TXE));
-    ser << "ready to transmit\n";
-    while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+    //while (!(SPI_SR(SPI) & SPI_SR_TXE));
+    //ser << "ready to transmit\n";
+    //while (!(SPI_SR(SPI) & SPI_SR_RXNE));
 
-    ser << "ready to write data \n";
+    //ser << "ready to write data \n";
 
     // For each byte of data we want to transmit
     for (uint8_t i = 0; i < len; i++)
     {
         // Wait for the peripheral to become ready to transmit (transmit buffer
-        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+        //while (!(SPI_SR(SPI) & SPI_SR_TXE));
 
-        ser << "ready to transmit\n";
+        //ser << "ready to transmit\n";
         // Place the next data in the data register for transmission
-        SPI_DR8(SPI) = reg_data[i];
+        // SPI_DR8(SPI) = reg_data[i];
+	//spi_send(SPI, reg_data[i]);
 
-        ser << "wrote data\n";
-        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+        //ser << "wrote data\n";
+        //while (!(SPI_SR(SPI) & SPI_SR_RXNE));
 
-        ser << "ready to receive\n";
-        reg_data[i] = SPI_DR8(SPI);
-        ser << "received: " << (uint32_t)reg_data[i] << "\n";
+        //ser << "ready to receive\n";
+        //reg_data[i] = spi_read(SPI);
+	//reg_data[i] = SPI_DR8(SPI);
+        ser << " received: " << (uint32_t)spi_xfer(SPI, reg_data[i]) << "\n";
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
     // sending the data asynchronously with the main CPU. To make sure that the
     // data is finished sending before we pull the register clock high again,
     // we wait here until the busy flag is cleared on the SPI peripheral.
-    while (SPI_SR(SPI2) & SPI_SR_BSY)
-        ;
+    //while (SPI_SR(SPI) & SPI_SR_BSY);
 
-    //gpio_set(devices[device_id].port, devices[device_id].pin);
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    ser << "Doing a user delay: " << milliseconds << "\n";
+    //ser << "Doing a user delay: " << milliseconds << "\n";
     SysTick::sleep(milliseconds);
 }
 
@@ -235,8 +235,8 @@ bool Sensors::initializeBME()
     dev_bme.delay_ms = user_delay_ms;
 
     int8_t rslt = BME280_OK;
-    // do
-    // {
+    do
+    {
     rslt = bme280_init(&dev_bme);
 
     if (rslt != BME280_OK)
@@ -245,8 +245,8 @@ bool Sensors::initializeBME()
         //Serial.println(rslt);
         //return false;
     }
-    // }
-    // while(rslt!=BME280_OK);
+    }
+    while(rslt!=BME280_OK);
 
     init_bme = true;
     ser << "Done\n";
