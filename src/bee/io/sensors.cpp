@@ -64,18 +64,18 @@ bool Sensors::setup()
 
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
+                    SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
     spi_set_master_mode(SPI);
     //needed even if we handle the slave selects ourselves
-    spi_enable_software_slave_management(SPI);
-    spi_set_nss_high(SPI);
+    //spi_enable_software_slave_management(SPI);
+    //spi_set_nss_high(SPI);
 
     // The terminology around directionality can be a little confusing here -
     // unidirectional mode means that this is the only chip initiating
     // transfers, not that it will ignore any incoming data on the MISO pin.
     // Enabling duplex is required to read data back however.
-    //spi_set_unidirectional_mode(SPI);
+    spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
     //spi_fifo_reception_threshold_8bit(SPI);
@@ -134,14 +134,15 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
         //ser << "ready to receive\n";
         //reg_data[i] = spi_read(SPI);
 	//reg_data[i] = SPI_DR8(SPI);
-        ser << " received: " << (uint32_t)spi_xfer(SPI, reg_data[i]) << "\n";
+	reg_data[i] = spi_xfer(SPI, reg_data[i]);
+        ser << " received: " << (uint32_t)reg_data[i] << "\n";
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
     // sending the data asynchronously with the main CPU. To make sure that the
     // data is finished sending before we pull the register clock high again,
     // we wait here until the busy flag is cleared on the SPI peripheral.
-    //while (SPI_SR(SPI) & SPI_SR_BSY);
+    while (SPI_SR(SPI) & SPI_SR_BSY);
 
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
