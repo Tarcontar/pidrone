@@ -29,9 +29,9 @@ static const uint32_t BMP388_DEVICE_ID = 1;
 static const uint32_t BMI088_ACCEL_DEVICE_ID = 2;
 static const uint32_t BMI088_GYRO_DEVICE_ID = 3;
 
-SPI_DEVICE devices[] = 
+SPI_DEVICE devices[] =
 {
-    {BME280_CS_PORT, BME280_CS_PIN}, 
+    {BME280_CS_PORT, BME280_CS_PIN},
     {BMP388_CS_PORT, BMP388_CS_PIN},
     {BMI088_ACCEL_CS_PORT,  BMI088_ACCEL_CS_PIN},
     {BMI088_GYRO_CS_PORT,   BMI088_GYRO_CS_PIN}
@@ -87,15 +87,15 @@ bool Sensors::setup()
 
     //TODO: iterate over devices and set pins high
 
-    // if (!initializeBMI())
+    //if (!initializeBMI())
     // 	return false;
 
     while (!initializeBME()){}
     //     return false;
 
-    initializeBME();
-    //initializeBMP();
-    //initializeBMI();
+    //initializeBME();
+    initializeBMP();
+    initializeBMI();
 
     return true;
 }
@@ -125,16 +125,16 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
         //ser << "ready to transmit\n";
         // Place the next data in the data register for transmission
-        // SPI_DR8(SPI) = reg_data[i];
-	//spi_send(SPI, reg_data[i]);
+        //SPI_DR8(SPI) = reg_data[i];
+	spi_send(SPI, reg_data[i]);
 
         //ser << "wrote data\n";
         //while (!(SPI_SR(SPI) & SPI_SR_RXNE));
 
         //ser << "ready to receive\n";
-        //reg_data[i] = spi_read(SPI);
+        reg_data[i] = spi_read(SPI);
 	//reg_data[i] = SPI_DR8(SPI);
-	reg_data[i] = spi_xfer(SPI, reg_data[i]);
+	//reg_data[i] = spi_xfer(SPI, reg_data[i]);
         ser << " received: " << (uint32_t)reg_data[i] << "\n";
     }
 

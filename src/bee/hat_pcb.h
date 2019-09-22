@@ -5,10 +5,10 @@
 #include <libopencm3/stm32/timer.h>
 #include <libopencm3/stm32/spi.h>
 
-#TODO: make struct LED / PIN
-static const rcc_periph_clken LED_STATUS_RCC_PORT = RCC_GPIOC;
-static const uint32_t LED_STATUS_PORT = GPIOC;
-static const uint32_t LED_STATUS_PIN = GPIO12;
+//TODO: make struct LED / PIN
+static const rcc_periph_clken LED_STATUS_RCC_PORT = RCC_GPIOD;
+static const uint32_t LED_STATUS_PORT = GPIOD;
+static const uint32_t LED_STATUS_PIN = GPIO7;
 
 static const rcc_periph_clken LED_BLUE_RCC_PORT = RCC_GPIOA;
 static const uint32_t LED_BLUE_PORT = GPIOA;
