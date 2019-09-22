@@ -61,6 +61,13 @@ bool Sensors::setup()
 
     gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
     gpio_set(BME280_CS_PORT, BME280_CS_PIN);
+    gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
+    gpio_set(BMP388_CS_PORT, BMP388_CS_PIN);
+
+    gpio_mode_setup(BMI088_GYRO_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_GYRO_CS_PIN);
+    gpio_set(BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN);
+    gpio_mode_setup(BMI088_ACCEL_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_ACCEL_CS_PIN);
+    gpio_set(BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN);
 
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
@@ -68,8 +75,8 @@ bool Sensors::setup()
 
     spi_set_master_mode(SPI);
     //needed even if we handle the slave selects ourselves
-    //spi_enable_software_slave_management(SPI);
-    //spi_set_nss_high(SPI);
+    spi_enable_software_slave_management(SPI);
+    spi_set_nss_high(SPI);
 
     // The terminology around directionality can be a little confusing here -
     // unidirectional mode means that this is the only chip initiating
@@ -78,22 +85,14 @@ bool Sensors::setup()
     spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
-    //spi_fifo_reception_threshold_8bit(SPI);
-    //spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
+    spi_fifo_reception_threshold_8bit(SPI);
+    spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
 
     spi_enable(SPI);
 
     ser << "SPI enabled\n";
 
-    //TODO: iterate over devices and set pins high
-
-    //if (!initializeBMI())
-    // 	return false;
-
-    while (!initializeBME()){}
-    //     return false;
-
-    //initializeBME();
+    initializeBME();
     initializeBMP();
     initializeBMI();
 
@@ -135,7 +134,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
         reg_data[i] = spi_read(SPI);
 	//reg_data[i] = SPI_DR8(SPI);
 	//reg_data[i] = spi_xfer(SPI, reg_data[i]);
-        ser << " received: " << (uint32_t)reg_data[i] << "\n";
+        //ser << " received: " << (uint32_t)reg_data[i] << "\n";
     }
 
     // Putting data into the SPI_DR register doesn't block - it will start
@@ -169,8 +168,7 @@ bool Sensors::initializeBMI()
     if (rslt != BMI08X_OK)
     {
         ser << "Could not initialize BMI088: " << (int32_t)rslt << "\n";
-        //Serial.println(rslt);
-        //return false;
+        return false;
     }
     init_bmi = true;
 
@@ -191,8 +189,7 @@ bool Sensors::initializeBMP()
     if (rslt != BMP3_OK)
     {
         ser << "Could not initialize BMP388: " << (int32_t)rslt << "\n";
-        //Serial.println(rslt);
-        //return false;
+        return false;
     }
     init_bme = true;
 
@@ -235,19 +232,13 @@ bool Sensors::initializeBME()
     dev_bme.write = spi_transfer;
     dev_bme.delay_ms = user_delay_ms;
 
-    int8_t rslt = BME280_OK;
-    do
-    {
-    rslt = bme280_init(&dev_bme);
+    int8_t rslt = bme280_init(&dev_bme);
 
     if (rslt != BME280_OK)
     {
         ser << "Could not initialize BME280: " << (int32_t)rslt << "\n";
-        //Serial.println(rslt);
-        //return false;
+        return false;
     }
-    }
-    while(rslt!=BME280_OK);
 
     init_bme = true;
     ser << "Done\n";
