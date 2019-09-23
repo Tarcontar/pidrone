@@ -20,7 +20,7 @@ void Clock::setup()
  	rcc_set_sysclk_source(RCC_CFGR_SW_PLL);
  	rcc_wait_for_sysclk_status(RCC_PLL);
 
- 	rcc_ahb_frequency = 80e6;
- 	rcc_apb1_frequency = 80e6;
- 	rcc_apb2_frequency = 80e6;
+ 	rcc_ahb_frequency = 20e6;
+ 	rcc_apb1_frequency = 20e6;
+ 	rcc_apb2_frequency = 20e6;
 }

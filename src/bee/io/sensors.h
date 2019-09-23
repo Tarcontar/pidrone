@@ -1,20 +1,20 @@
 #pragma once
 #include <stdint.h>
 
-class Sensors 
+class Sensors
 {
 public:
     bool setup();
-    
+
     void update();
 
     inline float getRoll()  { return m_roll; }
-    inline float getYaw()   { return m_yaw; } 
+    inline float getYaw()   { return m_yaw; }
     inline float getPitch() { return m_pitch; }
 private:
-    bool initializeBMI();
+    bool initializeBMI(int count = 0);
     bool initializeBME();
-    bool initializeBMP();
+    bool initializeBMP(int count = 0);
 
     void readBMI();
     void readBME();

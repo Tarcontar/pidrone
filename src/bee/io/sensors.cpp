@@ -60,6 +60,10 @@ bool Sensors::setup()
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
 
+    rcc_periph_clock_enable(RCC_GPIOA);
+    rcc_periph_clock_enable(RCC_GPIOD);
+    rcc_periph_clock_enable(RCC_GPIOE);
+
     gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
     gpio_set(BME280_CS_PORT, BME280_CS_PIN);
     gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
@@ -79,9 +83,9 @@ bool Sensors::setup()
 
     ser << "SPI enabled\n";
 
-    initializeBME();
+    //initializeBME();
     initializeBMP();
-    initializeBMI();
+    //initializeBMI();
 
     return true;
 }
@@ -90,8 +94,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 {
     gpio_clear(devices[device_id].port, devices[device_id].pin);
 
-    while (!(SPI_SR(SPI) & SPI_SR_TXE));
-    SPI_DR8(SPI) = reg_addr;
+    spi_send(SPI, reg_addr);
 
     for (uint8_t i = 0; i < len; i++)
     {
@@ -99,6 +102,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
         SPI_DR8(SPI) = reg_data[i];
         while (!(SPI_SR(SPI) & SPI_SR_RXNE));
         reg_data[i] = SPI_DR8(SPI);
+	ser << "rec: " << (uint32_t)reg_data[i] << "\n";
     }
 
     while (SPI_SR(SPI) & SPI_SR_BSY);
@@ -106,63 +110,13 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
-
-/*
-int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
-{
-    //ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n";
-    gpio_clear(devices[device_id].port, devices[device_id].pin);
-
-    //SPI_DR8(SPI) = reg_addr;
-    spi_send(SPI, reg_addr);
-    //ser << "reg response: " << (uint32_t)spi_read(SPI) << "\n";
-
-    //ser << "wrote reg\n";
-
-    //while (!(SPI_SR(SPI) & SPI_SR_TXE));
-    //ser << "ready to transmit\n";
-    //while (!(SPI_SR(SPI) & SPI_SR_RXNE));
-
-    //ser << "ready to write data \n";
-
-    // For each byte of data we want to transmit
-    for (uint8_t i = 0; i < len; i++)
-    {
-        // Wait for the peripheral to become ready to transmit (transmit buffer
-        //while (!(SPI_SR(SPI) & SPI_SR_TXE));
-
-        //ser << "ready to transmit\n";
-        // Place the next data in the data register for transmission
-        //SPI_DR8(SPI) = reg_data[i];
-	spi_send(SPI, reg_data[i]);
-
-        //ser << "wrote data\n";
-        //while (!(SPI_SR(SPI) & SPI_SR_RXNE));
-
-        //ser << "ready to receive\n";
-        reg_data[i] = spi_read(SPI);
-	//reg_data[i] = SPI_DR8(SPI);
-	//reg_data[i] = spi_xfer(SPI, reg_data[i]);
-        //ser << " received: " << (uint32_t)reg_data[i] << "\n";
-    }
-
-    // Putting data into the SPI_DR register doesn't block - it will start
-    // sending the data asynchronously with the main CPU. To make sure that the
-    // data is finished sending before we pull the register clock high again,
-    // we wait here until the busy flag is cleared on the SPI peripheral.
-    while (SPI_SR(SPI) & SPI_SR_BSY);
-
-    gpio_set(devices[device_id].port, devices[device_id].pin);
-    return 0;
-}
-*/
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
     SysTick::sleep(milliseconds);
 }
 
-bool Sensors::initializeBMI()
+bool Sensors::initializeBMI(int count)
 {
     ser << "Initializing BMI088...\n";
 
@@ -176,6 +130,8 @@ bool Sensors::initializeBMI()
     int8_t rslt = bmi088_init(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
+        if (count < 5) return initializeBMI(++count);
+
         ser << "Could not initialize BMI088: " << (int32_t)rslt << "\n";
         return false;
     }
@@ -184,7 +140,7 @@ bool Sensors::initializeBMI()
     return true;
 }
 
-bool Sensors::initializeBMP()
+bool Sensors::initializeBMP(int count)
 {
     ser << "Initializing BMP388...\n";
 
@@ -198,6 +154,7 @@ bool Sensors::initializeBMP()
     if (rslt != BMP3_OK)
     {
         ser << "Could not initialize BMP388: " << (int32_t)rslt << "\n";
+        if (++count < 5) return initializeBMP(count);
         return false;
     }
     init_bme = true;
@@ -225,9 +182,6 @@ bool Sensors::initializeBMP()
         ser << "Could not set BMP3 sensor settings: " << (int32_t)rslt << "\n";
         return false;
     }
-
-    ser << "Done\n";
-
     return true;
 }
 
@@ -250,7 +204,6 @@ bool Sensors::initializeBME()
     }
 
     init_bme = true;
-    ser << "Done\n";
 
     dev_bme.settings.osr_h = BME280_OVERSAMPLING_1X;
     dev_bme.settings.osr_p = BME280_OVERSAMPLING_16X;

@@ -42,14 +42,16 @@ int main()
 
 	Sensors sensors;
 	sensors.setup();
+	//sensors.update();
 
 	while (1)
 	{
-		blink_statusLED();
+		//blink_statusLED();
 		//sensors.update();
 		//keep this for future testing
 
-		SysTick::sleep(100);
+		SysTick::sleep(1000);
 	}
 	return 0;
 }
+
