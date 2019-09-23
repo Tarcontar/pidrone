@@ -2,11 +2,14 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
-// #include <bmi160.h>
+
 #include <cstdio>
 #include <bme280.h>
 #include <bmp3.h>
-#include <bmi08x.h>
+
+#define BMI08X_ENABLE_BMI085 0
+#define BMI08X_ENABLE_BMI088 1
+#include <bmi08x.h> //needed?
 #include <bmi088.h>
 
 #include "../hat_pcb.h"
@@ -53,11 +56,15 @@ bool Sensors::setup()
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
+    //sure we set MISO here also and do not configure it as input?
     gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
-    gpio_set(SPI_PORT, SPI_SS);
-    gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_MISO);
+    
+    //gpio_mode_setup(SPI_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, SPI_SS);
+    //gpio_set(SPI_PORT, SPI_SS);
+
+    //rcc_periph_clock_enable() for all the cs ports?
 
     gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
     gpio_set(BME280_CS_PORT, BME280_CS_PIN);
@@ -69,36 +76,71 @@ bool Sensors::setup()
     gpio_mode_setup(BMI088_ACCEL_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_ACCEL_CS_PIN);
     gpio_set(BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN);
 
+    //alternative found in f4 example
+    cr_tmp = SPI_CR1_BAUDRATE_FPCLK_DIV_8 |
+		 SPI_CR1_MSTR |
+		 SPI_CR1_SPE |
+		 SPI_CR1_CPHA |
+		 SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE;
+
+	SPI_CR2(SPI) |= SPI_CR2_SSOE;
+	SPI_CR1(SPI) = cr_tmp;
+
+    //spi_set_standard_mode(SPI, 3);
+
+    /*
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
     spi_set_master_mode(SPI);
     //needed even if we handle the slave selects ourselves
-    spi_enable_software_slave_management(SPI);
-    spi_set_nss_high(SPI);
+    //spi_enable_software_slave_management(SPI);
+    //spi_set_nss_high(SPI);
 
     // The terminology around directionality can be a little confusing here -
     // unidirectional mode means that this is the only chip initiating
     // transfers, not that it will ignore any incoming data on the MISO pin.
     // Enabling duplex is required to read data back however.
-    spi_set_unidirectional_mode(SPI);
+    //spi_set_unidirectional_mode(SPI);
 
     // We're using 8 bit, not 16 bit, transfers
-    spi_fifo_reception_threshold_8bit(SPI);
-    spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
+    //spi_fifo_reception_threshold_8bit(SPI);
+    //SPI_I2SCFGR(SPI1) &= ~SPI_I2SCFGR_I2SMOD;
+    //spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
 
     spi_enable(SPI);
+    */
 
     ser << "SPI enabled\n";
 
     initializeBME();
-    initializeBMP();
-    initializeBMI();
+    //initializeBMP();
+    //initializeBMI();
 
     return true;
 }
 
+int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
+
+    while (!(SPI_SR(SPI) & SPI_SR_TXE));
+    SPI_DR8(SPI) = reg_addr;
+
+    for (uint8_t i = 0; i < len; i++)
+    {
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+        SPI_DR8(SPI) = reg_data[i];
+        while (!(SPI_SR(spi) & SPI_SR_RXNE));
+        reg_data[i] = SPI_DR(SPI);
+    }
+
+    gpio_set(devices[device_id].port, devices[device_id].pin);
+    return 0;
+}
+
+/*
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     //ser << "SPI transfer: dev=" << (uint32_t)device_id << " reg=" << (uint32_t)reg_addr << " len=" << (uint32_t)len << "\n";
@@ -146,6 +188,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
+*/
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
