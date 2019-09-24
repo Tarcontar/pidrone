@@ -78,6 +78,10 @@ bool Sensors::setup()
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
 
+    //spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
+    //spi_set_crcl_8bit(SPI);
+    //spi_fifo_reception_threshold_8bit(SPI);
+
     spi_set_master_mode(SPI);
     spi_enable(SPI);
 
@@ -90,6 +94,7 @@ bool Sensors::setup()
     return true;
 }
 
+/*
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     gpio_clear(devices[device_id].port, devices[device_id].pin);
@@ -110,6 +115,52 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
+*/
+
+//test with dummy byte
+int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
+
+    while (!(SPI_SR(SPI) & SPI_SR_TXE));
+    SPI_DR8(SPI) = reg_addr;
+    while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+    reg_data[0] = SPI_DR8(SPI);
+
+    for (uint8_t i = 1; i < len; i++)
+    {
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+        SPI_DR8(SPI) = reg_data[i];
+        while (!(SPI_SR(SPI) & SPI_SR_RXNE));
+        reg_data[i] = SPI_DR8(SPI);
+        ser << "rec: " << (uint32_t)reg_data[i] << "\n";
+    }
+
+    while (SPI_SR(SPI) & SPI_SR_BSY);
+
+    gpio_set(devices[device_id].port, devices[device_id].pin);
+    return 0;
+}
+
+/* with xfer
+int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
+
+    reg_data[0] = spi_xfer(SPI, reg_addr);
+
+    for (uint8_t i = 1; i < len; i++)
+    {
+        reg_data[i] = spi_xfer(SPI, reg_data[i])
+        ser << "rec: " << (uint32_t)reg_data[i] << "\n";
+    }
+
+    while (SPI_SR(SPI) & SPI_SR_BSY);
+
+    gpio_set(devices[device_id].port, devices[device_id].pin);
+    return 0;
+}
+*/
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
