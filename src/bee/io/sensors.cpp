@@ -82,9 +82,9 @@ bool Sensors::setup()
 
     ser << "SPI enabled\n";
 
-    //initializeBME();
+    initializeBME();
     initializeBMP();
-    //initializeBMI();
+    initializeBMI();
 
     return true;
 }
@@ -92,19 +92,54 @@ bool Sensors::setup()
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     gpio_clear(devices[device_id].port, devices[device_id].pin);
+    SysTick::sleep(5);
 
     reg_data[0] = spi_xfer(SPI, reg_addr);
-    ser << "rec1: "  << (uint32_t)reg_data[0] << "\n";
 
     for (uint8_t i = 1; i < len; i++)
     {
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
-	ser << "rec: " << (uint32_t)reg_data[i] << "\n";
+	    ser << "rec: " << (uint32_t)reg_data[i] << "\n";
     }
 
     gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
+
+int8_t Sensors::spi_read(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
+    SysTick::sleep(5);
+
+    spi_send(SPI, reg_addr);
+
+    for (uint8_t i = 0; i < len; i++)
+    {
+        reg_data[i] = spi_read(SPI, 0x00);
+	    ser << "rec: " << (uint32_t)reg_data[i] << "\n";
+    }
+
+    gpio_set(devices[device_id].port, devices[device_id].pin);
+    return 0;
+}
+
+int8_t Sensors::spi_send(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    gpio_clear(devices[device_id].port, devices[device_id].pin);
+    SysTick::sleep(5);
+
+    spi_send(SPI, reg_addr);
+
+    for (uint8_t i = 0; i < len; i++)
+    {
+        spi_send(SPI, reg_data[i]);
+    }
+
+    gpio_set(devices[device_id].port, devices[device_id].pin);
+    return 0;
+}
+
+
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
@@ -118,8 +153,8 @@ bool Sensors::initializeBMI(int count)
     dev_bmi.accel_id = BMI088_ACCEL_DEVICE_ID;
     dev_bmi.gyro_id = BMI088_GYRO_DEVICE_ID;
     dev_bmi.intf = BMI08X_SPI_INTF;
-    dev_bmi.read = spi_transfer;
-    dev_bmi.write = spi_transfer;
+    dev_bmi.read = spi_read;
+    dev_bmi.write = spi_send;
     dev_bmi.delay_ms = user_delay_ms;
 
     int8_t rslt = bmi088_init(&dev_bmi);
@@ -142,8 +177,8 @@ bool Sensors::initializeBMP(int count)
 
     dev_bmp.dev_id = BMP388_DEVICE_ID;
     dev_bmp.intf = BMP3_SPI_INTF;
-    dev_bmp.read = spi_transfer;
-    dev_bmp.write = spi_transfer;
+    dev_bmp.read = spi_read;
+    dev_bmp.write = spi_send;
     dev_bmp.delay_ms = user_delay_ms;
 
     int8_t rslt = bmp3_init(&dev_bmp);
@@ -189,8 +224,8 @@ bool Sensors::initializeBME()
 
     dev_bme.dev_id = BME280_DEVICE_ID;
     dev_bme.intf = BME280_SPI_INTF;
-    dev_bme.read = spi_transfer;
-    dev_bme.write = spi_transfer;
+    dev_bme.read = spi_read;
+    dev_bme.write = spi_send;
     dev_bme.delay_ms = user_delay_ms;
 
     int8_t rslt = bme280_init(&dev_bme);
