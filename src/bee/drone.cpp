@@ -33,22 +33,21 @@ static void blink_statusLED()
 
 int main()
 {
+        setup_statusLED();
 	Clock::setup();
 	SysTick::setup();
 	USART::setup();
-	setup_statusLED();
-
-	ser << "Setup finished!\n";
 
 	Sensors sensors;
 	sensors.setup();
-	//sensors.update();
+
+        blink_statusLED();
+        ser << "Setup finished!\n";
 
 	while (1)
 	{
 		//blink_statusLED();
-		//sensors.update();
-		//keep this for future testing
+		sensors.update();
 
 		SysTick::sleep(1000);
 	}
