@@ -23,7 +23,8 @@ private:
 
     static int8_t spi_transfer(uint8_t device_id, uint8_t reg_addr,
                                 uint8_t *reg_data, uint16_t len);
-
+    
+    static int8_t init(uint8_t device_id, uint8_t reg_addr, uint8_t chip_id);
     static void user_delay_ms(uint32_t milliseconds);
 	
 	float convertRawGyro(int gRaw);

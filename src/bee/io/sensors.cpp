@@ -47,7 +47,7 @@ bool init_bme = false;
 struct bmp3_dev dev_bmp;
 bool init_bmp = false;
 // BMI088
-bmi08x_dev dev_bmi;
+struct bmi08x_dev dev_bmi;
 bool init_bmi = false;
 
 bool Sensors::setup()
@@ -82,11 +82,35 @@ bool Sensors::setup()
 
     ser << "SPI enabled\n";
 
-    initializeBME();
-    initializeBMP();
-    initializeBMI();
+    init(BME280_DEVICE_ID, 0xD0, 0x60);
+    init(BMP388_DEVICE_ID, 0x00, 0x50);
+    init(BMI088_ACCEL_DEVICE_ID, 0x00, 0x1E);
+    init(BMI088_GYRO_DEVICE_ID, 0x00, 0x0F);
+    //initializeBME();
+    //initializeBMP();
+    //initializeBMI();
 
     return true;
+}
+
+int8_t init(uint8_t device_id, uint8_t reg_addr, uint8_t chip_id)
+{
+    uint8_t id = 0;
+    int8_t rslt = get_reg(device_id, reg_addr, &id, 1);
+    if (rslt == 0 && id == chip_id) return 5;
+    return rslt;
+}
+
+int8_t get_reg(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    uint8_t temp[len + 1];
+    int8_t rslt = spi_transfer(device_id, reg_addr | 0x80, temp, len);
+    if (rslt != 0) return -123;
+    if (device_id > 0) //bmp and bmi -> dummy byte stuff
+    {
+        for (int i = 0; i < len; i++) reg_data[i] = temp[i + 1];
+    }
+    return rslt;
 }
 
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
@@ -96,50 +120,21 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     reg_data[0] = spi_xfer(SPI, reg_addr);
 
-    for (uint8_t i = 1; i < len; i++)
+    for (uint8_t i = 0; i < len; i++)
     {
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
-	    ser << "rec: " << (uint32_t)reg_data[i] << "\n";
     }
 
     gpio_set(devices[device_id].port, devices[device_id].pin);
-    return 0;
-}
 
-int8_t Sensors::spi_read(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
-{
-    gpio_clear(devices[device_id].port, devices[device_id].pin);
-    SysTick::sleep(5);
-
-    spi_send(SPI, reg_addr);
-
+    ser << "dev: " << (uint32_t)device_id << " reg: " << (uint32_t)reg_addr << " rec: ";
     for (uint8_t i = 0; i < len; i++)
     {
-        reg_data[i] = spi_read(SPI, 0x00);
-	    ser << "rec: " << (uint32_t)reg_data[i] << "\n";
+        ser << (uint32_t)reg_data[i] << " ";
     }
-
-    gpio_set(devices[device_id].port, devices[device_id].pin);
+    ser << "\n";
     return 0;
 }
-
-int8_t Sensors::spi_send(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
-{
-    gpio_clear(devices[device_id].port, devices[device_id].pin);
-    SysTick::sleep(5);
-
-    spi_send(SPI, reg_addr);
-
-    for (uint8_t i = 0; i < len; i++)
-    {
-        spi_send(SPI, reg_data[i]);
-    }
-
-    gpio_set(devices[device_id].port, devices[device_id].pin);
-    return 0;
-}
-
-
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
@@ -153,8 +148,8 @@ bool Sensors::initializeBMI(int count)
     dev_bmi.accel_id = BMI088_ACCEL_DEVICE_ID;
     dev_bmi.gyro_id = BMI088_GYRO_DEVICE_ID;
     dev_bmi.intf = BMI08X_SPI_INTF;
-    dev_bmi.read = spi_read;
-    dev_bmi.write = spi_send;
+    dev_bmi.read = spi_transfer;
+    dev_bmi.write = spi_transfer;
     dev_bmi.delay_ms = user_delay_ms;
 
     int8_t rslt = bmi088_init(&dev_bmi);
@@ -177,8 +172,8 @@ bool Sensors::initializeBMP(int count)
 
     dev_bmp.dev_id = BMP388_DEVICE_ID;
     dev_bmp.intf = BMP3_SPI_INTF;
-    dev_bmp.read = spi_read;
-    dev_bmp.write = spi_send;
+    dev_bmp.read = spi_transfer;
+    dev_bmp.write = spi_transfer;
     dev_bmp.delay_ms = user_delay_ms;
 
     int8_t rslt = bmp3_init(&dev_bmp);
@@ -224,8 +219,8 @@ bool Sensors::initializeBME()
 
     dev_bme.dev_id = BME280_DEVICE_ID;
     dev_bme.intf = BME280_SPI_INTF;
-    dev_bme.read = spi_read;
-    dev_bme.write = spi_send;
+    dev_bme.read = spi_transfer;
+    dev_bme.write = spi_transfer;
     dev_bme.delay_ms = user_delay_ms;
 
     int8_t rslt = bme280_init(&dev_bme);
