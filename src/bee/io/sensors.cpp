@@ -93,7 +93,7 @@ bool Sensors::setup()
     return true;
 }
 
-int8_t init(uint8_t device_id, uint8_t reg_addr, uint8_t chip_id)
+int8_t Sensors::init(uint8_t device_id, uint8_t reg_addr, uint8_t chip_id)
 {
     uint8_t id = 0;
     int8_t rslt = get_reg(device_id, reg_addr, &id, 1);
@@ -101,7 +101,7 @@ int8_t init(uint8_t device_id, uint8_t reg_addr, uint8_t chip_id)
     return rslt;
 }
 
-int8_t get_reg(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+int8_t Sensors::get_reg(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     uint8_t temp[len + 1];
     int8_t rslt = spi_transfer(device_id, reg_addr | 0x80, temp, len);
