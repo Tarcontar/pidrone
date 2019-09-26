@@ -4,12 +4,9 @@
 #include <libopencm3/stm32/spi.h>
 
 #include <cstdio>
+
 #include <bme280.h>
 #include <bmp3.h>
-
-#define BMI08X_ENABLE_BMI085 0
-#define BMI08X_ENABLE_BMI088 1
-#include <bmi08x.h> //needed?
 #include <bmi088.h>
 
 #include "../hat_pcb.h"
@@ -36,8 +33,8 @@ SPI_DEVICE devices[] =
 {
     {BME280_CS_PORT, BME280_CS_PIN},
     {BMP388_CS_PORT, BMP388_CS_PIN},
-    {BMI088_ACCEL_CS_PORT,  BMI088_ACCEL_CS_PIN},
-    {BMI088_GYRO_CS_PORT,   BMI088_GYRO_CS_PIN}
+    {BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN},
+    {BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN}
 };
 
 // BME280
@@ -82,57 +79,32 @@ bool Sensors::setup()
 
     ser << "SPI enabled\n";
 
-    init(BME280_DEVICE_ID, 0xD0, 0x60);
-    init(BMP388_DEVICE_ID, 0x00, 0x50);
-    init(BMI088_ACCEL_DEVICE_ID, 0x00, 0x1E);
-    init(BMI088_GYRO_DEVICE_ID, 0x00, 0x0F);
-    //initializeBME();
-    //initializeBMP();
-    //initializeBMI();
+    initializeBME();
+    initializeBMP();
+    initializeBMI();
+
+    ser << "SPI setup done\n";
 
     return true;
-}
-
-int8_t Sensors::init(uint8_t device_id, uint8_t reg_addr, uint8_t chip_id)
-{
-    uint8_t id = 0;
-    int8_t rslt = get_reg(device_id, reg_addr, &id, 1);
-    if (rslt == 0 && id == chip_id) return 5;
-    return rslt;
-}
-
-int8_t Sensors::get_reg(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
-{
-    uint8_t temp[len + 1];
-    int8_t rslt = spi_transfer(device_id, reg_addr | 0x80, temp, len);
-    if (rslt != 0) return -123;
-    if (device_id > 0) //bmp and bmi -> dummy byte stuff
-    {
-        for (int i = 0; i < len; i++) reg_data[i] = temp[i + 1];
-    }
-    return rslt;
 }
 
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     gpio_clear(devices[device_id].port, devices[device_id].pin);
-    SysTick::sleep(5);
 
-    reg_data[0] = spi_xfer(SPI, reg_addr);
+    spi_xfer(SPI, reg_addr);
 
     for (uint8_t i = 0; i < len; i++)
     {
+        user_delay_ms(1);
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
     }
 
-    gpio_set(devices[device_id].port, devices[device_id].pin);
+    //wait while busy and clear input fifo
+    while (SPI_SR(SPI) & SPI_SR_BSY);
+    while (SPI_SR(SPI) & SPI_SR_RXNE) spi_read(SPI);
 
-    ser << "dev: " << (uint32_t)device_id << " reg: " << (uint32_t)reg_addr << " rec: ";
-    for (uint8_t i = 0; i < len; i++)
-    {
-        ser << (uint32_t)reg_data[i] << " ";
-    }
-    ser << "\n";
+    gpio_set(devices[device_id].port, devices[device_id].pin);
     return 0;
 }
 
@@ -141,7 +113,7 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
     SysTick::sleep(milliseconds);
 }
 
-bool Sensors::initializeBMI(int count)
+bool Sensors::initializeBMI()
 {
     ser << "Initializing BMI088...\n";
 
@@ -155,8 +127,6 @@ bool Sensors::initializeBMI(int count)
     int8_t rslt = bmi088_init(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        if (count < 5) return initializeBMI(++count);
-
         ser << "Could not initialize BMI088: " << (int32_t)rslt << "\n";
         return false;
     }
@@ -166,7 +136,7 @@ bool Sensors::initializeBMI(int count)
     return true;
 }
 
-bool Sensors::initializeBMP(int count)
+bool Sensors::initializeBMP()
 {
     ser << "Initializing BMP388...\n";
 
@@ -180,26 +150,22 @@ bool Sensors::initializeBMP(int count)
     if (rslt != BMP3_OK)
     {
         ser << "Could not initialize BMP388: " << (int32_t)rslt << "\n";
-        if (++count < 5) return initializeBMP(count);
         return false;
     }
     init_bme = true;
 
-    /* Used to select the settings user needs to change */
     uint16_t settings_sel;
 
-    /* Select the pressure and temperature sensor to be enabled */
     dev_bmp.settings.press_en = BMP3_ENABLE;
     dev_bmp.settings.temp_en = BMP3_ENABLE;
-    /* Sele. the output data rate and oversampling settings for pressure and temperature */
+    
     dev_bmp.settings.odr_filter.press_os = BMP3_NO_OVERSAMPLING;
     dev_bmp.settings.odr_filter.temp_os = BMP3_NO_OVERSAMPLING;
     dev_bmp.settings.odr_filter.odr = BMP3_ODR_200_HZ;
-    /* Assign the settings which needs to be set in the sensor */
+
     settings_sel = BMP3_PRESS_EN_SEL | BMP3_TEMP_EN_SEL | BMP3_PRESS_OS_SEL | BMP3_TEMP_OS_SEL | BMP3_ODR_SEL;
     rslt = bmp3_set_sensor_settings(settings_sel, &dev_bmp);
 
-    /* Set the power mode to normal mode */
     dev_bmp.settings.op_mode = BMP3_NORMAL_MODE;
     rslt = bmp3_set_op_mode(&dev_bmp);
 
@@ -317,26 +283,18 @@ void Sensors::readGPS()
 
 void Sensors::readBMP()
 {
-    int8_t rslt;
-    /* Variable used to select the sensor component */
-    uint8_t sensor_comp;
-    /* Variable used to store the compensated data */
     struct bmp3_data data;
 
-    /* Sensor component selection */
-    sensor_comp = BMP3_PRESS | BMP3_TEMP;
-    /* Temperature and Pressure data are read and stored in the bmp3_data instance */
-    rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bmp);
+    uint8_t sensor_comp = BMP3_PRESS | BMP3_TEMP;
+    int8_t rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bmp);
 
-    /* Print the temperature and pressure data */
-    printf("Temperature in deg celsius\t Pressure in Pascal\t\n");
-    printf("%0.2f\t\t %0.2f\t\t\n", data.temperature, data.pressure);
+    ser << "Temp: " << data.temperature << "\n";
+    ser << "Pressure: " << data.pressure << "\n";
 }
 
 void Sensors::readBME()
 {
-    if (!init_bme)
-        return;
+    if (!init_bme) return;
 
     bme280_data comp_data;
     int8_t rslt = BME280_OK;
@@ -348,15 +306,14 @@ void Sensors::readBME()
     }
 
     ser << "Temp: " << comp_data.temperature << "\n";
-    ser << "Humidity: " << comp_data.temperature << "\n";
+    ser << "Humidity: " << comp_data.humidity << "\n";
     ser << "Pressure: " << comp_data.pressure << "\n";
 }
 
 float Sensors::convertRawGyro(int gRaw)
 {
     //since we are using 250 degrees/second range
-    float g = (gRaw * 250.0) / 32768.0;
-    return g;
+    return (gRaw * 250.0) / 32768.0;
 }
 
 float Sensors::convertRawAccel(int aRaw)
@@ -365,8 +322,7 @@ float Sensors::convertRawAccel(int aRaw)
     // -2g maps to a raw value of -32768
     // +2g maps to a raw value of 32767
 
-    float a = (aRaw * 2.0) / 32768.0;
-    return a;
+    return (aRaw * 2.0) / 32768.0;
 }
 
 void Sensors::update()
