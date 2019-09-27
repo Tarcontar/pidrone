@@ -96,7 +96,8 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     for (uint8_t i = 0; i < len; i++)
     {
-        user_delay_ms(1);
+        user_delay_ms(1); // use a few 100 ns here
+        //SysTick::sleep_100_ns(1);
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
     }
 
@@ -110,7 +111,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    SysTick::sleep(milliseconds);
+    SysTick::sleep_mills(milliseconds);
 }
 
 bool Sensors::initializeBMI()
@@ -127,13 +128,111 @@ bool Sensors::initializeBMI()
     int8_t rslt = bmi088_init(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "Could not initialize BMI088: " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not initialize -> " << (int32_t)rslt << "\n";
         return false;
     }
+
+    dev_bmi.accel_cfg.bw = BMI08X_ACCEL_BW_NORMAL;
+    dev_bmi.accel_cfg.odr = BMI08X_ACCEL_ODR_100_HZ;
+    dev_bmi.accel_cfg.range = BMI085_ACCEL_RANGE_4G;
+    dev_bmi.accel_cfg.power = BMI08X_ACCEL_PM_ACTIVE;
+
+    rslt = bmi08a_set_power_mode(&dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not set accel power mode -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+    rslt = bmi08a_set_meas_conf(&dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not set accel config -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
+    dev.gyro_cfg.power = BMI08X_GYRO_PM_NORMAL;
+
+    rslt = bmi08g_set_power_mode(&dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not set gyro power mode -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
+    dev.gyro_cfg.odr = BMI08X_GYRO_BW_23_ODR_200_HZ;
+    dev.gyro_cfg.range = BMI08X_GYRO_RANGE_1000_DPS;
+    dev.gyro_cfg.bw = BMI08X_GYRO_BW_23_ODR_200_HZ;
+
+    rslt = bmi08g_set_meas_conf(&dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not set gyro config -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
+    //TODO: find meaningful config values
+    struct bmi08x_data_sync_cfg sync_cfg;
+    /*! Mode (0 = off, 1 = 400Hz, 2 = 1kHz, 3 = 2kHz) */
+    sync_cfg.mode = 3;
+
+    rslt = bmi088_configure_data_synchronization(sync_cfg, &dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not configure data synchronization -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
+    /*
+    //TODO: find meaningful config values
+    struct bmi08x_anymotion_cfg anymotion_cfg;
+    anymotion_cfg.threshold = ?;
+    anymotion_cfg.nomotion_sel = ?;
+    anymotion_cfg.duration = ?;
+    anymotion_cfg.x_en = 1; ?
+    anymotion_cfg.y_en = 1; ?
+    anymotion_cfg.z_en = 1; ?
+
+    rslt = bmi088_configure_anymotion(anymotion_cfg, &dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not configure anymotion -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+    */
+
     init_bmi = true;
 
     ser << "BMI088 ready\n";
     return true;
+}
+
+void Sensors::readBMI()
+{
+    uint32_t user_sampling_time;
+    
+    int8_t rslt = bmi08a_get_sensor_time(&dev_bmi, &user_sampling_time);
+    if (rslt != BMI08X_OK) ser << "BMI088: could not read sensor time -> " << (int32_t)rslt << "\n";
+
+    struct bmi08x_sensor_data accel_data;
+    struct bmi08x_sensor_data gyro_data;
+    rslt = int8_t bmi088_get_synchronized_data(&accel_data, &gyro_data, &dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: could not read sensor data -> " << (int32_t)rslt << "\n";
+        return;
+    } 
+
+	float gyroX = convertRawGyro(gyro_data.x);
+	float gyroY = convertRawGyro(gyro_data.y);
+	float gyroZ = convertRawGyro(gyro_data.z);
+
+	float accX = convertRawAccel(accel_data.x);
+	float accY = convertRawAccel(accel_data.y);
+	float accZ = convertRawAccel(accel_data.z);
+
+	m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+	m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    m_yaw = 0.0; //how to calculate?
 }
 
 bool Sensors::initializeBMP()
@@ -177,6 +276,17 @@ bool Sensors::initializeBMP()
 
     ser << "BMP388 ready\n";
     return true;
+}
+
+void Sensors::readBMP()
+{
+    struct bmp3_data data;
+
+    uint8_t sensor_comp = BMP3_PRESS | BMP3_TEMP;
+    int8_t rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bmp);
+
+    ser << "Temp: " << data.temperature << "\n";
+    ser << "Pressure: " << data.pressure << "\n";
 }
 
 bool Sensors::initializeBME()
@@ -231,34 +341,21 @@ bool Sensors::initializeBME()
     return true;
 }
 
-void Sensors::readBMI()
+void Sensors::readBME()
 {
-    /*
-    bmi160_sensor_data accel;
-    bmi160_sensor_data gyro;
-    int8_t rslt = BMI160_OK;
+    if (!init_bme) return;
 
-    // To read both Accel and Gyro data
-    rslt = bmi160_get_sensor_data((BMI160_ACCEL_SEL | BMI160_GYRO_SEL),
-                            &accel, &gyro, &dev_bmi);
+    struct bme280_data data;
+    int8_t rslt = bme280_get_sensor_data(BME280_ALL, &data, &dev_bme);
+    if (rslt != BME280_OK)
+    {
+        ser << "Could not read BME280: " << (int32_t)rslt;
+        return;
+    }
 
-	if (rslt != BMI160_OK)
-	{
-		return;
-	}
-
-	// float gyroX = convertRawGyro(gyro.x);
-	// float gyroY = convertRawGyro(gyro.y);
-	// float gyroZ = convertRawGyro(gyro.z);
-
-	float accX = convertRawAccel(accel.x);
-	float accY = convertRawAccel(accel.y);
-	float accZ = convertRawAccel(accel.z);
-
-	m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-	m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
-    m_yaw = 0.0; //how to calculate?
-	*/
+    ser << "Temp: " << data.temperature << "\n";
+    ser << "Humidity: " << data.humidity << "\n";
+    ser << "Pressure: " << data.pressure << "\n";
 }
 
 void Sensors::readGPS()
@@ -279,35 +376,6 @@ void Sensors::readGPS()
 
     ser << "GPS1510 received sth\n";
 	*/
-}
-
-void Sensors::readBMP()
-{
-    struct bmp3_data data;
-
-    uint8_t sensor_comp = BMP3_PRESS | BMP3_TEMP;
-    int8_t rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bmp);
-
-    ser << "Temp: " << data.temperature << "\n";
-    ser << "Pressure: " << data.pressure << "\n";
-}
-
-void Sensors::readBME()
-{
-    if (!init_bme) return;
-
-    bme280_data comp_data;
-    int8_t rslt = BME280_OK;
-    rslt = bme280_get_sensor_data(BME280_ALL, &comp_data, &dev_bme);
-    if (rslt != BME280_OK)
-    {
-        ser << "Could not read BME280: " << (int32_t)rslt;
-        return;
-    }
-
-    ser << "Temp: " << comp_data.temperature << "\n";
-    ser << "Humidity: " << comp_data.humidity << "\n";
-    ser << "Pressure: " << comp_data.pressure << "\n";
 }
 
 float Sensors::convertRawGyro(int gRaw)

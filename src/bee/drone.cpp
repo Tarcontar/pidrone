@@ -33,7 +33,7 @@ static void blink_statusLED()
 
 int main()
 {
-        setup_statusLED();
+    setup_statusLED();
 	Clock::setup();
 	SysTick::setup();
 	USART::setup();
@@ -49,7 +49,7 @@ int main()
 		//blink_statusLED();
 		sensors.update();
 
-		SysTick::sleep(1000);
+		SysTick::sleep_mills(1000);
 	}
 	return 0;
 }

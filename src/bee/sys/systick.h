@@ -5,5 +5,7 @@ class SysTick
 {
     public:
     static void setup();
-    static void sleep(uint32_t delay);
+    static void sleep_mills(uint32_t delay);
+    static void sleep_mics(uint32_t delay);
+    static void sleep_100_ns(uint32_t delay);
 };
