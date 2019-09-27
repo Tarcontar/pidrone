@@ -19,7 +19,7 @@ int main()
     ser << "USART ready!\n";
 
     Sensors sensors;
-    sensors.setup();
+    if (!sensors.setup()) return -1;
     sensors.update();
 
     Status::update();

@@ -80,9 +80,9 @@ bool Sensors::setup()
 
     ser << "SPI enabled\n";
 
-    initializeBME();
-    initializeBMP();
-    initializeBMI();
+    if (!initializeBME()) return false;
+    if (!initializeBMP()) return false;
+    if (!initializeBMI()) return false;
 
     ser << "SPI setup done\n";
 
@@ -97,12 +97,11 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     for (uint8_t i = 0; i < len; i++)
     {
-        //user_delay_ms(1); // use a few 100 ns here
-        SysTick::sleep_mics(50);
+        while (SPI_SR(SPI) & SPI_SR_BSY);
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
     }
 
-    //wait while busy and clear input fifo
     while (SPI_SR(SPI) & SPI_SR_BSY);
     while (SPI_SR(SPI) & SPI_SR_RXNE) spi_read(SPI);
 
