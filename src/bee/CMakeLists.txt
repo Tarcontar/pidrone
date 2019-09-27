@@ -3,11 +3,11 @@ add_executable(bee.elf
 	io/serial.cpp
 	io/usart.cpp
 	io/sensors.cpp
-	#sys/timer.cpp
+	sys/timer.cpp
 	sys/clock.cpp
 	sys/systick.cpp
 	sys/status.cpp
-	#actuators/motors.cpp
+	actuators/motors.cpp
 )
 
 target_link_libraries(bee.elf contrib)
