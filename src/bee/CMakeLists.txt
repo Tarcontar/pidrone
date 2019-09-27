@@ -4,7 +4,6 @@ add_executable(bee.elf
 	io/usart.cpp
 	io/sensors.cpp
 	#sys/timer.cpp
-	sys/mcu.cpp
 	sys/clock.cpp
 	sys/systick.cpp
 	sys/status.cpp

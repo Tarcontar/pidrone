@@ -7,6 +7,7 @@
 
 #include <bme280.h>
 #include <bmp3.h>
+#include <bmi08x.h>
 #include <bmi088.h>
 
 #include "../hat_pcb.h"
@@ -96,8 +97,8 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     for (uint8_t i = 0; i < len; i++)
     {
-        user_delay_ms(1); // use a few 100 ns here
-        //SysTick::sleep_100_ns(1);
+        //user_delay_ms(1); // use a few 100 ns here
+        SysTick::sleep_mics(50);
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
     }
 
@@ -134,7 +135,7 @@ bool Sensors::initializeBMI()
 
     dev_bmi.accel_cfg.bw = BMI08X_ACCEL_BW_NORMAL;
     dev_bmi.accel_cfg.odr = BMI08X_ACCEL_ODR_100_HZ;
-    dev_bmi.accel_cfg.range = BMI085_ACCEL_RANGE_4G;
+    dev_bmi.accel_cfg.range = BMI088_ACCEL_RANGE_24G;
     dev_bmi.accel_cfg.power = BMI08X_ACCEL_PM_ACTIVE;
 
     rslt = bmi08a_set_power_mode(&dev_bmi);
@@ -150,7 +151,7 @@ bool Sensors::initializeBMI()
         return false;
     }
 
-    dev.gyro_cfg.power = BMI08X_GYRO_PM_NORMAL;
+    dev_bmi.gyro_cfg.power = BMI08X_GYRO_PM_NORMAL;
 
     rslt = bmi08g_set_power_mode(&dev_bmi);
     if (rslt != BMI08X_OK)
@@ -159,9 +160,9 @@ bool Sensors::initializeBMI()
         return false;
     }
 
-    dev.gyro_cfg.odr = BMI08X_GYRO_BW_23_ODR_200_HZ;
-    dev.gyro_cfg.range = BMI08X_GYRO_RANGE_1000_DPS;
-    dev.gyro_cfg.bw = BMI08X_GYRO_BW_23_ODR_200_HZ;
+    dev_bmi.gyro_cfg.odr = BMI08X_GYRO_BW_23_ODR_200_HZ;
+    dev_bmi.gyro_cfg.range = BMI08X_GYRO_RANGE_1000_DPS;
+    dev_bmi.gyro_cfg.bw = BMI08X_GYRO_BW_23_ODR_200_HZ;
 
     rslt = bmi08g_set_meas_conf(&dev_bmi);
     if (rslt != BMI08X_OK)
@@ -202,37 +203,39 @@ bool Sensors::initializeBMI()
 
     init_bmi = true;
 
-    ser << "BMI088 ready\n";
+    ser << "BMI088: ready\n";
     return true;
 }
 
 void Sensors::readBMI()
 {
     uint32_t user_sampling_time;
-    
+
     int8_t rslt = bmi08a_get_sensor_time(&dev_bmi, &user_sampling_time);
     if (rslt != BMI08X_OK) ser << "BMI088: could not read sensor time -> " << (int32_t)rslt << "\n";
 
     struct bmi08x_sensor_data accel_data;
     struct bmi08x_sensor_data gyro_data;
-    rslt = int8_t bmi088_get_synchronized_data(&accel_data, &gyro_data, &dev_bmi);
+    rslt = bmi088_get_synchronized_data(&accel_data, &gyro_data, &dev_bmi);
     if (rslt != BMI08X_OK)
     {
         ser << "BMI088: could not read sensor data -> " << (int32_t)rslt << "\n";
         return;
-    } 
+    }
 
-	float gyroX = convertRawGyro(gyro_data.x);
-	float gyroY = convertRawGyro(gyro_data.y);
-	float gyroZ = convertRawGyro(gyro_data.z);
+    float gyroX = convertRawGyro(gyro_data.x);
+    float gyroY = convertRawGyro(gyro_data.y);
+    float gyroZ = convertRawGyro(gyro_data.z);
 
-	float accX = convertRawAccel(accel_data.x);
-	float accY = convertRawAccel(accel_data.y);
-	float accZ = convertRawAccel(accel_data.z);
+    float accX = convertRawAccel(accel_data.x);
+    float accY = convertRawAccel(accel_data.y);
+    float accZ = convertRawAccel(accel_data.z);
 
-	m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-	m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
-    m_yaw = 0.0; //how to calculate?
+    ser << "gyro: " << gyroX << " " << gyroY << " " << gyroZ << "\n";
+    ser << "accel: " << accX << " " << accY << " " << accZ << "\n";
+    //m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+    //m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    //m_yaw = 0.0; //how to calculate?
 }
 
 bool Sensors::initializeBMP()
@@ -248,7 +251,7 @@ bool Sensors::initializeBMP()
     int8_t rslt = bmp3_init(&dev_bmp);
     if (rslt != BMP3_OK)
     {
-        ser << "Could not initialize BMP388: " << (int32_t)rslt << "\n";
+        ser << "BMP388: Could not initialize -> " << (int32_t)rslt << "\n";
         return false;
     }
     init_bme = true;
@@ -257,7 +260,7 @@ bool Sensors::initializeBMP()
 
     dev_bmp.settings.press_en = BMP3_ENABLE;
     dev_bmp.settings.temp_en = BMP3_ENABLE;
-    
+
     dev_bmp.settings.odr_filter.press_os = BMP3_NO_OVERSAMPLING;
     dev_bmp.settings.odr_filter.temp_os = BMP3_NO_OVERSAMPLING;
     dev_bmp.settings.odr_filter.odr = BMP3_ODR_200_HZ;
@@ -270,11 +273,11 @@ bool Sensors::initializeBMP()
 
     if (rslt != BMP3_OK)
     {
-        ser << "Could not set BMP3 sensor settings: " << (int32_t)rslt << "\n";
+        ser << "BMP388: Could not set sensor settings -> " << (int32_t)rslt << "\n";
         return false;
     }
 
-    ser << "BMP388 ready\n";
+    ser << "BMP388: ready\n";
     return true;
 }
 
@@ -284,6 +287,11 @@ void Sensors::readBMP()
 
     uint8_t sensor_comp = BMP3_PRESS | BMP3_TEMP;
     int8_t rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bmp);
+    if (rslt != BMP3_OK)
+    {
+        ser << "BMP388: unable to read sensor data -> " << (uint32_t)rslt << "\n";
+        return;
+    }
 
     ser << "Temp: " << data.temperature << "\n";
     ser << "Pressure: " << data.pressure << "\n";
@@ -303,7 +311,7 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "Could not initialize BME280: " << (int32_t)rslt << "\n";
+        ser << "BME280: Could not initialize -> " << (int32_t)rslt << "\n";
         return false;
     }
 
@@ -325,7 +333,7 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "Could not set BME280 sensor settings: " << (int32_t)rslt << "\n";
+        ser << "BME280: Could not set sensor settings -> " << (int32_t)rslt << "\n";
         return false;
     }
 
@@ -333,11 +341,11 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "Could not set BME280 sensor mode: " << (int32_t)rslt << "\n";
+        ser << "BME280: Could not set sensor mode -> " << (int32_t)rslt << "\n";
         return false;
     }
 
-    ser << "BME280 ready\n";
+    ser << "BME280: ready\n";
     return true;
 }
 
@@ -349,7 +357,7 @@ void Sensors::readBME()
     int8_t rslt = bme280_get_sensor_data(BME280_ALL, &data, &dev_bme);
     if (rslt != BME280_OK)
     {
-        ser << "Could not read BME280: " << (int32_t)rslt;
+        ser << "BME280: Could not read data -> " << (int32_t)rslt;
         return;
     }
 
