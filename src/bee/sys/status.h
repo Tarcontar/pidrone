@@ -3,10 +3,6 @@
 class Status
 {
 public:
+	static void setup();
 	static void update();
-
-private:
-  static void initialize();
-
-	static bool m_ready;
 };

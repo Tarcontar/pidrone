@@ -3,20 +3,25 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
-bool Status::m_ready = false;
-
-void Status::initialize()
+void Status::setup()
 {
-  if(m_ready)
-  {
-  	//rcc_periph_clock_enable(_LED_STATUS_RCC_PORT);
-	//gpio_mode_setup(_LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, _LED_STATUS_PIN);
-    	m_ready = true;
-  }
+    rcc_periph_clock_enable(LED_STATUS_RCC_PORT);
+	rcc_periph_clock_enable(LED_BLUE_RCC_PORT);
+	rcc_periph_clock_enable(LED_ORANGE_RCC_PORT);
+
+	gpio_mode_setup(LED_STATUS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_STATUS_PIN);
+	gpio_mode_setup(LED_BLUE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_BLUE_PIN);
+	gpio_mode_setup(LED_ORANGE_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_ORANGE_PIN);
+
+    gpio_set(LED_STATUS_PORT, LED_STATUS_PIN);
+	gpio_set(LED_BLUE_PORT, LED_BLUE_PIN);
+	gpio_set(LED_ORANGE_PORT, LED_ORANGE_PIN);
 }
 
+//TODO: use timer to toggle staus led every second
 void Status::update()
 {
-  	initialize();
-	//gpio_toggle(_LED_STATUS_PORT, _LED_STATUS_PIN);
+  	gpio_toggle(LED_STATUS_PORT, LED_STATUS_PIN);
+	gpio_toggle(LED_BLUE_PORT, LED_BLUE_PIN);
+	gpio_toggle(LED_ORANGE_PORT, LED_ORANGE_PIN);
 }
