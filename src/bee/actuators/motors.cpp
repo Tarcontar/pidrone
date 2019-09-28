@@ -7,34 +7,31 @@ Motors::Motors() : m_FLspeed(MIN_THROTTLE)
 , m_BRspeed(MIN_THROTTLE)
 , m_BLspeed(MIN_THROTTLE)
 {
-    m_timer = new Timer(_MOTORS_RCC_TIMER, _MOTORS_TIMER);
-    m_timer->enableChannel(_MOTOR_1_RCC_PORT, _MOTOR_1_CHANNEL, _MOTOR_1_PORT, _MOTOR_1_PIN);
-    m_timer->enableChannel(_MOTOR_2_RCC_PORT, _MOTOR_2_CHANNEL, _MOTOR_2_PORT, _MOTOR_2_PIN);
-    m_timer->enableChannel(_MOTOR_3_RCC_PORT, _MOTOR_3_CHANNEL, _MOTOR_3_PORT, _MOTOR_3_PIN);
-    m_timer->enableChannel(_MOTOR_4_RCC_PORT, _MOTOR_4_CHANNEL, _MOTOR_4_PORT, _MOTOR_4_PIN);
-}
+    m_timer = new Timer(MOTORS_RCC_TIMER, MOTORS_TIMER);
+    m_timer->enableChannel(MOTOR_1_RCC_PORT, MOTOR_1_CHANNEL, MOTOR_1_PORT, MOTOR_1_PIN);
+    m_timer->enableChannel(MOTOR_2_RCC_PORT, MOTOR_2_CHANNEL, MOTOR_2_PORT, MOTOR_2_PIN);
+    m_timer->enableChannel(MOTOR_3_RCC_PORT, MOTOR_3_CHANNEL, MOTOR_3_PORT, MOTOR_3_PIN);
+    m_timer->enableChannel(MOTOR_4_RCC_PORT, MOTOR_4_CHANNEL, MOTOR_4_PORT, MOTOR_4_PIN);
 
-void Motors::update(int value)
-{
-    m_timer->setChannel(_MOTOR_1_CHANNEL, value);
+    setupESCs();
 }
 
 void Motors::setupESCs()
 {
-    m_timer->setChannel(_MOTOR_1_CHANNEL, MIN_THROTTLE);
-    m_timer->setChannel(_MOTOR_2_CHANNEL, MIN_THROTTLE);
-    m_timer->setChannel(_MOTOR_3_CHANNEL, MIN_THROTTLE);
-    m_timer->setChannel(_MOTOR_4_CHANNEL, MIN_THROTTLE);
-    SysTick::sleep(300);
-    m_timer->setChannel(_MOTOR_1_CHANNEL, MAX_THROTTLE);
-    m_timer->setChannel(_MOTOR_2_CHANNEL, MAX_THROTTLE);
-    m_timer->setChannel(_MOTOR_3_CHANNEL, MAX_THROTTLE);
-    m_timer->setChannel(_MOTOR_4_CHANNEL, MAX_THROTTLE);
-    SysTick::sleep(100);
-    m_timer->setChannel(_MOTOR_1_CHANNEL, MIN_THROTTLE);
-    m_timer->setChannel(_MOTOR_2_CHANNEL, MIN_THROTTLE);
-    m_timer->setChannel(_MOTOR_3_CHANNEL, MIN_THROTTLE);
-    m_timer->setChannel(_MOTOR_4_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_1_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_2_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_3_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_4_CHANNEL, MIN_THROTTLE);
+    SysTick::sleep(3000); //TODO: decrease this
+    m_timer->setChannel(MOTOR_1_CHANNEL, MAX_THROTTLE);
+    m_timer->setChannel(MOTOR_2_CHANNEL, MAX_THROTTLE);
+    m_timer->setChannel(MOTOR_3_CHANNEL, MAX_THROTTLE);
+    m_timer->setChannel(MOTOR_4_CHANNEL, MAX_THROTTLE);
+    SysTick::sleep(2000); //TODO: decrease this
+    m_timer->setChannel(MOTOR_1_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_2_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_3_CHANNEL, MIN_THROTTLE);
+    m_timer->setChannel(MOTOR_4_CHANNEL, MIN_THROTTLE);
 }
 
 void Motors::update(int throttle, int roll, int pitch, int yaw)
@@ -49,10 +46,10 @@ void Motors::update(int throttle, int roll, int pitch, int yaw)
     //m_BRspeed = min(max(m_BRspeed, MIN_THROTTLE), MAX_THROTTLE);
     //m_BLspeed = min(max(m_BLspeed, MIN_THROTTLE), MAX_THROTTLE);
 
-    m_timer->setChannel(_MOTOR_1_CHANNEL, m_FLspeed);
-    m_timer->setChannel(_MOTOR_2_CHANNEL, m_FRspeed);
-    m_timer->setChannel(_MOTOR_3_CHANNEL, m_BRspeed);
-    m_timer->setChannel(_MOTOR_4_CHANNEL, m_BLspeed);
+    m_timer->setChannel(MOTOR_1_CHANNEL, m_FLspeed);
+    m_timer->setChannel(MOTOR_2_CHANNEL, m_FRspeed);
+    m_timer->setChannel(MOTOR_3_CHANNEL, m_BRspeed);
+    m_timer->setChannel(MOTOR_4_CHANNEL, m_BLspeed);
 }
 
 void Motors::Roll(int value)

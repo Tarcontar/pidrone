@@ -13,7 +13,7 @@ extern "C"
 
 void SysTick::setup()
 {
-    system_micros = 0;
+    system_millis = 0;
     systick_set_clocksource(STK_CSR_CLKSOURCE_AHB_DIV8);
     systick_set_reload(10000);
     systick_counter_enable();

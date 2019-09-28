@@ -9,6 +9,7 @@
 #include "io/sensors.h"
 #include "sys/clock.h"
 #include "sys/systick.h"
+#include "actuators/motors.h"
 
 int main()
 {
@@ -21,6 +22,9 @@ int main()
     Sensors sensors;
     if (!sensors.setup()) return -1;
     sensors.update();
+
+    Motors motors;
+    motors.update(1100, 0, 0, 0);
 
     Status::update();
     ser << "Setup finished!\n";
