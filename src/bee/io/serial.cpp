@@ -16,7 +16,8 @@ Serial& Serial::operator<<(const char* str)
     char *it = const_cast<char *>(str);
     while (*it)
     {
-        USART::write((*it)++);
+        USART::write(*it);
+        ++it;
     }
     return *this;
 }
@@ -24,7 +25,7 @@ Serial& Serial::operator<<(const char* str)
 Serial& Serial::operator<<(const int i)
 {
     char str[30];
-    sprintf(str, "%d"; i);
+    sprintf(str, "%d", i);
     *this << str;
     return *this;
 }
@@ -46,6 +47,7 @@ Serial& Serial::operator<<(const float f)
     char str[30];
     int num = f;
     int komma = (f - num) * 100;
+    if (komma < 0.0) komma *= -1.0;
     sprintf(str, "%d.%d", num, komma);
     *this << str;
     return *this;

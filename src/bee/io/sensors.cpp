@@ -2,8 +2,6 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
-#include <libopencm3/stm32/nvic.h>
-#include <libopencm3/stm32/exti.h>
 
 #include <cstdio>
 #include <cmath>
@@ -21,6 +19,8 @@
 // set up the speed, data order and data mode
 //SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
 //TinyGPS gps;
+
+static const float RAD_TO_DEG = 57.2957795;
 
 struct SPI_DEVICE
 {
@@ -117,16 +117,6 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
     SysTick::sleep(milliseconds);
 }
 
-void bmi_accel_isr(void)
-{
-    //TODO
-}
-
-void bmi_gyro_isr(void)
-{
-    //TODO
-}
-
 bool Sensors::initializeBMI()
 {
     ser << "Initializing BMI088...\n";
@@ -141,7 +131,7 @@ bool Sensors::initializeBMI()
     int8_t rslt = bmi088_init(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not initialize -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not initialize -> " << rslt << "\n";
         return false;
     }
 
@@ -153,13 +143,13 @@ bool Sensors::initializeBMI()
     rslt = bmi08a_set_power_mode(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not set accel power mode -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not set accel power mode -> " << rslt << "\n";
         return false;
     }
     rslt = bmi08a_set_meas_conf(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not set accel config -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not set accel config -> " << rslt << "\n";
         return false;
     }
 
@@ -168,7 +158,7 @@ bool Sensors::initializeBMI()
     rslt = bmi08g_set_power_mode(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not set gyro power mode -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not set gyro power mode -> " << rslt << "\n";
         return false;
     }
 
@@ -191,16 +181,18 @@ bool Sensors::initializeBMI()
     rslt = bmi088_configure_data_synchronization(sync_cfg, &dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not configure data synchronization -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not configure data synchronization -> " << rslt << "\n";
         return false;
     }
 
+    //TODO
+    /*
     //enable accel anymotion interrupt
     dev_bmi.read_write_len = 8;
     rslt = bmi088_apply_config_file(&dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not apply config file -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not apply config file -> " << rslt << "\n";
         return false;
     }
 
@@ -209,13 +201,13 @@ bool Sensors::initializeBMI()
     anymotion_cfg.nomotion_sel = 0x00;
     anymotion_cfg.duration = 0x01;
     anymotion_cfg.x_en = 0x01;
-    anymoiton_cfg.y_en = 0x01;
+    anymotion_cfg.y_en = 0x01;
     anymotion_cfg.z_en = 0x01;
 
     rslt = bmi088_configure_anymotion(anymotion_cfg, &dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not configure anymotion -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not configure anymotion -> " << rslt << "\n";
         return false;
     }
 
@@ -229,7 +221,7 @@ bool Sensors::initializeBMI()
     rslt = bmi08a_set_int_config(&acc_int_config, &dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not set accel int config -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not set accel int config -> " << rslt << "\n";
         return false;
     }
 
@@ -247,12 +239,12 @@ bool Sensors::initializeBMI()
     rslt = bmi08g_set_int_config(&gyro_int_config, &dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: Could not set gyro int config -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: Could not set gyro int config -> " << rslt << "\n";
         return false;
     }
 
-    gpio_configure_trigger(BMI088_ACCEL_INT_PORT, )
     //TODO: setup bmi gyro int pin
+    */
 
     init_bmi = true;
 
@@ -265,14 +257,14 @@ void Sensors::readBMI()
     uint32_t user_sampling_time;
 
     int8_t rslt = bmi08a_get_sensor_time(&dev_bmi, &user_sampling_time);
-    if (rslt != BMI08X_OK) ser << "BMI088: could not read sensor time -> " << (int32_t)rslt << "\n";
+    if (rslt != BMI08X_OK) ser << "BMI088: could not read sensor time -> " << rslt << "\n";
 
     struct bmi08x_sensor_data accel_data;
     struct bmi08x_sensor_data gyro_data;
     rslt = bmi088_get_synchronized_data(&accel_data, &gyro_data, &dev_bmi);
     if (rslt != BMI08X_OK)
     {
-        ser << "BMI088: could not read sensor data -> " << (int32_t)rslt << "\n";
+        ser << "BMI088: could not read sensor data -> " << rslt << "\n";
         return;
     }
 
@@ -286,9 +278,11 @@ void Sensors::readBMI()
 
     ser << "gyro: " << gyroX << " " << gyroY << " " << gyroZ << "\n";
     ser << "accel: " << accX << " " << accY << " " << accZ << "\n";
-    //m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
-    //m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
-    //m_yaw = 0.0; //how to calculate?
+    m_roll = atan(accY / sqrt(accX * accX + accZ * accZ)) * RAD_TO_DEG;
+    m_pitch = atan2(-accX, accZ) * RAD_TO_DEG;
+    m_yaw = 0.0; //how to calculate?
+
+    ser << "roll: " << m_roll << " pitch: " << m_pitch << " yaw: " << m_yaw << "\n";
 }
 
 bool Sensors::initializeBMP()
@@ -304,7 +298,7 @@ bool Sensors::initializeBMP()
     int8_t rslt = bmp3_init(&dev_bmp);
     if (rslt != BMP3_OK)
     {
-        ser << "BMP388: Could not initialize -> " << (int32_t)rslt << "\n";
+        ser << "BMP388: Could not initialize -> " << rslt << "\n";
         return false;
     }
     init_bme = true;
@@ -326,7 +320,7 @@ bool Sensors::initializeBMP()
 
     if (rslt != BMP3_OK)
     {
-        ser << "BMP388: Could not set sensor settings -> " << (int32_t)rslt << "\n";
+        ser << "BMP388: Could not set sensor settings -> " << rslt << "\n";
         return false;
     }
 
@@ -342,7 +336,7 @@ void Sensors::readBMP()
     int8_t rslt = bmp3_get_sensor_data(sensor_comp, &data, &dev_bmp);
     if (rslt != BMP3_OK)
     {
-        ser << "BMP388: unable to read sensor data -> " << (uint32_t)rslt << "\n";
+        ser << "BMP388: unable to read sensor data -> " << rslt << "\n";
         return;
     }
 
@@ -364,7 +358,7 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "BME280: Could not initialize -> " << (int32_t)rslt << "\n";
+        ser << "BME280: Could not initialize -> " << rslt << "\n";
         return false;
     }
 
@@ -386,7 +380,7 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "BME280: Could not set sensor settings -> " << (int32_t)rslt << "\n";
+        ser << "BME280: Could not set sensor settings -> " << rslt << "\n";
         return false;
     }
 
@@ -394,7 +388,7 @@ bool Sensors::initializeBME()
 
     if (rslt != BME280_OK)
     {
-        ser << "BME280: Could not set sensor mode -> " << (int32_t)rslt << "\n";
+        ser << "BME280: Could not set sensor mode -> " << rslt << "\n";
         return false;
     }
 
@@ -410,7 +404,7 @@ void Sensors::readBME()
     int8_t rslt = bme280_get_sensor_data(BME280_ALL, &data, &dev_bme);
     if (rslt != BME280_OK)
     {
-        ser << "BME280: Could not read data -> " << (int32_t)rslt;
+        ser << "BME280: Could not read data -> " << rslt;
         return;
     }
 

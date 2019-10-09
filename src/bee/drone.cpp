@@ -31,7 +31,7 @@ int main()
 
     while (1)
     {
-        //sensors.update();
+        sensors.update();
 
         SysTick::sleep(1000);
     }
