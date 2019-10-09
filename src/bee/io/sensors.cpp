@@ -2,8 +2,11 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/nvic.h>
+#include <libopencm3/stm32/exti.h>
 
 #include <cstdio>
+#include <cmath>
 
 #include <bme280.h>
 #include <bmp3.h>
@@ -114,6 +117,16 @@ void Sensors::user_delay_ms(uint32_t milliseconds)
     SysTick::sleep(milliseconds);
 }
 
+void bmi_accel_isr(void)
+{
+    //TODO
+}
+
+void bmi_gyro_isr(void)
+{
+    //TODO
+}
+
 bool Sensors::initializeBMI()
 {
     ser << "Initializing BMI088...\n";
@@ -182,15 +195,22 @@ bool Sensors::initializeBMI()
         return false;
     }
 
-    /*
-    //TODO: find meaningful config values
+    //enable accel anymotion interrupt
+    dev_bmi.read_write_len = 8;
+    rslt = bmi088_apply_config_file(&dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not apply config file -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
     struct bmi08x_anymotion_cfg anymotion_cfg;
-    anymotion_cfg.threshold = ?;
-    anymotion_cfg.nomotion_sel = ?;
-    anymotion_cfg.duration = ?;
-    anymotion_cfg.x_en = 1; ?
-    anymotion_cfg.y_en = 1; ?
-    anymotion_cfg.z_en = 1; ?
+    anymotion_cfg.threshold = 0x44;
+    anymotion_cfg.nomotion_sel = 0x00;
+    anymotion_cfg.duration = 0x01;
+    anymotion_cfg.x_en = 0x01;
+    anymoiton_cfg.y_en = 0x01;
+    anymotion_cfg.z_en = 0x01;
 
     rslt = bmi088_configure_anymotion(anymotion_cfg, &dev_bmi);
     if (rslt != BMI08X_OK)
@@ -198,7 +218,41 @@ bool Sensors::initializeBMI()
         ser << "BMI088: Could not configure anymotion -> " << (int32_t)rslt << "\n";
         return false;
     }
-    */
+
+    struct bmi08x_accel_int_channel_cfg acc_int_config;
+    acc_int_config.int_channel = BMI08X_INT_CHANNEL_1;
+    acc_int_config.int_type = BMI08X_ACCEL_DATA_RDY_INT;
+    acc_int_config.int_pin_cfg.lvl = BMI08X_INT_ACTIVE_HIGH;
+    acc_int_config.int_pin_cfg.output_mode = BMI08X_INT_MODE_PUSH_PULL;
+    acc_int_config.int_pin_cfg.enable_int_pin = BMI08X_ENABLE;
+
+    rslt = bmi08a_set_int_config(&acc_int_config, &dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not set accel int config -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
+    //TODO: setup bmi accel int pin
+
+
+    //enable gyro data ready interrupt
+    struct bmi08x_gyro_int_channel_cfg gyro_int_config;
+    gyro_int_config.int_channel = BMI08X_INT_CHANNEL_3;
+    gyro_int_config.int_type = BMI08X_GYRO_DATA_RDY_INT;
+    gyro_int_config.int_pin_cfg.lvl = BMI08X_INT_ACTIVE_HIGH;
+    gyro_int_config.int_pin_cfg.output_mode =BMI08X_INT_MODE_PUSH_PULL;
+    gyro_int_config.int_pin_cfg.enable_int_pin = BMI08X_ENABLE;
+
+    rslt = bmi08g_set_int_config(&gyro_int_config, &dev_bmi);
+    if (rslt != BMI08X_OK)
+    {
+        ser << "BMI088: Could not set gyro int config -> " << (int32_t)rslt << "\n";
+        return false;
+    }
+
+    gpio_configure_trigger(BMI088_ACCEL_INT_PORT, )
+    //TODO: setup bmi gyro int pin
 
     init_bmi = true;
 
