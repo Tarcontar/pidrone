@@ -4,16 +4,16 @@
 class Serial
 {
 public:
-	Serial();
+    Serial();
 
-	//Serial& operator<<(const char c);
-	Serial& operator<<(const char* str);
-	Serial& operator<<(const int32_t i);
-	Serial& operator<<(const uint32_t i);
-	Serial& operator<<(const float f);
-	Serial& operator<<(const double d);
+    Serial& operator<<(const char* str);
+    Serial& operator<<(const int i);
+    Serial& operator<<(const int32_t i);
+    Serial& operator<<(const uint32_t i);
+    Serial& operator<<(const float f);
+    Serial& operator<<(const double d);
 
-	static const char* endl;
+    static const char* endl;
 
 private:
 };
