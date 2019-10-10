@@ -4,6 +4,6 @@
 class USART
 {
 public:
-	static void setup();
-	static void write(uint16_t data);
+    static void setup();
+    static void write(uint16_t data);
 };

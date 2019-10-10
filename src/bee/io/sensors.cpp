@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include <bme280.h>
+#define BMP3_DOUBLE_PRECISION_COMPENSATION
 #include <bmp3.h>
 #include <bmi08x.h>
 #include <bmi088.h>

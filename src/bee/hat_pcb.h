@@ -95,3 +95,17 @@ static const rcc_periph_clken MOTOR_4_RCC_PORT = RCC_GPIOB;
 static const uint32_t MOTOR_4_PORT = GPIOB;
 static const uint32_t MOTOR_4_PIN = GPIO8;
 static const tim_oc_id MOTOR_4_CHANNEL = TIM_OC4;
+
+
+static const uint32_t REC_CHANNEL_1_PORT = GPIOE;
+static const uint32_t REC_CHANNEL_1_PIN = GPIO2;
+static const uint32_t REC_CHANNEL_2_PORT = GPIOE;
+static const uint32_t REC_CHANNEL_2_PIN = GPIO3;
+static const uint32_t REC_CHANNEL_3_PORT = GPIOE;
+static const uint32_t REC_CHANNEL_3_PIN = GPIO4;
+static const uint32_t REC_CHANNEL_4_PORT = GPIOE;
+static const uint32_t REC_CHANNEL_4_PIN = GPIO5;
+static const uint32_t REC_CHANNEL_5_PORT = GPIOE;
+static const uint32_t REC_CHANNEL_5_PIN = GPIO1;
+static const uint32_t REC_CHANNEL_6_PORT = GPIOE;
+static const uint32_t REC_CHANNEL_6_PIN = GPIO0;
