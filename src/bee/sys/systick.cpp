@@ -1,8 +1,6 @@
 #include "systick.h"
 #include <libopencm3/cm3/systick.h>
 
-volatile uint32_t system_millis;
-
 extern "C"
 {
     void sys_tick_handler(void)

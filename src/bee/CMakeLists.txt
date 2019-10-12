@@ -8,6 +8,7 @@ add_executable(bee.elf
 	sys/systick.cpp
 	sys/status.cpp
 	actuators/motors.cpp
+	sys/interrupt.cpp
 )
 
 target_link_libraries(bee.elf contrib)

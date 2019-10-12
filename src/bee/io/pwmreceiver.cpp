@@ -1,57 +1,29 @@
 #include "pwmreceiver.h"
-#include <Arduino.h>
-#define EI_ARDUINO_INTERRUPTED_PIN
-#include <EnableInterrupt.h>
+#include "../sys/interrupt.h"
+#include "../hat_pcb.h"
+#include "../sys/systick.h"
 
-static unsigned long rising_start[] = { 0, 0, 0, 0, 0, 0 };
-static uint8_t channel_pin[6];
-static long channel_length[6];
+#define FALLING 0
+#define RISING 1
 
-#if defined(PCIE0)
-#define digitalPinToPinChangeInterrupt(p) (digitalPinToPCICR(p) ? ((8 * (digitalPinToPCICRbit(p) - PCIE0)) + digitalPinToPCMSKbit(p)) : NOT_AN_INTERRUPT)
-#elif defined(PCIE)
-#define digitalPinToPinChangeInterrupt(p) (digitalPinToPCICR(p) ? ((8 * (digitalPinToPCICRbit(p) - PCIE)) + digitalPinToPCMSKbit(p)) : NOT_AN_INTERRUPT)
-#else
-#error MCU has no such a register
-#endif
+bool isRising(int idr) return (idr & 1) == 1;
 
-void rising()
+void handleInterrupt(int exti, int idr, int id)
 {
- uint8_t pin = arduinoInterruptedPin;
- rising_start[pin] = micros();
-}
-
-void falling()
-{
-  uint8_t pin = arduinoInterruptedPin;
-  channel_length[pin] = micros() - rising_start[pin];
+    if (isRising(idr)) rising_start[id] = SysTick::system_millis;
+    else channel_length[id] = SysTick::system_millis - rising_start[id];
+    exti_reset_request(exti);
 }
 
 PWMReceiver::PWMReceiver()
 {
- 
-}
-
-void PWMReceiver::setChannels(const uint8_t channels[6])
-{
-  for (uint8_t i = 0; i < 6; i++)
-  {
-    if(channels[i])
-      continue;
-
-    pinMode(channels[i], INPUT);
-    channel_pin[i] = digitalPinToPinChangeInterrupt(channels[i]);
-    enableInterrupt(channel_pin[i],rising,RISING);
-    enableInterrupt(channel_pin[i],falling,FALLING);
-  }
+    Interrupt(REC_CHANNEL_1);
 }
 
 uint16_t PWMReceiver::getChannel(Channel channel)
 {
-	if (channel_pin[channel - 1] == -1) 
-		return -1;
-
-	return channel_length[channel - 1];
+    if (channel_pin[channel - 1] == -1) return -1;
+    return channel_length[channel - 1];
 }
 
 
