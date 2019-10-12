@@ -7,14 +7,13 @@
 #include <cmath>
 
 #include <bme280.h>
-#define BMP3_DOUBLE_PRECISION_COMPENSATION
 #include <bmp3.h>
 #include <bmi08x.h>
 #include <bmi088.h>
 
 #include "../hat_pcb.h"
 #include "serial.h"
-#include "../sys/systick.h"
+#include "../sys/clock.h"
 
 //#include <TinyGPS.h>
 // set up the speed, data order and data mode
@@ -115,7 +114,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
 void Sensors::user_delay_ms(uint32_t milliseconds)
 {
-    SysTick::sleep(milliseconds);
+    Clock::sleep(milliseconds);
 }
 
 bool Sensors::initializeBMI()

@@ -98,26 +98,6 @@ static const uint32_t MOTOR_4_PORT = GPIOB;
 static const uint32_t MOTOR_4_PIN = GPIO8;
 static const tim_oc_id MOTOR_4_CHANNEL = TIM_OC4;
 
-//TODO: is exti, exti_irq and pin interchangeable? (all are integer values e.g. 0 for pin 0)
-struct InterruptPin
-{
-    uint32_t exti;
-    uint32_t exti_irq;
-    rcc_periph_clken rcc_port;
-    uint32_t idr;
-    uint32_t port;
-    uint32_t pin;
-};
-
-struct InteruptPin REC_CHANNEL_1
-{ 
-    .exti = EXTI2,
-    .exti_irq = NVIC_EXTI2_IRQ,
-    .rcc_port = RCC_GPIOE,
-    .idr = GPIOE_IDR,
-    .port = GPIOE,
-    .pin = GPIO2
-};
 
 static const uint32_t REC_CHANNEL_1_EXTI = EXTI2;
 static const uint32_t REC_CHANNEL_1_EXTI_IRQ = NVIC_EXTI2_IRQ;
@@ -140,12 +120,12 @@ static const uint32_t REC_CHANNEL_3_IDR = GPIOE_IDR;
 static const uint32_t REC_CHANNEL_3_PORT = GPIOE;
 static const uint32_t REC_CHANNEL_3_PIN = GPIO4;
 
-static const uint32_t REC_CHANNEL_4_EXTI = EXTI5;
-static const uint32_t REC_CHANNEL_4_EXTI_IRQ = NVIC_EXTI5_IRQ;
-static const rcc_periph_clken REC_CHANNEL_4_RCC_PORT = RCC_GPIOE;
-static const uint32_t REC_CHANNEL_4_IDR = GPIOE_IDR;
-static const uint32_t REC_CHANNEL_4_PORT = GPIOE;
-static const uint32_t REC_CHANNEL_4_PIN = GPIO5;
+//static const uint32_t REC_CHANNEL_4_EXTI = EXTI5;
+//static const uint32_t REC_CHANNEL_4_EXTI_IRQ = NVIC_EXTI5_IRQ; // nvic_exti5_irq not found
+//static const rcc_periph_clken REC_CHANNEL_4_RCC_PORT = RCC_GPIOE;
+//static const uint32_t REC_CHANNEL_4_IDR = GPIOE_IDR;
+//static const uint32_t REC_CHANNEL_4_PORT = GPIOE;
+//static const uint32_t REC_CHANNEL_4_PIN = GPIO5;
 
 static const uint32_t REC_CHANNEL_5_EXTI = EXTI1;
 static const uint32_t REC_CHANNEL_5_EXTI_IRQ = NVIC_EXTI1_IRQ;

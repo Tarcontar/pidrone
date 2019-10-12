@@ -1,5 +1,5 @@
 #include "motors.h"
-#include "../sys/systick.h"
+#include "../sys/clock.h"
 #include "../hat_pcb.h"
 
 Motors::Motors() : m_FLspeed(MIN_THROTTLE)
@@ -22,12 +22,12 @@ void Motors::setupESCs()
     m_timer->setChannel(MOTOR_2_CHANNEL, MIN_THROTTLE);
     m_timer->setChannel(MOTOR_3_CHANNEL, MIN_THROTTLE);
     m_timer->setChannel(MOTOR_4_CHANNEL, MIN_THROTTLE);
-    SysTick::sleep(3000); //TODO: decrease this
+    Clock::sleep(3000); //TODO: decrease this
     m_timer->setChannel(MOTOR_1_CHANNEL, MAX_THROTTLE);
     m_timer->setChannel(MOTOR_2_CHANNEL, MAX_THROTTLE);
     m_timer->setChannel(MOTOR_3_CHANNEL, MAX_THROTTLE);
     m_timer->setChannel(MOTOR_4_CHANNEL, MAX_THROTTLE);
-    SysTick::sleep(2000); //TODO: decrease this
+    Clock::sleep(2000); //TODO: decrease this
     m_timer->setChannel(MOTOR_1_CHANNEL, MIN_THROTTLE);
     m_timer->setChannel(MOTOR_2_CHANNEL, MIN_THROTTLE);
     m_timer->setChannel(MOTOR_3_CHANNEL, MIN_THROTTLE);

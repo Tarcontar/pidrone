@@ -5,7 +5,6 @@ add_executable(bee.elf
 	io/sensors.cpp
 	sys/timer.cpp
 	sys/clock.cpp
-	sys/systick.cpp
 	sys/status.cpp
 	actuators/motors.cpp
 	sys/interrupt.cpp

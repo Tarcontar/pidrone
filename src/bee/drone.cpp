@@ -8,13 +8,11 @@
 #include "io/serial.h"
 #include "io/sensors.h"
 #include "sys/clock.h"
-#include "sys/systick.h"
 #include "actuators/motors.h"
 
 int main()
 {
     Clock::setup();
-    SysTick::setup();
     Status::setup();
     USART::setup();
     ser << "USART ready!\n";
@@ -33,7 +31,7 @@ int main()
     {
         sensors.update();
 
-        SysTick::sleep(1000);
+        Clock::sleep(1000);
     }
     return 0;
 }
