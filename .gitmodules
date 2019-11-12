@@ -21,4 +21,4 @@
 	url = https://github.com/BoschSensortec/BMI08x-Sensor-API.git
 [submodule "contrib/bosch/bmm150"]
 	path = contrib/bosch/bmm150
-	url = https://github.com/BoschSensortec/BMM150-Sensor-API.git
+	url = https://github.com/BoschSensortec/BMM150-Sensor-API
