@@ -1,9 +1,6 @@
 [submodule "contrib/bosch/bme280"]
 	path = contrib/bosch/bme280
 	url = https://github.com/BoschSensortec/BME280_driver.git
-[submodule "contrib/bosch/bmi160"]
-	path = contrib/bosch/bmi160
-	url = https://github.com/BoschSensortec/BMI160_driver.git
 [submodule "contrib/tinygps"]
 	path = contrib/tinygps
 	url = https://github.com/florind/TinyGPS.git
@@ -22,3 +19,6 @@
 [submodule "contrib/bosch/bmi088"]
 	path = contrib/bosch/bmi088
 	url = https://github.com/BoschSensortec/BMI08x-Sensor-API.git
+[submodule "contrib/bosch/bmm150"]
+	path = contrib/bosch/bmm150
+	url = https://github.com/BoschSensortec/BMM150-Sensor-API.git
