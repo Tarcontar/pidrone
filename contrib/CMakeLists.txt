@@ -5,21 +5,17 @@ set(LC_SRC
   bosch/bmi088/bmi088.c
   bosch/bmi088/bmi08a.c
   bosch/bmi088/bmi08g.c
-#        NemaTode/src/GPSFix.cpp 
-#        NemaTode/src/GPSService.cpp 
-#        NemaTode/src/NMEACommand.cpp 
-#        NemaTode/src/NMEAParser.cpp 
-#        NemaTode/src/NumberConversion.cpp)
+  gps/TinyGPS.cpp 
 )
 
 set(OPENCM_DIR ${BEEHIVE_ROOT}/contrib/libopencm3)
 set(OPENCM_LIB ${OPENCM_DIR}/lib/libopencm3_stm32l4.a)
 
 # BM280 floating point api
-add_compile_definitions(BME280_FLOAT_ENABLE)
-add_compile_definitions(BMP3_DOUBLE_PRECISION_COMPENSATION)
-add_compile_definitions(BMI08X_ENABLE_BMI088=1)
-add_compile_definitions(BMI08X_ENABLE_BMI085=0)
+add_definitions(-DBME280_FLOAT_ENABLE)
+add_definitions(-DBMP3_DOUBLE_PRECISION_COMPENSATION)
+add_definitions(-DBMI08X_ENABLE_BMI088=1)
+add_definitions(-DBMI08X_ENABLE_BMI085=0)
 
 add_custom_command(OUTPUT ${OPENCM_LIB}
   COMMAND make TARGETS=stm32/l4
@@ -40,8 +36,9 @@ target_include_directories(contrib PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bme280
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmi088
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmp388
-  ${CMAKE_CURRENT_SOURCE_DIR}/NemaTode/include)
+  ${CMAKE_CURRENT_SOURCE_DIR}/gps/)
 
 target_link_libraries(contrib ${OPENCM_LIB})
 
 target_compile_definitions(contrib PUBLIC -DSTM32L4)
+set_property(TARGET contrib PROPERTY C_STANDARD 99)

@@ -15,10 +15,6 @@
 #include "serial.h"
 #include "../sys/clock.h"
 
-//#include <TinyGPS.h>
-// set up the speed, data order and data mode
-//SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
-//TinyGPS gps;
 
 static const float RAD_TO_DEG = 57.2957795;
 
@@ -32,13 +28,15 @@ static const uint32_t BME280_DEVICE_ID = 0;
 static const uint32_t BMP388_DEVICE_ID = 1;
 static const uint32_t BMI088_ACCEL_DEVICE_ID = 2;
 static const uint32_t BMI088_GYRO_DEVICE_ID = 3;
+static const uint32_t ORG1510_GPS_DEVICE_ID = 4;
 
 SPI_DEVICE devices[] =
 {
     {BME280_CS_PORT, BME280_CS_PIN},
     {BMP388_CS_PORT, BMP388_CS_PIN},
     {BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN},
-    {BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN}
+    {BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN},
+    {ORG1510_CS_PORT, ORG1510_CS_PIN}
 };
 
 // BME280
@@ -61,15 +59,12 @@ bool Sensors::setup()
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
 
-    gpio_mode_setup(BME280_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BME280_CS_PIN);
-    gpio_set(BME280_CS_PORT, BME280_CS_PIN);
-    gpio_mode_setup(BMP388_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
-    gpio_set(BMP388_CS_PORT, BMP388_CS_PIN);
 
-    gpio_mode_setup(BMI088_GYRO_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_GYRO_CS_PIN);
-    gpio_set(BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN);
-    gpio_mode_setup(BMI088_ACCEL_CS_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMI088_ACCEL_CS_PIN);
-    gpio_set(BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN);
+    for(const auto& device : devices)
+    {
+        gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, BMP388_CS_PIN);
+        gpio_set(device.port, device.pin);
+    }
 
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
@@ -92,10 +87,19 @@ bool Sensors::setup()
     return true;
 }
 
-int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+void enableDevice(uint8_t device_id)
 {
     gpio_clear(devices[device_id].port, devices[device_id].pin);
+}
 
+void disableDevice(uint8_t device_id)
+{
+    gpio_set(devices[device_id].port, devices[device_id].pin);
+}
+
+int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
+{
+    enableDevice(device_id);
     spi_xfer(SPI, reg_addr);
 
     for (uint8_t i = 0; i < len; i++)
@@ -107,8 +111,7 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     while (SPI_SR(SPI) & SPI_SR_BSY);
     while (SPI_SR(SPI) & SPI_SR_RXNE) spi_read(SPI);
-
-    gpio_set(devices[device_id].port, devices[device_id].pin);
+    disableDevice(device_id);
     return 0;
 }
 
@@ -184,67 +187,6 @@ bool Sensors::initializeBMI()
         ser << "BMI088: Could not configure data synchronization -> " << rslt << "\n";
         return false;
     }
-
-    //TODO
-    /*
-    //enable accel anymotion interrupt
-    dev_bmi.read_write_len = 8;
-    rslt = bmi088_apply_config_file(&dev_bmi);
-    if (rslt != BMI08X_OK)
-    {
-        ser << "BMI088: Could not apply config file -> " << rslt << "\n";
-        return false;
-    }
-
-    struct bmi08x_anymotion_cfg anymotion_cfg;
-    anymotion_cfg.threshold = 0x44;
-    anymotion_cfg.nomotion_sel = 0x00;
-    anymotion_cfg.duration = 0x01;
-    anymotion_cfg.x_en = 0x01;
-    anymotion_cfg.y_en = 0x01;
-    anymotion_cfg.z_en = 0x01;
-
-    rslt = bmi088_configure_anymotion(anymotion_cfg, &dev_bmi);
-    if (rslt != BMI08X_OK)
-    {
-        ser << "BMI088: Could not configure anymotion -> " << rslt << "\n";
-        return false;
-    }
-
-    struct bmi08x_accel_int_channel_cfg acc_int_config;
-    acc_int_config.int_channel = BMI08X_INT_CHANNEL_1;
-    acc_int_config.int_type = BMI08X_ACCEL_DATA_RDY_INT;
-    acc_int_config.int_pin_cfg.lvl = BMI08X_INT_ACTIVE_HIGH;
-    acc_int_config.int_pin_cfg.output_mode = BMI08X_INT_MODE_PUSH_PULL;
-    acc_int_config.int_pin_cfg.enable_int_pin = BMI08X_ENABLE;
-
-    rslt = bmi08a_set_int_config(&acc_int_config, &dev_bmi);
-    if (rslt != BMI08X_OK)
-    {
-        ser << "BMI088: Could not set accel int config -> " << rslt << "\n";
-        return false;
-    }
-
-    //TODO: setup bmi accel int pin
-
-
-    //enable gyro data ready interrupt
-    struct bmi08x_gyro_int_channel_cfg gyro_int_config;
-    gyro_int_config.int_channel = BMI08X_INT_CHANNEL_3;
-    gyro_int_config.int_type = BMI08X_GYRO_DATA_RDY_INT;
-    gyro_int_config.int_pin_cfg.lvl = BMI08X_INT_ACTIVE_HIGH;
-    gyro_int_config.int_pin_cfg.output_mode =BMI08X_INT_MODE_PUSH_PULL;
-    gyro_int_config.int_pin_cfg.enable_int_pin = BMI08X_ENABLE;
-
-    rslt = bmi08g_set_int_config(&gyro_int_config, &dev_bmi);
-    if (rslt != BMI08X_OK)
-    {
-        ser << "BMI088: Could not set gyro int config -> " << rslt << "\n";
-        return false;
-    }
-
-    //TODO: setup bmi gyro int pin
-    */
 
     init_bmi = true;
 
@@ -415,7 +357,7 @@ void Sensors::readBME()
 
 void Sensors::readGPS()
 {
-    /*
+    enableDevice(ORG1510_GPS_DEVICE_ID);
 	ser << "Reading GPS1510";
 
     //read until new data is available
@@ -424,13 +366,13 @@ void Sensors::readGPS()
     while(!receivedData)
     {
         char d = 0xff;
-        char c = spi_transfer(1, 0, &d, 1);
+        char c = spi_xfer(SPI, d);;
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
 
     ser << "GPS1510 received sth\n";
-	*/
+    disableDevice(ORG1510_GPS_DEVICE_ID);
 }
 
 float Sensors::convertRawGyro(int gRaw)
@@ -453,5 +395,5 @@ void Sensors::update()
     readBME();
     readBMP();
     readBMI();
-    //readGPS();
+    readGPS();
 }

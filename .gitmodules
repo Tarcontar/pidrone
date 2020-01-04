@@ -1,12 +1,6 @@
 [submodule "contrib/bosch/bme280"]
 	path = contrib/bosch/bme280
 	url = https://github.com/BoschSensortec/BME280_driver.git
-[submodule "contrib/tinygps"]
-	path = contrib/tinygps
-	url = https://github.com/florind/TinyGPS.git
-[submodule "contrib/NemaTode"]
-	path = contrib/NemaTode
-	url = https://github.com/ckgt/NemaTode.git
 [submodule "contrib/libopencm3"]
 	path = contrib/libopencm3
 	url = https://github.com/libopencm3/libopencm3.git
