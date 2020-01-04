@@ -14,6 +14,7 @@
 #include "../hat_pcb.h"
 #include "serial.h"
 #include "../sys/clock.h"
+#include "usart.h"
 
 
 static const float RAD_TO_DEG = 57.2957795;
@@ -68,7 +69,7 @@ bool Sensors::setup()
 
     spi_reset(SPI);
     spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_2, SPI_CR1_MSBFIRST);
+                    SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
 
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
     spi_fifo_reception_threshold_8bit(SPI);
@@ -85,6 +86,7 @@ bool Sensors::setup()
     gps.millis = Clock::millis;
 
     ser << "SPI setup done\n";
+    Clock::sleep(3000);
 
     return true;
 }
@@ -102,6 +104,7 @@ void disableDevice(uint8_t device_id)
 int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_data, uint16_t len)
 {
     enableDevice(device_id);
+    spi_set_standard_mode(SPI, 0);
     spi_xfer(SPI, reg_addr);
 
     for (uint8_t i = 0; i < len; i++)
@@ -360,15 +363,17 @@ void Sensors::readBME()
 void Sensors::readGPS()
 {
     enableDevice(ORG1510_GPS_DEVICE_ID);
-	ser << "Reading GPS1510";
+    spi_set_standard_mode(SPI, 1);
+	ser << "Reading GPS1510\n";
 
     //read until new data is available
     bool receivedData = false;
 
     while(!receivedData)
     {
-        char d = 0xff;
-        char c = spi_xfer(SPI, d);;
+        char c = spi_read8(SPI);
+        USART::write(c);
+        ser << "\n";
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
@@ -394,9 +399,9 @@ float Sensors::convertRawAccel(int aRaw)
 
 void Sensors::update()
 {
-    readBME();
-    readBMP();
-    readBMI();
+    // readBME();
+    // readBMP();
+    // readBMI();
     ser << "GPS1510 blaa sth\n";
     readGPS();
 }
