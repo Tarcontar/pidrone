@@ -371,7 +371,7 @@ void Sensors::readGPS()
 
     while(!receivedData)
     {
-        char c = spi_read8(SPI);
+        char c = spi_xfer(SPI, 0);
         USART::write(c);
         ser << "\n";
         if (gps.encode(c)) // Did a new valid sentence come in?
