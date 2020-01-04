@@ -73,15 +73,16 @@ bool Sensors::setup()
 
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
     spi_fifo_reception_threshold_8bit(SPI);
+    spi_enable_software_slave_management(SPI);
 
     spi_set_master_mode(SPI);
     spi_enable(SPI);
 
     ser << "SPI enabled\n";
 
-    if (!initializeBME()) return false;
-    if (!initializeBMP()) return false;
-    if (!initializeBMI()) return false;
+    // if (!initializeBME()) return false;
+    // if (!initializeBMP()) return false;
+    // if (!initializeBMI()) return false;
 
     gps.millis = Clock::millis;
 
@@ -373,7 +374,6 @@ void Sensors::readGPS()
     {
         char c = spi_xfer(SPI, 0);
         USART::write(c);
-        ser << "\n";
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
