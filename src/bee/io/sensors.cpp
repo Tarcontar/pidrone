@@ -82,6 +82,8 @@ bool Sensors::setup()
     if (!initializeBMP()) return false;
     if (!initializeBMI()) return false;
 
+    gps.millis = Clock::millis;
+
     ser << "SPI setup done\n";
 
     return true;
@@ -395,5 +397,6 @@ void Sensors::update()
     readBME();
     readBMP();
     readBMI();
+    ser << "GPS1510 blaa sth\n";
     readGPS();
 }

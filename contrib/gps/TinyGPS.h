@@ -97,7 +97,7 @@ public:
 #ifndef _GPS_NO_STATS
   void stats(unsigned long *chars, unsigned short *good_sentences, unsigned short *failed_cs);
 #endif
-
+  std::function<int()> millis;
 private:
   enum {_GPS_SENTENCE_GPGGA, _GPS_SENTENCE_GPRMC, _GPS_SENTENCE_GNGNS, _GPS_SENTENCE_GNGSA,
       _GPS_SENTENCE_GPGSV, _GPS_SENTENCE_GLGSV,  _GPS_SENTENCE_OTHER};
@@ -154,7 +154,6 @@ private:
   unsigned long parse_decimal();
   unsigned long parse_degrees();
   bool term_complete();
-  std::function<int()> millis;
   bool gpsisdigit(char c) { return c >= '0' && c <= '9'; }
   long gpsatol(const char *str);
   int gpsstrcmp(const char *str1, const char *str2);
