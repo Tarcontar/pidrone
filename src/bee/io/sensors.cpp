@@ -57,7 +57,7 @@ bool Sensors::setup()
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
 
-    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_PULLDOWN, SPI_SCK | SPI_MISO | SPI_MOSI);
+    gpio_mode_setup(SPI_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
 
