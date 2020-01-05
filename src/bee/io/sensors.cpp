@@ -93,6 +93,12 @@ bool Sensors::setup()
     ser << "SPI setup done\n";
     Clock::sleep(3000);
 
+    for(const auto& device : devices)
+    {
+        gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
+        gpio_set(device.port, device.pin);
+    }
+
     return true;
 }
 
