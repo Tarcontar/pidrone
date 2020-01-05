@@ -376,6 +376,7 @@ void Sensors::readGPS()
 
     while(!receivedData)
     {
+        spi_send8(SPI, 0);
         char c = spi_read8(SPI);
         USART::write(c);
         ser << "\n";
