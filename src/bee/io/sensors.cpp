@@ -74,6 +74,7 @@ bool Sensors::setup()
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
     spi_fifo_reception_threshold_8bit(SPI);
     spi_enable_software_slave_management(SPI);
+    spi_set_nss_high(SPI);
 
     spi_set_master_mode(SPI);
     spi_enable(SPI);
@@ -372,8 +373,11 @@ void Sensors::readGPS()
 
     while(!receivedData)
     {
+        while (SPI_SR(SPI) & SPI_SR_BSY);
+        while (!(SPI_SR(SPI) & SPI_SR_TXE));
         char c = spi_xfer(SPI, 0);
         USART::write(c);
+        ser << "\n";
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
