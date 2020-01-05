@@ -69,16 +69,16 @@ bool Sensors::setup()
     }
 
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
+    spi_set_baudrate_prescaler(spibus->port, SPI_CR1_BR_FPCLK_DIV_256);
 
+    spi_set_standard_mode(SPI, 1);
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
     spi_fifo_reception_threshold_8bit(SPI);
     spi_enable_software_slave_management(SPI);
     spi_set_nss_high(SPI);
     spi_set_full_duplex_mode(SPI);
 	spi_set_unidirectional_mode(SPI);
-
+    spi_send_msb_first(SPI);
     spi_set_master_mode(SPI);
     spi_enable(SPI);
 
