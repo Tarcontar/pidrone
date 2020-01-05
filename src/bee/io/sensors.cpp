@@ -75,6 +75,8 @@ bool Sensors::setup()
     spi_fifo_reception_threshold_8bit(SPI);
     spi_enable_software_slave_management(SPI);
     spi_set_nss_high(SPI);
+    spi_set_full_duplex_mode(SPI);
+	spi_set_unidirectional_mode(SPI);
 
     spi_set_master_mode(SPI);
     spi_enable(SPI);
