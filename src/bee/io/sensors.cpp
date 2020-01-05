@@ -69,7 +69,7 @@ bool Sensors::setup()
     }
 
     spi_reset(SPI);
-    spi_set_baudrate_prescaler(spibus->port, SPI_CR1_BR_FPCLK_DIV_256);
+    spi_set_baudrate_prescaler(SPI, SPI_CR1_BR_FPCLK_DIV_256);
 
     spi_set_standard_mode(SPI, 1);
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
