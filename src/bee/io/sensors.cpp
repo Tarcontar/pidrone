@@ -52,7 +52,7 @@ bool init_bmi = false;
 
 bool Sensors::setup()
 {
-     Clock::sleep(3000);
+    Clock::sleep(3000);
     ser << "Setting up SPI\n";
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
@@ -78,7 +78,7 @@ bool Sensors::setup()
     spi_enable_software_slave_management(SPI);
     spi_set_nss_high(SPI);
     spi_set_full_duplex_mode(SPI);
-	spi_set_unidirectional_mode(SPI);
+    spi_set_unidirectional_mode(SPI);
     spi_send_msb_first(SPI);
     spi_enable(SPI);
 
@@ -91,13 +91,14 @@ bool Sensors::setup()
     gps.millis = Clock::millis;
 
     ser << "SPI setup done\n";
-    Clock::sleep(3000);
 
+    /*
     for(const auto& device : devices)
     {
         gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
         gpio_set(device.port, device.pin);
     }
+*/
 
     return true;
 }
@@ -385,8 +386,8 @@ void Sensors::readGPS()
 
     while(!receivedData)
     {
-        spi_send8(SPI, 0);
-        char c = spi_read8(SPI);
+        //spi_send8(SPI, 0);
+        char c = spi_xfer(SPI,0);//spi_read8(SPI);
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
