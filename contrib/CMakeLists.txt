@@ -1,6 +1,5 @@
 set(LC_SRC 
   bosch/bme280/bme280.c
-  bosch/bmi160/bmi160.c
   bosch/bmp388/bmp3.c
   bosch/bmi088/bmi088.c
   bosch/bmi088/bmi08a.c
