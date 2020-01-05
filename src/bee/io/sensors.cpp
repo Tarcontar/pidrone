@@ -52,7 +52,7 @@ bool init_bmi = false;
 
 bool Sensors::setup()
 {
-    Clock::sleep(3000);
+    //Clock::sleep(1000);
     ser << "Setting up SPI\n";
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
@@ -64,7 +64,7 @@ bool Sensors::setup()
 
     for(const auto& device : devices)
     {
-        gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
+        gpio_mode_setup(device.port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, device.pin);
         //gpio_set(device.port, device.pin);
     }
 
@@ -92,13 +92,13 @@ bool Sensors::setup()
 
     ser << "SPI setup done\n";
 
-    /*
+    Clock::sleep(3000);
     for(const auto& device : devices)
     {
         gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
         gpio_set(device.port, device.pin);
     }
-*/
+
 
     return true;
 }
@@ -372,28 +372,35 @@ void Sensors::readBME()
     ser << "Pressure: " << data.pressure << "\n";
 }
 
+char getByte()
+{
+     enableDevice(ORG1510_GPS_DEVICE_ID);
+     spi_send8(SPI,0x0);
+     char c = spi_read8(SPI);
+     disableDevice(ORG1510_GPS_DEVICE_ID);
+     return c;
+}
+
 void Sensors::readGPS()
 {
-    enableDevice(ORG1510_GPS_DEVICE_ID);
+    //enableDevice(ORG1510_GPS_DEVICE_ID);
     spi_set_standard_mode(SPI, 1);
 	ser << "Reading GPS1510\n";
 
     //read until new data is available
     bool receivedData = false;
 
-    // Wait that we are no busy anympre
-    while (SPI_SR(SPI) & SPI_SR_BSY);
 
     while(!receivedData)
     {
-        //spi_send8(SPI, 0);
-        char c = spi_xfer(SPI,0);//spi_read8(SPI);
+        //spi_send8(SPI, 0x0);
+        char c = getByte();//spi_read8(SPI);
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
 
     ser << "GPS1510 received " << receivedData << "\n";
-    disableDevice(ORG1510_GPS_DEVICE_ID);
+    //disableDevice(ORG1510_GPS_DEVICE_ID);
 }
 
 float Sensors::convertRawGyro(int gRaw)
