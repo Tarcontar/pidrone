@@ -52,6 +52,7 @@ bool init_bmi = false;
 
 bool Sensors::setup()
 {
+     Clock::sleep(3000);
     ser << "Setting up SPI\n";
     rcc_periph_clock_enable(SPI_RCC_PORT);
     rcc_periph_clock_enable(SPI_RCC_SPI_PORT);
