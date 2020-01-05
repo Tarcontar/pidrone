@@ -371,18 +371,19 @@ void Sensors::readGPS()
     //read until new data is available
     bool receivedData = false;
 
+    // Wait that we are no busy anympre
+    while (SPI_SR(SPI) & SPI_SR_BSY);
+
     while(!receivedData)
     {
-        while (SPI_SR(SPI) & SPI_SR_BSY);
-        while (!(SPI_SR(SPI) & SPI_SR_TXE));
-        char c = spi_xfer(SPI, 0);
+        char c = spi_read8(SPI);
         USART::write(c);
         ser << "\n";
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
 
-    ser << "GPS1510 received sth\n";
+    ser << "GPS1510 received " << receivedData << "\n";
     disableDevice(ORG1510_GPS_DEVICE_ID);
 }
 
