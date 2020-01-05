@@ -64,11 +64,12 @@ bool Sensors::setup()
 
     for(const auto& device : devices)
     {
-        gpio_mode_setup(device.port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, device.pin);
+        gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
         //gpio_set(device.port, device.pin);
     }
 
     spi_reset(SPI);
+    spi_set_master_mode(SPI);
     spi_set_baudrate_prescaler(SPI, SPI_CR1_BR_FPCLK_DIV_256);
 
     spi_set_standard_mode(SPI, 1);
@@ -79,7 +80,6 @@ bool Sensors::setup()
     spi_set_full_duplex_mode(SPI);
 	spi_set_unidirectional_mode(SPI);
     spi_send_msb_first(SPI);
-    spi_set_master_mode(SPI);
     spi_enable(SPI);
 
     ser << "SPI enabled\n";
@@ -387,8 +387,6 @@ void Sensors::readGPS()
     {
         spi_send8(SPI, 0);
         char c = spi_read8(SPI);
-        USART::write(c);
-        ser << "\n";
         if (gps.encode(c)) // Did a new valid sentence come in?
             receivedData = true;
     }
