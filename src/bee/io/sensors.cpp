@@ -64,12 +64,12 @@ bool Sensors::setup()
 
     for(const auto& device : devices)
     {
-        gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
-        gpio_set(device.port, device.pin);
+        gpio_mode_setup(device.port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, device.pin);
+        //gpio_set(device.port, device.pin);
     }
 
     spi_reset(SPI);
-    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+    spi_init_master(SPI, SPI_CR1_BAUDRATE_FPCLK_DIV_16, SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_1, SPI_CR1_MSBFIRST);
 
     spi_set_data_size(SPI, SPI_CR2_DS_8BIT);
