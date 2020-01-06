@@ -438,6 +438,13 @@ void parseNMEA(char *line)
         }
     }
     break;
+
+    case MINMEA_UNKNOWN:
+    {
+        printf("Failed to parse message: %s", line);
+
+    }
+    break;
     }
 }
 
