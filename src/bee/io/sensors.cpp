@@ -440,9 +440,9 @@ void parseNMEA(char *line)
     break;
 
     case MINMEA_UNKNOWN:
+    default:
     {
         printf("Failed to parse message: %s", line);
-
     }
     break;
     }
@@ -475,7 +475,7 @@ void Sensors::readGPS()
 
     parseNMEA(buf);
 
-    ser << buf << "\n";
+    //ser << buf << "\n";
     //disableDevice(ORG1510_GPS_DEVICE_ID);
 }
 
@@ -499,6 +499,5 @@ void Sensors::update()
     // readBME();
     // readBMP();
     // readBMI();
-    ser << "GPS1510 blaa sth\n";
     readGPS();
 }
