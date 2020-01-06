@@ -1,6 +1,5 @@
 #pragma once
 #include <stdint.h>
-#include <TinyGPS.h>
 
 class Sensors
 {
@@ -29,10 +28,6 @@ private:
 
     float convertRawGyro(int gRaw);
     float convertRawAccel(int aRaw);
-
-    // set up the speed, data order and data mode
-    //SPISettings set_gps(4000, MSBFIRST, SPI_MODE1);
-    TinyGPS gps;
 
     float m_roll;
     float m_pitch;

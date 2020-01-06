@@ -16,3 +16,6 @@
 [submodule "contrib/bosch/bmm150"]
 	path = contrib/bosch/bmm150
 	url = https://github.com/BoschSensortec/BMM150-Sensor-API
+[submodule "contrib/minmea"]
+	path = contrib/minmea
+	url = https://github.com/kosma/minmea

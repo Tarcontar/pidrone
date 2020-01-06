@@ -4,7 +4,7 @@ set(LC_SRC
   bosch/bmi088/bmi088.c
   bosch/bmi088/bmi08a.c
   bosch/bmi088/bmi08g.c
-  gps/TinyGPS.cpp 
+  minmea/minmea.c 
 )
 
 set(OPENCM_DIR ${BEEHIVE_ROOT}/contrib/libopencm3)
@@ -15,6 +15,7 @@ add_definitions(-DBME280_FLOAT_ENABLE)
 add_definitions(-DBMP3_DOUBLE_PRECISION_COMPENSATION)
 add_definitions(-DBMI08X_ENABLE_BMI088=1)
 add_definitions(-DBMI08X_ENABLE_BMI085=0)
+add_definitions(-Dtimegm=mktime)
 
 add_custom_command(OUTPUT ${OPENCM_LIB}
   COMMAND make TARGETS=stm32/l4
@@ -35,7 +36,7 @@ target_include_directories(contrib PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bme280
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmi088
   ${CMAKE_CURRENT_SOURCE_DIR}/bosch/bmp388
-  ${CMAKE_CURRENT_SOURCE_DIR}/gps/)
+  ${CMAKE_CURRENT_SOURCE_DIR}/minmea/)
 
 target_link_libraries(contrib ${OPENCM_LIB})
 

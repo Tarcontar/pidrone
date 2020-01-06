@@ -15,7 +15,7 @@
 #include "serial.h"
 #include "../sys/clock.h"
 #include "usart.h"
-
+#include "minmea.h"
 
 static const float RAD_TO_DEG = 57.2957795;
 
@@ -32,13 +32,12 @@ static const uint32_t BMI088_GYRO_DEVICE_ID = 3;
 static const uint32_t ORG1510_GPS_DEVICE_ID = 4;
 
 SPI_DEVICE devices[] =
-{
-    {BME280_CS_PORT, BME280_CS_PIN},
-    {BMP388_CS_PORT, BMP388_CS_PIN},
-    {BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN},
-    {BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN},
-    {ORG1510_CS_PORT, ORG1510_CS_PIN}
-};
+    {
+        {BME280_CS_PORT, BME280_CS_PIN},
+        {BMP388_CS_PORT, BMP388_CS_PIN},
+        {BMI088_ACCEL_CS_PORT, BMI088_ACCEL_CS_PIN},
+        {BMI088_GYRO_CS_PORT, BMI088_GYRO_CS_PIN},
+        {ORG1510_CS_PORT, ORG1510_CS_PIN}};
 
 // BME280
 struct bme280_dev dev_bme;
@@ -61,8 +60,7 @@ bool Sensors::setup()
     gpio_set_af(SPI_PORT, SPI_AF, SPI_SCK | SPI_MISO | SPI_MOSI);
     gpio_set_output_options(SPI_PORT, GPIO_OTYPE_PP, GPIO_OSPEED_HIGH, SPI_SCK | SPI_MOSI);
 
-
-    for(const auto& device : devices)
+    for (const auto &device : devices)
     {
         gpio_mode_setup(device.port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, device.pin);
         //gpio_set(device.port, device.pin);
@@ -88,17 +86,14 @@ bool Sensors::setup()
     // if (!initializeBMP()) return false;
     // if (!initializeBMI()) return false;
 
-    gps.millis = Clock::millis;
-
     ser << "SPI setup done\n";
 
     Clock::sleep(3000);
-    for(const auto& device : devices)
+    for (const auto &device : devices)
     {
         gpio_mode_setup(device.port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, device.pin);
         gpio_set(device.port, device.pin);
     }
-
 
     return true;
 }
@@ -121,13 +116,17 @@ int8_t Sensors::spi_transfer(uint8_t device_id, uint8_t reg_addr, uint8_t *reg_d
 
     for (uint8_t i = 0; i < len; i++)
     {
-        while (SPI_SR(SPI) & SPI_SR_BSY);
-        while (!(SPI_SR(SPI) & SPI_SR_TXE));
+        while (SPI_SR(SPI) & SPI_SR_BSY)
+            ;
+        while (!(SPI_SR(SPI) & SPI_SR_TXE))
+            ;
         reg_data[i] = spi_xfer(SPI, reg_data[i]);
     }
 
-    while (SPI_SR(SPI) & SPI_SR_BSY);
-    while (SPI_SR(SPI) & SPI_SR_RXNE) spi_read(SPI);
+    while (SPI_SR(SPI) & SPI_SR_BSY)
+        ;
+    while (SPI_SR(SPI) & SPI_SR_RXNE)
+        spi_read(SPI);
     disableDevice(device_id);
     return 0;
 }
@@ -216,7 +215,8 @@ void Sensors::readBMI()
     uint32_t user_sampling_time;
 
     int8_t rslt = bmi08a_get_sensor_time(&dev_bmi, &user_sampling_time);
-    if (rslt != BMI08X_OK) ser << "BMI088: could not read sensor time -> " << rslt << "\n";
+    if (rslt != BMI08X_OK)
+        ser << "BMI088: could not read sensor time -> " << rslt << "\n";
 
     struct bmi08x_sensor_data accel_data;
     struct bmi08x_sensor_data gyro_data;
@@ -357,7 +357,8 @@ bool Sensors::initializeBME()
 
 void Sensors::readBME()
 {
-    if (!init_bme) return;
+    if (!init_bme)
+        return;
 
     struct bme280_data data;
     int8_t rslt = bme280_get_sensor_data(BME280_ALL, &data, &dev_bme);
@@ -374,41 +375,100 @@ void Sensors::readBME()
 
 char getByte()
 {
-     enableDevice(ORG1510_GPS_DEVICE_ID);
-     spi_send8(SPI,0x0);
-     char c = spi_read8(SPI);
-     disableDevice(ORG1510_GPS_DEVICE_ID);
-     return c;
+    enableDevice(ORG1510_GPS_DEVICE_ID);
+    spi_send8(SPI, 0x0);
+    char c = spi_read8(SPI);
+    disableDevice(ORG1510_GPS_DEVICE_ID);
+    return c;
 }
 
 bool isIdle(char c)
 {
-     return (c==167 || c==180);
+    return (c == 167 || c == 180);
+}
+
+void parseNMEA(char *line)
+{
+    switch (minmea_sentence_id(line, false))
+    {
+    case MINMEA_SENTENCE_RMC:
+    {
+        struct minmea_sentence_rmc frame;
+        if (minmea_parse_rmc(&frame, line))
+        {
+            printf("$RMC: raw coordinates and speed: (%d/%d,%d/%d) %d/%d\n",
+                   frame.latitude.value, frame.latitude.scale,
+                   frame.longitude.value, frame.longitude.scale,
+                   frame.speed.value, frame.speed.scale);
+            printf("$RMC fixed-point coordinates and speed scaled to three decimal places: (%d,%d) %d\n",
+                   minmea_rescale(&frame.latitude, 1000),
+                   minmea_rescale(&frame.longitude, 1000),
+                   minmea_rescale(&frame.speed, 1000));
+            printf("$RMC floating point degree coordinates and speed: (%f,%f) %f\n",
+                   minmea_tocoord(&frame.latitude),
+                   minmea_tocoord(&frame.longitude),
+                   minmea_tofloat(&frame.speed));
+        }
+    }
+    break;
+
+    case MINMEA_SENTENCE_GGA:
+    {
+        struct minmea_sentence_gga frame;
+        if (minmea_parse_gga(&frame, line))
+        {
+            printf("$GGA: fix quality: %d\n", frame.fix_quality);
+        }
+    }
+    break;
+
+    case MINMEA_SENTENCE_GSV:
+    {
+        struct minmea_sentence_gsv frame;
+        if (minmea_parse_gsv(&frame, line))
+        {
+            printf("$GSV: message %d of %d\n", frame.msg_nr, frame.total_msgs);
+            printf("$GSV: sattelites in view: %d\n", frame.total_sats);
+            for (int i = 0; i < 4; i++)
+                printf("$GSV: sat nr %d, elevation: %d, azimuth: %d, snr: %d dbm\n",
+                       frame.sats[i].nr,
+                       frame.sats[i].elevation,
+                       frame.sats[i].azimuth,
+                       frame.sats[i].snr);
+        }
+    }
+    break;
+    }
 }
 
 void Sensors::readGPS()
 {
     //enableDevice(ORG1510_GPS_DEVICE_ID);
     spi_set_standard_mode(SPI, 1);
-	ser << "Reading GPS1510\n";
+    ser << "Reading GPS1510\n";
 
     //read until new data is available
     bool receivedData = false;
-    std::array<char,256> buf;
+    char buf[MINMEA_MAX_LENGTH];
 
     //Skip idle
     char c = getByte();
-    int i=0;
-    while(isIdle(c)) { c = getByte(); }
-
-    while(i < 256)
+    int i = 0;
+    while (isIdle(c))
     {
-	buf[i] = c;
-	c = getByte();
-	i++;
+        c = getByte();
     }
 
-    ser << buf.data() << "\n";
+    while (i < MINMEA_MAX_LENGTH)
+    {
+        buf[i] = c;
+        c = getByte();
+        i++;
+    }
+
+    parseNMEA(buf);
+
+    ser << buf << "\n";
     //disableDevice(ORG1510_GPS_DEVICE_ID);
 }
 
