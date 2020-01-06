@@ -32,9 +32,9 @@ int main()
         sensors.update();
         motors.update(1100, 1100, 1100, 1100);
 
-        Clock::sleep(1000);
-        motors.update(1800, 1800, 1800, 1800);
-        Clock::sleep(1000);
+        //Clock::sleep(1000);
+        //motors.update(1800, 1800, 1800, 1800);
+        //Clock::sleep(1000);
     }
     return 0;
 }

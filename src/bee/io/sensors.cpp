@@ -5,7 +5,7 @@
 
 #include <cstdio>
 #include <cmath>
-
+#include <array>
 #include <bme280.h>
 #include <bmp3.h>
 #include <bmi08x.h>
@@ -381,6 +381,11 @@ char getByte()
      return c;
 }
 
+bool isIdle(char c)
+{
+     return (c==167 || c==180);
+}
+
 void Sensors::readGPS()
 {
     //enableDevice(ORG1510_GPS_DEVICE_ID);
@@ -389,17 +394,21 @@ void Sensors::readGPS()
 
     //read until new data is available
     bool receivedData = false;
+    std::array<char,256> buf;
 
+    //Skip idle
+    char c = getByte();
+    int i=0;
+    while(isIdle(c)) { c = getByte(); }
 
-    while(!receivedData)
+    while(i < 256)
     {
-        //spi_send8(SPI, 0x0);
-        char c = getByte();//spi_read8(SPI);
-        if (gps.encode(c)) // Did a new valid sentence come in?
-            receivedData = true;
+	buf[i] = c;
+	c = getByte();
+	i++;
     }
 
-    ser << "GPS1510 received " << receivedData << "\n";
+    ser << buf.data() << "\n";
     //disableDevice(ORG1510_GPS_DEVICE_ID);
 }
 
