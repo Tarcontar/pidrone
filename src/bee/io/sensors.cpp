@@ -389,7 +389,8 @@ bool isIdle(char c)
 
 void parseNMEA(char *line)
 {
-    switch (minmea_sentence_id(line, false))
+    auto sentenceId = minmea_sentence_id(line, false);
+    switch (sentenceId)
     {
     case MINMEA_SENTENCE_RMC:
     {
@@ -438,11 +439,14 @@ void parseNMEA(char *line)
         }
     }
     break;
-
+    case MINMEA_INVALID:
+    {
+        printf("Invalid message: %s\n", line);
+    }
     case MINMEA_UNKNOWN:
     default:
     {
-        printf("Failed to parse message: %s", line);
+        printf("Unknown message: %i-%s\n", line);
     }
     break;
     }
