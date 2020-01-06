@@ -443,10 +443,11 @@ void parseNMEA(char *line)
     {
         printf("Invalid message: %s\n", line);
     }
+    break;
     case MINMEA_UNKNOWN:
     default:
     {
-        printf("Unknown message: %i-%s\n", line);
+        printf("Unknown message: %s\n", line);
     }
     break;
     }
